@@ -91,20 +91,20 @@
 
 [x] Set composition to 1080x1920, 30fps, duration driven by audio length
 
-[ ] components/RepoTitle.jsx
+[x] components/RepoTitle.jsx
     - Displays source_title from props
     - Animated fade-in on frame 0
 
-[ ] components/CodePanel.jsx
+[x] components/CodePanel.jsx
     - Uses react-syntax-highlighter with VS Code dark theme
     - Displays code snippet or summary text from props
     - Scrolls slowly upward over video duration
 
-[ ] components/SubtitleBar.jsx
+[x] components/SubtitleBar.jsx
     - Displays current subtitle text at bottom
     - Synced to audio duration via frame calculation
 
-[ ] services/render.js
+[x] services/render.js
     - Accepts --input data/validated_script.json
                --audio data/audio.mp3
                --output data/video.mp4
@@ -115,7 +115,7 @@
     - Exits with code 1 if render subprocess fails
     - All errors via console.error and appended to logs/pipeline.log
 
-[ ] Test render with real data
+[x] Test render with real data
     - npx remotion render src/index.tsx MyVideo data/video.mp4 --props=render/props.json
     - Verify audio sync
     - Verify video duration matches audio duration
