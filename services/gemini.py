@@ -27,8 +27,8 @@ def get_script_from_gemini(repo_data: dict, max_retries: int) -> dict:
         return None
         
     genai.configure(api_key=api_key)
-    # Using 1.5 flash as per PROJECT.md
-    model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
+    # Using 2.5 flash because 1.5 flash was deprecated
+    model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"})
     
     prompt = f"""
     You are a professional YouTube Shorts scriptwriter for a tech channel.
