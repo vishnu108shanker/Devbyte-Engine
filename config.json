@@ -1,0 +1,8 @@
+{
+  "source": "github",
+  "tts_voice": "en-US-ChristopherNeural",
+  "max_word_count": 95,
+  "max_retries": 2,
+  "subprocess_timeout_seconds": 30,
+  "output_dir": "./data"
+}
