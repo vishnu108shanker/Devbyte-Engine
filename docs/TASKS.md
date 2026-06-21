@@ -60,21 +60,21 @@
     - Output is a JSON array (not a single object)
     - Drops and logs any item that fails schema validation
 
-[ ] services/gemini.py
+[x] services/gemini.py
     - --input data/trending.json --output data/script.json
     - Reads first valid item from trending.json array
     - Calls Gemini 1.5 Flash with structured prompt
     - Output matches script schema exactly
     - Retries up to max_retries from config on API failure
 
-[ ] utils/validator.py
+[x] utils/validator.py
     - --input data/script.json --output data/validated_script.json
     - Validates word_count <= max_word_count from config
     - Strips emoji and non-ASCII from hook, body, cta fields
     - Adds validated: true and validated_at timestamp
     - Does not write output if validation fails
 
-[ ] services/tts.py
+[x] services/tts.py
     - --input data/validated_script.json --output data/audio.mp3
     - Concatenates hook + body + cta into single string
     - Uses edge-tts with voice from config
@@ -85,11 +85,11 @@
 
 ## DAY 2 — Remotion Video Engine
 
-[ ] Install FFmpeg globally (winget install ffmpeg), verify with ffmpeg -version
+[x] Install FFmpeg globally (winget install ffmpeg), verify with ffmpeg -version
 
-[ ] Initialize Remotion project in /render (npm create video@latest)
+[x] Initialize Remotion project in /render (npm create video@latest)
 
-[ ] Set composition to 1080x1920, 30fps, duration driven by audio length
+[x] Set composition to 1080x1920, 30fps, duration driven by audio length
 
 [ ] components/RepoTitle.jsx
     - Displays source_title from props
