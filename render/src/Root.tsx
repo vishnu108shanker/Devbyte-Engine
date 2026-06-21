@@ -10,6 +10,7 @@ export type VideoProps = {
   body?: string;
   cta?: string;
   raw_script?: string;
+  audio_url?: string;
 };
 
 export const RemotionRoot: React.FC = () => {
