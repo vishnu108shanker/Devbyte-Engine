@@ -90,8 +90,9 @@ def main():
         error(f"Invalid or empty input array in {args.input}")
         return
         
-    repo_data = data[0]
-    info(f"Generating script for: {repo_data.get('title')}")
+    import random
+    repo_data = random.choice(data)
+    info(f"Generating script for randomly selected repo: {repo_data.get('title')}")
     
     script_data = get_script_from_gemini(repo_data, max_retries=config.get("max_retries", 2))
     
