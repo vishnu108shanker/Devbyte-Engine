@@ -124,7 +124,7 @@
 
 ## DAY 3 — Orchestrator + Reliability
 
-[ ] orchestrator/run_pipeline.js
+[x] orchestrator/run_pipeline.js
     - Define steps array with name, output path, run function
     - Check output file exists before each step
     - Skip step if output exists and is non-empty
@@ -132,30 +132,30 @@
     - All errors to logger (Node console.error + append to logs/pipeline.log)
     - Exit with code 1 on any unrecoverable failure
 
-[ ] Add retry logic to services/gemini.py
+[x] Add retry logic to services/gemini.py
     - Retry up to max_retries from config
     - Wait 10 seconds between retries
     - Log each retry attempt as warning
 
-[ ] End-to-end test run 1
+[x] End-to-end test run 1
     - Run full pipeline manually
     - Verify video.mp4 produced
     - Check logs/pipeline.log for clean run
 
-[ ] Deliberate failure test
+[x] Deliberate failure test
     - Rename data/trending.json temporarily
     - Run pipeline
     - Verify orchestrator logs error and halts cleanly
     - Restore file
 
-[ ] End-to-end test run 2 and 3 with different GitHub trending data
+[x] End-to-end test run 2 and 3 with different GitHub trending data
 
-[ ] Windows Task Scheduler setup
+[x] Windows Task Scheduler setup
     - Create .bat file that runs: node orchestrator/run_pipeline.js
     - Schedule for 11:30 PM daily
     - Test trigger manually
 
-[ ] README.md
+[x] README.md
     - Setup instructions
     - How to run each module independently
     - How to run full pipeline
