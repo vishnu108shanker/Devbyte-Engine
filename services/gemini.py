@@ -9,7 +9,8 @@ import argparse
 import datetime
 import json
 import time
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from utils.logger import info, error, warning, success
 from utils.file_utils import read_json, write_json
@@ -26,9 +27,7 @@ def get_script_from_gemini(repo_data: dict, max_retries: int) -> dict:
         error("GEMINI_API_KEY environment variable is not set")
         return None
         
-    genai.configure(api_key=api_key)
-    # Using 2.5 flash because 1.5 flash was deprecated
-    model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"})
+    client = genai.Client(api_key=api_key)
     
     prompt = f"""
     You are a professional YouTube Shorts scriptwriter for a tech channel.
@@ -56,7 +55,13 @@ def get_script_from_gemini(repo_data: dict, max_retries: int) -> dict:
     for attempt in range(max_retries + 1):
         try:
             info(f"Calling Gemini API (Attempt {attempt + 1})...")
-            response = model.generate_content(prompt)
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                )
+            )
             result = json.loads(response.text)
             
             # Augment with our architecture required fields

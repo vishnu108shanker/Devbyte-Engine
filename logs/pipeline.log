@@ -192,3 +192,44 @@
 2026-06-22T08:52:46.993Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Youtube-video-automation\data\video.mp4
 2026-06-22T08:52:47.017Z - INFO - [orchestrator] Completed step: 5. Render Video
 2026-06-22T08:52:47.017Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-22T10:09:17.751Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE ===
+2026-06-22T10:09:17.756Z - INFO - [orchestrator] Fresh run requested (--fresh). Safely cleaning old data files...
+2026-06-22T10:09:17.757Z - INFO - [orchestrator] Deleted old file: trending.json
+2026-06-22T10:09:17.758Z - INFO - [orchestrator] Deleted old file: script.json
+2026-06-22T10:09:17.758Z - INFO - [orchestrator] Deleted old file: validated_script.json
+2026-06-22T10:09:17.759Z - INFO - [orchestrator] Deleted old file: audio.mp3
+2026-06-22T10:09:17.760Z - INFO - [orchestrator] Deleted old file: video.mp4
+2026-06-22T10:09:17.760Z - INFO - [orchestrator] Running step: 1. Scrape GitHub Trending
+2026-06-22T10:09:17.760Z - INFO - [orchestrator] Command: python sources/github.py --input config.json --output data/trending.json
+2026-06-22T15:39:18Z - INFO - Starting GitHub Trending scraper...
+2026-06-22T15:39:21Z - INFO - SUCCESS: Successfully scraped 5 valid repositories.
+2026-06-22T10:09:21.395Z - INFO - [orchestrator] Completed step: 1. Scrape GitHub Trending
+2026-06-22T10:09:21.396Z - INFO - [orchestrator] Running step: 2. Generate AI Script
+2026-06-22T10:09:21.396Z - INFO - [orchestrator] Command: python services/gemini.py --input data/trending.json --output data/script.json
+2026-06-22T15:39:23Z - INFO - Generating script for randomly selected repo: tursodatabase/turso
+2026-06-22T15:39:23Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-22T15:39:30Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-22T10:09:32.581Z - INFO - [orchestrator] Completed step: 2. Generate AI Script
+2026-06-22T10:09:32.582Z - INFO - [orchestrator] Running step: 3. Validate Script
+2026-06-22T10:09:32.583Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-22T15:39:32Z - INFO - Validating script against max_word_count=95...
+2026-06-22T15:39:32Z - INFO - SUCCESS: Script validated successfully
+2026-06-22T10:09:32.693Z - INFO - [orchestrator] Completed step: 3. Validate Script
+2026-06-22T10:09:32.694Z - INFO - [orchestrator] Running step: 4. Generate TTS Audio
+2026-06-22T10:09:32.695Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-22T15:39:32Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-22T15:39:32Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-22T15:39:38Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-22T10:09:38.324Z - INFO - [orchestrator] Completed step: 4. Generate TTS Audio
+2026-06-22T10:09:38.324Z - INFO - [orchestrator] Running step: 5. Render Video
+2026-06-22T10:09:38.325Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-22T10:09:38.375Z - INFO - [render.js] Reading script data...
+2026-06-22T10:09:38.378Z - INFO - [render.js] Calculating audio duration...
+2026-06-22T10:09:38.625Z - INFO - [render.js] Audio duration: 35.83s (1075 frames)
+2026-06-22T10:09:38.627Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Youtube-video-automation\render\props.json
+2026-06-22T10:09:38.628Z - INFO - [render.js] Spawning Remotion render subprocess...
+2026-06-22T10:10:19.158Z - INFO - [render.js] Cleaned up props.json
+2026-06-22T10:10:19.159Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-22T10:10:19.160Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Youtube-video-automation\data\video.mp4
+2026-06-22T10:10:19.175Z - INFO - [orchestrator] Completed step: 5. Render Video
+2026-06-22T10:10:19.175Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
