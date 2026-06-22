@@ -35,3 +35,59 @@
 2026-06-21T13:00:28.592Z - INFO - [render.js] Cleaned up props.json
 2026-06-21T13:00:28.593Z - INFO - [render.js] Cleaned up public/audio.mp3
 2026-06-21T13:00:28.593Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Youtube-video-automation\data\video.mp4
+2026-06-21T18:53:42Z - INFO - Generating script for: palmier-io/palmier-pro
+2026-06-21T18:53:42Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-21T18:53:47Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-21T18:53:56Z - INFO - Validating script against max_word_count=95...
+2026-06-21T18:53:56Z - INFO - SUCCESS: Script validated successfully
+2026-06-21T18:54:03Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-21T18:54:03Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-21T18:54:08Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-21T13:24:16.806Z - INFO - [render.js] Reading script data...
+2026-06-21T13:24:16.811Z - INFO - [render.js] Calculating audio duration...
+2026-06-21T13:24:16.909Z - INFO - [render.js] Audio duration: 37.15s (1115 frames)
+2026-06-21T13:24:16.911Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Youtube-video-automation\render\props.json
+2026-06-21T13:24:16.911Z - INFO - [render.js] Spawning Remotion render subprocess...
+2026-06-21T13:25:04.854Z - INFO - [render.js] Cleaned up props.json
+2026-06-21T13:25:04.855Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-21T13:25:04.856Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Youtube-video-automation\data\video.mp4
+2026-06-22T08:30:46.323Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE ===
+2026-06-22T08:30:46.331Z - INFO - [orchestrator] Running step: 1. Scrape GitHub Trending
+2026-06-22T08:30:46.332Z - INFO - [orchestrator] Command: python sources/github.py --output data/trending.json
+2026-06-22T08:30:47.465Z - ERROR - [orchestrator] Step '1. Scrape GitHub Trending' exited with code 2
+2026-06-22T08:30:47.466Z - ERROR - [orchestrator] Pipeline halted due to unrecoverable failure.
+2026-06-22T08:31:14.961Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE ===
+2026-06-22T08:31:14.965Z - INFO - [orchestrator] Running step: 1. Scrape GitHub Trending
+2026-06-22T08:31:14.965Z - INFO - [orchestrator] Command: python sources/github.py --input config.json --output data/trending.json
+2026-06-22T14:01:15Z - INFO - Starting GitHub Trending scraper...
+2026-06-22T14:01:17Z - INFO - SUCCESS: Successfully scraped 5 valid repositories.
+2026-06-22T08:31:18.031Z - INFO - [orchestrator] Completed step: 1. Scrape GitHub Trending
+2026-06-22T08:31:18.032Z - INFO - [orchestrator] Running step: 2. Generate AI Script
+2026-06-22T08:31:18.033Z - INFO - [orchestrator] Command: python services/gemini.py --input data/trending.json --output data/script.json
+2026-06-22T14:01:22Z - INFO - Generating script for: palmier-io/palmier-pro
+2026-06-22T14:01:22Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-22T14:01:27Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-22T08:31:29.603Z - INFO - [orchestrator] Completed step: 2. Generate AI Script
+2026-06-22T08:31:29.604Z - INFO - [orchestrator] Running step: 3. Validate Script
+2026-06-22T08:31:29.605Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-22T14:01:29Z - INFO - Validating script against max_word_count=95...
+2026-06-22T14:01:29Z - INFO - SUCCESS: Script validated successfully
+2026-06-22T08:31:29.821Z - INFO - [orchestrator] Completed step: 3. Validate Script
+2026-06-22T08:31:29.823Z - INFO - [orchestrator] Running step: 4. Generate TTS Audio
+2026-06-22T08:31:29.824Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-22T14:01:30Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-22T14:01:30Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-22T14:01:36Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-22T08:31:36.309Z - INFO - [orchestrator] Completed step: 4. Generate TTS Audio
+2026-06-22T08:31:36.310Z - INFO - [orchestrator] Running step: 5. Render Video
+2026-06-22T08:31:36.311Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-22T08:31:36.440Z - INFO - [render.js] Reading script data...
+2026-06-22T08:31:36.444Z - INFO - [render.js] Calculating audio duration...
+2026-06-22T08:31:36.680Z - INFO - [render.js] Audio duration: 35.83s (1075 frames)
+2026-06-22T08:31:36.683Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Youtube-video-automation\render\props.json
+2026-06-22T08:31:36.683Z - INFO - [render.js] Spawning Remotion render subprocess...
+2026-06-22T08:33:00.596Z - INFO - [render.js] Cleaned up props.json
+2026-06-22T08:33:00.598Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-22T08:33:00.599Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Youtube-video-automation\data\video.mp4
+2026-06-22T08:33:00.633Z - INFO - [orchestrator] Completed step: 5. Render Video
+2026-06-22T08:33:00.634Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
