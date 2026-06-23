@@ -2,3 +2,24 @@ node_modules
 .env
 DEVLOG.md
 data
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Dependencies
+node_modules/
+
+# Generated files
+dist/
+.cache/
+
+# Media files
+videos/
+audio/
+*.mp3
+*.mp4
+
+# Logs
+logs/

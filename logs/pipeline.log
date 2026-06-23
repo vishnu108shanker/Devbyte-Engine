@@ -277,3 +277,8 @@
 2026-06-23T10:42:10.161Z - INFO - [render.js] Audio duration: 36.77s (1104 frames)
 2026-06-23T10:42:10.168Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
 2026-06-23T10:42:10.169Z - INFO - [render.js] Spawning Remotion render subprocess...
+2026-06-23T10:43:13.632Z - INFO - [render.js] Cleaned up props.json
+2026-06-23T10:43:13.633Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-23T10:43:13.634Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-23T10:43:13.662Z - INFO - [orchestrator] Completed step: 5. Render Video
+2026-06-23T10:43:13.663Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
