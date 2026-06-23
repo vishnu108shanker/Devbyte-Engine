@@ -233,3 +233,47 @@
 2026-06-22T10:10:19.160Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Youtube-video-automation\data\video.mp4
 2026-06-22T10:10:19.175Z - INFO - [orchestrator] Completed step: 5. Render Video
 2026-06-22T10:10:19.175Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-23T10:40:43.609Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE ===
+2026-06-23T10:40:43.617Z - INFO - [orchestrator] Fresh run requested (--fresh). Safely cleaning old data files...
+2026-06-23T10:40:43.619Z - INFO - [orchestrator] Deleted old file: trending.json
+2026-06-23T10:40:43.620Z - INFO - [orchestrator] Deleted old file: script.json
+2026-06-23T10:40:43.622Z - INFO - [orchestrator] Deleted old file: validated_script.json
+2026-06-23T10:40:43.624Z - INFO - [orchestrator] Deleted old file: audio.mp3
+2026-06-23T10:40:43.627Z - INFO - [orchestrator] Deleted old file: video.mp4
+2026-06-23T10:40:43.629Z - INFO - [orchestrator] Running step: 1. Scrape GitHub Trending
+2026-06-23T10:40:43.629Z - INFO - [orchestrator] Command: python sources/github.py --input config.json --output data/trending.json
+2026-06-23T16:10:44Z - INFO - Starting GitHub Trending scraper...
+2026-06-23T16:10:47Z - INFO - SUCCESS: Successfully scraped 5 valid repositories.
+2026-06-23T10:40:47.329Z - INFO - [orchestrator] Completed step: 1. Scrape GitHub Trending
+2026-06-23T10:40:47.330Z - INFO - [orchestrator] Running step: 2. Generate AI Script
+2026-06-23T10:40:47.331Z - INFO - [orchestrator] Command: python services/gemini.py --input data/trending.json --output data/script.json
+2026-06-23T16:10:51Z - INFO - Generating script for randomly selected repo: penpot/penpot
+2026-06-23T16:10:52Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-23T16:10:54Z - WARNING - Gemini API call failed, retrying in 10s... (503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}})
+2026-06-23T16:11:04Z - INFO - Calling Gemini API (Attempt 2)...
+2026-06-23T16:11:06Z - WARNING - Gemini API call failed, retrying in 10s... (503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}})
+2026-06-23T16:11:16Z - INFO - Calling Gemini API (Attempt 3)...
+2026-06-23T10:41:17.359Z - ERROR - [orchestrator] Step '2. Generate AI Script' timed out after 30 seconds.
+2026-06-23T10:41:17.361Z - ERROR - [orchestrator] Pipeline halted due to unrecoverable failure.
+2026-06-23T16:11:22Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-23T10:42:02.750Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE ===
+2026-06-23T10:42:02.756Z - WARN - [orchestrator] Skipping step '1. Scrape GitHub Trending' - output already exists and is non-empty (data/trending.json)
+2026-06-23T10:42:02.757Z - WARN - [orchestrator] Skipping step '2. Generate AI Script' - output already exists and is non-empty (data/script.json)
+2026-06-23T10:42:02.758Z - INFO - [orchestrator] Running step: 3. Validate Script
+2026-06-23T10:42:02.758Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-23T16:12:02Z - INFO - Validating script against max_word_count=95...
+2026-06-23T16:12:02Z - INFO - SUCCESS: Script validated successfully
+2026-06-23T10:42:02.959Z - INFO - [orchestrator] Completed step: 3. Validate Script
+2026-06-23T10:42:02.960Z - INFO - [orchestrator] Running step: 4. Generate TTS Audio
+2026-06-23T10:42:02.960Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-23T16:12:03Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-23T16:12:03Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-23T16:12:09Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-23T10:42:09.891Z - INFO - [orchestrator] Completed step: 4. Generate TTS Audio
+2026-06-23T10:42:09.892Z - INFO - [orchestrator] Running step: 5. Render Video
+2026-06-23T10:42:09.893Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-23T10:42:09.980Z - INFO - [render.js] Reading script data...
+2026-06-23T10:42:09.986Z - INFO - [render.js] Calculating audio duration...
+2026-06-23T10:42:10.161Z - INFO - [render.js] Audio duration: 36.77s (1104 frames)
+2026-06-23T10:42:10.168Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-23T10:42:10.169Z - INFO - [render.js] Spawning Remotion render subprocess...
