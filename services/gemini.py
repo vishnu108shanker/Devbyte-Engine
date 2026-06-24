@@ -60,8 +60,8 @@ def get_script_from_gemini(tool_data: dict, max_retries: int) -> dict:
     
     models_to_try = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite']
     
-    for model_name in models_to_try:
-        for attempt in range(max_retries + 1):
+    for attempt in range(max_retries + 1):
+        for model_name in models_to_try:
             try:
                 info(f"Calling Gemini API with {model_name} (Attempt {attempt + 1})...")
                 response = client.models.generate_content(
@@ -90,14 +90,15 @@ def get_script_from_gemini(tool_data: dict, max_retries: int) -> dict:
                 
                 return result
             except Exception as e:
-                if attempt < max_retries:
-                    warning(f"Gemini API call failed with {model_name}, retrying in 10s... ({str(e)})")
-                    time.sleep(10)
-                else:
-                    warning(f"{model_name} failed after {max_retries} retries: {str(e)}. Falling back to next model...")
-                    break # Try the next model
-                    
-    error("All models failed. Pipeline halted.")
+                warning(f"{model_name} failed: {str(e)}. Falling back to next model...")
+                continue # Try the next model immediately
+                
+        # If we get here, ALL models in the list failed for this attempt
+        if attempt < max_retries:
+            warning(f"All models failed on attempt {attempt + 1}. Retrying in 10s...")
+            time.sleep(10)
+            
+    error(f"All models failed after {max_retries} retries. Pipeline halted.")
     return None
 
 def main():
