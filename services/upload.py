@@ -61,7 +61,12 @@ def main():
     title = script_data.get('title', 'Generated Short')
     description = script_data.get('description', '')
     hashtags = script_data.get('hashtags', [])
+    source_url = script_data.get('source_url', '')
     
+    # Append the website link to the description
+    if source_url:
+        description = f"{description}\n\n🔗 Website: {source_url}"
+        
     # Append hashtags to the end of the description
     if hashtags:
         formatted_hashtags = " ".join([f"#{tag}" for tag in hashtags])

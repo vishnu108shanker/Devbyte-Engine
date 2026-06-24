@@ -114,7 +114,7 @@ def main():
     
     if not script_data:
         error("Failed to generate script.")
-        return
+        sys.exit(1)
         
     success("Script successfully generated via Gemini API")
     write_json(args.output, script_data)
