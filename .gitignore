@@ -23,3 +23,5 @@ audio/
 
 # Logs
 logs/
+token.json
+client_secrets.json

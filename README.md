@@ -78,6 +78,24 @@ python services/tts.py --input data/validated_script.json --output data/audio.mp
 node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
 ```
 
+---
+
+## 🚀 The Publishing Engine
+
+The DevByte Engine has a completely separated publishing architecture. Once a video is generated in the `data/` folder, you can upload it directly to YouTube as a **Private** video. 
+
+First, ensure you have the Google API libraries installed:
+```bash
+pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
+
+Place your `client_secrets.json` (from the Google Cloud Console) into the project root directory, and run:
+
+```powershell
+python services/upload.py
+```
+*(The first time you run this, a browser window will open to authenticate your Google Account. A `token.json` file will be saved so you won't need to do this again).*
+
 ## Previewing Video Visuals
 If you want to edit the React Remotion components or preview the video without waiting for a full MP4 render:
 ```bash
