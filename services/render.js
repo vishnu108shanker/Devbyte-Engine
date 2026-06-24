@@ -98,8 +98,13 @@ async function main() {
       fs.mkdirSync(outDir, { recursive: true });
     }
 
-    logInfo("Spawning Remotion render subprocess...");
-    const remotionCmd = `npx remotion render src/index.ts MyVideo "${absOutput}" --props=props.json`;
+    // Determine Composition Name based on category
+    // Convert snake_case to PascalCase (e.g. 'free_alternative' -> 'FreeAlternative')
+    const category = scriptData.category || 'free_alternative';
+    const compositionName = category.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+    
+    logInfo(`Spawning Remotion render subprocess for composition: ${compositionName}...`);
+    const remotionCmd = `npx remotion render src/index.ts ${compositionName} "${absOutput}" --props=props.json`;
     
     try {
       execSync(remotionCmd, { cwd: renderDir, stdio: 'inherit' });

@@ -1,10 +1,5 @@
 import sys
 import os
-
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-
 import argparse
 import datetime
 import json
@@ -12,11 +7,41 @@ import time
 from google import genai
 from google.genai import types
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from utils.logger import info, error, warning, success
 from utils.file_utils import read_json, write_json
 from utils.config import load_config
 
-def get_script_from_gemini(repo_data: dict, max_retries: int) -> dict:
+def load_prompt_template(category: str) -> str:
+    prompt_path = os.path.join(PROJECT_ROOT, "editorial", "prompts", f"{category}.txt")
+    if not os.path.exists(prompt_path):
+        warning(f"Prompt file not found for category '{category}'. Falling back to free_alternative.")
+        prompt_path = os.path.join(PROJECT_ROOT, "editorial", "prompts", "free_alternative.txt")
+    
+    with open(prompt_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+def inject_variables(prompt: str, tool_data: dict) -> str:
+    # Available variables: {name}, {summary}, {pricing}, {website}, {use_cases}, {target_audience}, {competitors}, {event_type}
+    replacements = {
+        "{name}": tool_data.get("name", ""),
+        "{summary}": tool_data.get("summary", ""),
+        "{pricing}": tool_data.get("pricing", ""),
+        "{website}": tool_data.get("website", ""),
+        "{use_cases}": ", ".join(tool_data.get("use_cases", [])),
+        "{target_audience}": tool_data.get("target_audience", ""),
+        "{competitors}": ", ".join(tool_data.get("competitors", [])),
+        "{event_type}": tool_data.get("event_type", "")
+    }
+    
+    for key, val in replacements.items():
+        prompt = prompt.replace(key, str(val))
+    return prompt
+
+def get_script_from_gemini(tool_data: dict, max_retries: int) -> dict:
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         from dotenv import load_dotenv
@@ -29,48 +54,35 @@ def get_script_from_gemini(repo_data: dict, max_retries: int) -> dict:
         
     client = genai.Client(api_key=api_key)
     
-    prompt = f"""
-    You are a professional YouTube Shorts scriptwriter for a tech channel.
-    Create a highly engaging, fast-paced script for the following GitHub repository.
-    
-    Repository: {repo_data.get('title')}
-    Summary: {repo_data.get('summary')}
-    Language: {repo_data.get('metadata', {}).get('language', 'Unknown')}
-    Stars: {repo_data.get('metadata', {}).get('metric_value', 'Unknown')}
-    
-    Requirements:
-    1. Hook: 15-20 words. Must be incredibly engaging.
-    2. Body: 40-50 words. Explain what it is and why developers should care.
-    3. CTA: 10-15 words. Ask them to subscribe or check the comments.
-    
-    Output strictly as a JSON object with exactly these keys:
-    {{
-        "hook": "string",
-        "body": "string",
-        "cta": "string",
-        "word_count": integer
-    }}
-    """
+    category = tool_data.get("category", "free_alternative")
+    raw_prompt = load_prompt_template(category)
+    enriched_prompt = inject_variables(raw_prompt, tool_data)
     
     for attempt in range(max_retries + 1):
         try:
             info(f"Calling Gemini API (Attempt {attempt + 1})...")
             response = client.models.generate_content(
                 model='gemini-2.5-flash',
-                contents=prompt,
+                contents=enriched_prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                 )
             )
             result = json.loads(response.text)
             
+            # Validate all required output fields exist
+            required_fields = ["hook", "body", "cta", "word_count", "title", "description", "hashtags", "thumbnail_text", "pinned_comment"]
+            for field in required_fields:
+                if field not in result:
+                    raise ValueError(f"Missing required field in Gemini output: {field}")
+            
             # Augment with our architecture required fields
-            result["source_title"] = repo_data.get("title", "")
-            result["source_url"] = repo_data.get("url", "")
+            result["source_title"] = tool_data.get("name", "")
+            result["source_url"] = tool_data.get("website", "")
+            result["category"] = tool_data.get("category", "")
             result["generated_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
             
-            # Add fields to satisfy both architecture and output schema contracts
-            result["title"] = repo_data.get("title", "")
+            # Add raw_script for downstream compatibility
             result["raw_script"] = f"{result['hook']} {result['body']} {result['cta']}"
             
             return result
@@ -90,16 +102,15 @@ def main():
     
     config = load_config()
     
+    # Input is now a single object (selected_tool.json), not an array of trending repos
     data = read_json(args.input)
-    if not data or not isinstance(data, list) or len(data) == 0:
-        error(f"Invalid or empty input array in {args.input}")
+    if not data or not isinstance(data, dict):
+        error(f"Invalid or empty input object in {args.input}")
         return
         
-    import random
-    repo_data = random.choice(data)
-    info(f"Generating script for randomly selected repo: {repo_data.get('title')}")
+    info(f"Generating script for selected tool: {data.get('name')}")
     
-    script_data = get_script_from_gemini(repo_data, max_retries=config.get("max_retries", 2))
+    script_data = get_script_from_gemini(data, max_retries=config.get("max_retries", 2))
     
     if not script_data:
         error("Failed to generate script.")

@@ -1,0 +1,20 @@
+You are a YouTube Shorts scriptwriter for a tech channel.
+Today's format: PRODUCTIVITY HACK
+Tool Name: {name}
+Summary: {summary}
+Use Cases: {use_cases}
+Website: {website}
+
+Write a 35-40 second script in exactly this structure:
+[HOOK]: Start with "This AI just..." or "Stop doing X manually".
+        15 words max.
+[BODY]: One specific use case. Concrete time saved. 50 words max.
+[CTA]:  "Link in bio." 10 words max.
+
+Tone: Fast, relatable, specific numbers when possible.
+Output format: JSON only. No markdown. No asterisks.
+{
+  "hook": "", "body": "", "cta": "", "word_count": 0,
+  "title": "", "description": "", "hashtags": [],
+  "thumbnail_text": "", "pinned_comment": ""
+}

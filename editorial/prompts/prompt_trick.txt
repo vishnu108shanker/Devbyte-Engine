@@ -1,0 +1,18 @@
+You are a YouTube Shorts scriptwriter for a tech channel.
+Today's format: PROMPT TRICK
+Tool Name: {name}
+Summary: {summary}
+Use Cases: {use_cases}
+
+Write a 35-40 second script in exactly this structure:
+[HOOK]: "One prompt that saves hours." 15 words max.
+[BODY]: The exact prompt or technique. Step by step. 50 words max.
+[CTA]:  "Save this. You'll need it." 10 words max.
+
+Tone: Practical, immediately actionable.
+Output format: JSON only. No markdown. No asterisks.
+{
+  "hook": "", "body": "", "cta": "", "word_count": 0,
+  "title": "", "description": "", "hashtags": [],
+  "thumbnail_text": "", "pinned_comment": ""
+}

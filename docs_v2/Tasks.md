@@ -19,28 +19,28 @@
 
 ### Hour 1 — Folder Setup and New Files
 
-[ ] Create all new V2 folders:
+[x] Create all new V2 folders:
     mkdir collectors ingestion evaluation editorial channels
     mkdir editorial\prompts
     mkdir render\src\templates
 
-[ ] Install new Python dependencies:
+[x] Install new Python dependencies:
     pip install feedparser python-slugify
 
-[ ] Create channels/ai_tools.json
+[x] Create channels/ai_tools.json
     Use exact schema from Architecture.md channel profile section.
 
-[ ] Create editorial/editorial_policy.json
+[x] Create editorial/editorial_policy.json
     Use exact schema from Architecture.md editorial policy section.
 
-[ ] Create data/history.json as empty array:
+[x] Create data/history.json as empty array:
     []
 
 ---
 
 ### Hours 2-3 — Collector 1: Hacker News
 
-[ ] collectors/hackernews.py
+[x] collectors/hackernews.py
     --input config.json --output temp_hn.json
 
     Steps inside this file:
@@ -68,7 +68,7 @@
 
 ### Hours 3-4 — Collector 2: Blogs via RSS
 
-[ ] collectors/blogs.py
+[x] collectors/blogs.py
     --input config.json --output temp_blogs.json
 
     RSS feeds to fetch:
@@ -96,7 +96,7 @@
 
 ### Hour 4 — Ingestion Layer
 
-[ ] ingestion/normalizer.py
+[x] ingestion/normalizer.py
     --input (accepts multiple --input flags or a folder path)
     --output data/raw_candidates.json
 
@@ -108,7 +108,7 @@
     - Output merged array to raw_candidates.json
     - Log count: "Normalized X candidates from Y sources"
 
-[ ] ingestion/quality_filter.py
+[x] ingestion/quality_filter.py
     --input data/raw_candidates.json
     --output data/raw_candidates.json (filters in place)
 
@@ -116,7 +116,7 @@
     - Log every rejection with reason via logger.warning()
     - Log final count: "Quality filter: X passed, Y rejected"
 
-[ ] ingestion/deduplicator.py
+[x] ingestion/deduplicator.py
     --input data/raw_candidates.json
     --output data/raw_candidates.json (deduplicates in place)
 
@@ -134,7 +134,7 @@
 
 ### Hours 5-6 — Evaluation Layer
 
-[ ] evaluation/scoring.py
+[x] evaluation/scoring.py
     (importable module, no CLI — imported by evaluator.py)
 
     Functions:
@@ -147,7 +147,7 @@
 
     Use exact formulas from Architecture.md scoring formula section.
 
-[ ] evaluation/evaluator.py
+[x] evaluation/evaluator.py
     --input data/raw_candidates.json
     --output data/evaluated_candidates.json
 
@@ -172,7 +172,7 @@
 
 ### Hours 6-7 — Editorial Layer
 
-[ ] editorial/editorial_engine.py
+[x] editorial/editorial_engine.py
     --input data/evaluated_candidates.json
     --output data/content_queue.json
     --channel channels/ai_tools.json
@@ -204,7 +204,7 @@
 
 ### Hour 8 — Prompt Files
 
-[ ] Create all 8 prompt files in editorial/prompts/
+[x] Create all 8 prompt files in editorial/prompts/
 
     Each file uses {name}, {summary}, {pricing}, {website},
     {use_cases}, {target_audience} as template variables.
@@ -406,7 +406,7 @@
 
 ### Hours 1-2 — Update services/gemini.py
 
-[ ] Modify services/gemini.py to:
+[x] Modify services/gemini.py to:
     - Read category from selected_tool.json
     - Load corresponding prompt file from editorial/prompts/{category}.txt
     - Replace template variables in prompt with values from selected_tool.json
@@ -424,19 +424,10 @@
 
 ### Hours 2-3 — Update orchestrator/run_pipeline.js
 
-[ ] Extend orchestrator to include all V2 steps before existing steps.
+[x] Extend orchestrator to include all V2 steps before existing steps.
 
     New steps array order:
     {
-      name: "collect_hackernews",
-      output: "data/.hn_done",          ← use flag files for parallel steps
-      run: () => runPython("collectors/hackernews.py", ...)
-    },
-    {
-      name: "collect_blogs",
-      output: "data/.blogs_done",
-      run: () => runPython("collectors/blogs.py", ...)
-    },
     {
       name: "normalize",
       output: "data/raw_candidates.json",
@@ -480,8 +471,7 @@
 
 ### Hours 3-4 — Cleanup Between Runs
 
-[ ] Add cleanup function to orchestrator:
-    At the START of each new run (before step 1):
+[x] Add cleanup function to orchestrator/run_pipeline.js START of each new run (before step 1):
     - Delete data/.hn_done
     - Delete data/.blogs_done
     - Delete data/.filtered

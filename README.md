@@ -1,6 +1,6 @@
-# YouTube Shorts Automation Engine
+# DevByte Engine V2 (YouTube Shorts Automation)
 
-An end-to-end automated pipeline that scrapes GitHub trending repositories, uses Google Gemini to write engaging scripts, generates text-to-speech using Edge TTS, and renders a highly aesthetic, VS Code themed YouTube Short video automatically using Remotion.
+An end-to-end automated pipeline that scrapes Hacker News and tech blogs, evaluates news with an editorial engine, uses Google Gemini to write engaging scripts, generates text-to-speech using Edge TTS, and renders highly aesthetic, premium SaaS-style YouTube Short videos automatically using Remotion.
 
 ## Prerequisites
 
@@ -23,18 +23,18 @@ An end-to-end automated pipeline that scrapes GitHub trending repositories, uses
    ```
 4. **Install Node Dependencies**
    ```bash
-   npm install axios dotenv music-metadata
+   npm install
    cd render
    npm install
    cd ..
    ```
 
-## Running the Full Pipeline
+## Running the Full 13-Step Pipeline
 
 To run the entire automation process from start to finish, run the orchestrator script. 
 
 ### Fresh Run (Recommended)
-Use the `--fresh` flag to safely wipe previous temporary files and generate a brand new video from today's trending data. The script will randomly pick one of the top 5 trending repositories to keep videos unique.
+Use the `--fresh` flag to safely wipe previous temporary files. The engine will scrape HN and blogs, run them through the editorial/scoring engine, write the script, and render a new vertical video.
 ```bash
 node orchestrator/run_pipeline.js --fresh
 ```
@@ -48,47 +48,46 @@ node orchestrator/run_pipeline.js
 ### Automated Daily Scheduling (Windows)
 A `run_automation.bat` file is included in the project root. You can schedule this to run automatically using Windows Task Scheduler:
 ```cmd
-schtasks /create /tn "YouTubeShortsAutomation" /tr "\"C:\absolute\path\to\run_automation.bat\"" /sc daily /st 23:30 /f
+schtasks /create /tn "DevByteAutomation" /tr "\"C:\DEV\devilcode development\Devbyte-engine (youtube automation)\run_automation.bat\"" /sc daily /st 23:30 /f
 ```
-Check `logs/automation.log` and `logs/pipeline.log` to monitor automated background runs.
 
 ## Running Modules Independently
 
-You can execute each step manually if you are debugging or testing. Run these from the root of the project:
+If you are debugging or testing specific modules, you can run them manually:
 
-**1. Scrape GitHub Trending**
+**1. Scrape & Normalize**
 ```bash
-python sources/github.py --input config.json --output data/trending.json
+python collectors/hackernews.py --input config.json --output data/temp_hn.json
+python ingestion/normalizer.py --input data/temp_hn.json --output data/raw_candidates.json
 ```
 
-**2. Generate AI Script**
+**2. Editorial & Script Generation**
 ```bash
-python services/gemini.py --input data/trending.json --output data/script.json
+python editorial/editorial_engine.py --input data/raw_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+python services/gemini.py --input data/selected_tool.json --output data/script.json
 ```
 
-**3. Validate Script**
-```bash
-python utils/validator.py --input data/script.json --output data/validated_script.json
-```
-
-**4. Generate TTS Audio**
+**3. Generate TTS Audio**
 ```bash
 python services/tts.py --input data/validated_script.json --output data/audio.mp3
 ```
 
-**5. Render Video**
+**4. Render Video**
 ```bash
 node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
 ```
 
 ## Previewing Video Visuals
-If you want to edit the React components or preview the video without waiting for a full MP4 render, use Remotion Studio:
+If you want to edit the React Remotion components or preview the video without waiting for a full MP4 render:
 ```bash
 cd render
 npm run dev
 ```
 
 ## Project Architecture
-- `config.json`: Master configuration (voice selection, word counts, retries).
+- `config.json`: Master configuration (voice selection, timeouts, retries).
+- `orchestrator/run_pipeline.js`: The central task runner orchestrating the 13 Python/Node scripts.
+- `render/`: The React Remotion environment responsible for the visual engine.
 - `logs/pipeline.log`: Master log file tracking execution and errors.
-- `data/`: Ephemeral folder where intermediate JSON files, audio, and the final `.mp4` are stored.
+- `data/`: Ephemeral folder where intermediate JSON files, audio, history, and the final `.mp4` are stored.

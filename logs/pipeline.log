@@ -282,3 +282,804 @@
 2026-06-23T10:43:13.634Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
 2026-06-23T10:43:13.662Z - INFO - [orchestrator] Completed step: 5. Render Video
 2026-06-23T10:43:13.663Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-23T17:12:42Z - INFO - Fetching Hacker News top stories...
+2026-06-23T17:13:10Z - INFO - Hacker News collector finished. Found 12 AI-related stories out of top 30.
+2026-06-23T17:13:10Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T17:13:10Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T17:13:12Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T17:13:16Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T17:13:17Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T17:17:09Z - INFO - Normalized 22 candidates from 2 sources
+2026-06-23T17:43:12Z - INFO - Quality filter: 22 passed, 0 rejected
+2026-06-23T17:43:20Z - INFO - Dedup: replacing 'VibeThinker: 3B param model that beats Opus 4.5 on reasoning with novel SFT+GRPO' (hackernews) with 'The Reversal Curse: LLMs trained on "A is B" fail to learn "B is A"' (hackernews)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate 'Ultralytics YOLO26: Unified Real-Time End-to-End Vision Models' (hackernews), keeping 'The Reversal Curse: LLMs trained on "A is B" fail to learn "B is A"' (hackernews)
+2026-06-23T17:43:20Z - INFO - Dedup: replacing 'OpenAI DayBreak – GPT-5.5-Cyber' (hackernews) with 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate 'Codex-maxxing for long-running work' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate 'Samsung Electronics brings ChatGPT and Codex to employees' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T17:43:20Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T17:43:20Z - INFO - Deduplicator: 11 unique candidates remaining (11 duplicates removed)
+2026-06-23T17:54:04Z - INFO - --- Top 3 Candidates ---
+2026-06-23T17:54:04Z - INFO -   #1: How Omio is building the future of conversational travel (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-23T17:54:04Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-23T17:54:04Z - INFO -   #3: The new HTTP QUERY method explained (score: 60, confidence: 0.50, source: hackernews)
+2026-06-23T17:54:04Z - INFO - Evaluated 11 candidates. Written to data/evaluated_candidates.json
+2026-06-23T17:54:04Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-23T17:54:04Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-23T17:54:04Z - INFO - Editorial selected category: free_alternative
+2026-06-23T17:54:04Z - INFO - Top pick: How Omio is building the future of conversational travel (score: 65)
+2026-06-23T17:54:04Z - INFO - Content queue built with 3 candidates.
+2026-06-23T14:15:38.676Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T14:15:38.678Z - INFO - [orchestrator] Performing pre-run cleanup...
+2026-06-23T14:15:38.680Z - INFO - [orchestrator] Cleaned up temp file: content_queue.json
+2026-06-23T14:15:38.680Z - INFO - [orchestrator] Cleaned up temp file: evaluated_candidates.json
+2026-06-23T14:15:38.681Z - INFO - [orchestrator] Cleaned up temp file: raw_candidates.json
+2026-06-23T14:15:38.682Z - INFO - [orchestrator] Cleaned up temp file: test_blogs.json
+2026-06-23T14:15:38.682Z - INFO - [orchestrator] Cleaned up temp file: test_hn.json
+2026-06-23T14:15:38.683Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T14:15:38.683Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T19:45:39Z - INFO - Fetching Hacker News top stories...
+2026-06-23T19:46:05Z - INFO - Hacker News collector finished. Found 9 AI-related stories out of top 30.
+2026-06-23T14:16:05.371Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-23T14:16:05.371Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-23T14:16:05.372Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-23T19:46:05Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T19:46:05Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T19:46:07Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T19:46:09Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T19:46:11Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T14:16:12.005Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-23T14:16:12.005Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-23T14:16:12.005Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-23T19:46:12Z - INFO - Normalized 19 candidates from 2 sources
+2026-06-23T14:16:12.146Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-23T14:16:12.147Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-23T14:16:12.148Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T19:46:12Z - INFO - Quality filter: 19 passed, 0 rejected
+2026-06-23T14:16:12.256Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-23T14:16:12.256Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-23T14:16:12.256Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T19:46:12Z - INFO - Dedup: replacing 'OpenAI DayBreak – GPT-5.5-Cyber' (hackernews) with 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T19:46:12Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T19:46:12Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T19:46:12Z - INFO - Dedup: dropping duplicate 'Codex-maxxing for long-running work' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T19:46:12Z - INFO - Dedup: dropping duplicate 'Samsung Electronics brings ChatGPT and Codex to employees' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T19:46:12Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T19:46:12Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T19:46:12Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T19:46:12Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T19:46:12Z - INFO - Deduplicator: 10 unique candidates remaining (9 duplicates removed)
+2026-06-23T14:16:12.367Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-23T14:16:12.367Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-23T14:16:12.370Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-23T19:46:12Z - INFO - --- Top 3 Candidates ---
+2026-06-23T19:46:12Z - INFO -   #1: How Omio is building the future of conversational travel (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-23T19:46:12Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-23T19:46:12Z - INFO -   #3: VibeThinker: 3B param model that beats Opus 4.5 on reasoning with novel SFT+GRPO (score: 60, confidence: 0.50, source: hackernews)
+2026-06-23T19:46:12Z - INFO - Evaluated 10 candidates. Written to data/evaluated_candidates.json
+2026-06-23T14:16:12.481Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-23T14:16:12.481Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-23T14:16:12.481Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-23T19:46:12Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-23T19:46:12Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-23T19:46:12Z - INFO - Editorial selected category: free_alternative
+2026-06-23T19:46:12Z - INFO - Top pick: How Omio is building the future of conversational travel (score: 65)
+2026-06-23T19:46:12Z - INFO - Content queue built with 3 candidates.
+2026-06-23T14:16:12.604Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-23T14:16:12.605Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-23T14:16:12.605Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-23T14:16:12.690Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-23T14:16:12.691Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-23T14:16:12.691Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-23T19:46:14Z - INFO - Generating script for selected tool: How Omio is building the future of conversational travel
+2026-06-23T19:46:15Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-23T19:46:16Z - WARNING - Gemini API call failed, retrying in 10s... (503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}})
+2026-06-23T19:46:26Z - INFO - Calling Gemini API (Attempt 2)...
+2026-06-23T19:46:38Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-23T14:16:39.158Z - INFO - [orchestrator] Completed step: 9. Generate AI Script
+2026-06-23T14:16:39.159Z - INFO - [orchestrator] Running step: 10. Validate Script
+2026-06-23T14:16:39.160Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-23T19:46:39Z - INFO - Validating script against max_word_count=95...
+2026-06-23T19:46:39Z - INFO - SUCCESS: Script validated successfully
+2026-06-23T14:16:39.285Z - INFO - [orchestrator] Completed step: 10. Validate Script
+2026-06-23T14:16:39.285Z - INFO - [orchestrator] Running step: 11. Generate TTS Audio
+2026-06-23T14:16:39.286Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-23T19:46:39Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-23T19:46:39Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-23T19:46:44Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-23T14:16:44.205Z - INFO - [orchestrator] Completed step: 11. Generate TTS Audio
+2026-06-23T14:16:44.205Z - INFO - [orchestrator] Running step: 12. Render Video
+2026-06-23T14:16:44.206Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-23T14:16:44.260Z - INFO - [render.js] Reading script data...
+2026-06-23T14:16:44.262Z - INFO - [render.js] Calculating audio duration...
+2026-06-23T14:16:44.435Z - INFO - [render.js] Audio duration: 30.46s (914 frames)
+2026-06-23T14:16:44.437Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-23T14:16:44.437Z - INFO - [render.js] Spawning Remotion render subprocess...
+2026-06-23T14:17:22.206Z - INFO - [render.js] Cleaned up props.json
+2026-06-23T14:17:22.207Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-23T14:17:22.207Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-23T14:17:22.222Z - INFO - [orchestrator] Completed step: 12. Render Video
+2026-06-23T14:17:22.222Z - INFO - [orchestrator] Running step: 13. Update History
+2026-06-23T14:17:22.223Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))"
+2026-06-23T14:17:22.286Z - INFO - [orchestrator] Completed step: 13. Update History
+2026-06-23T14:17:22.286Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-23T14:34:27.904Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T14:34:27.906Z - INFO - [orchestrator] Performing pre-run cleanup...
+2026-06-23T14:34:27.907Z - INFO - [orchestrator] Cleaned up temp file: content_queue.json
+2026-06-23T14:34:27.908Z - INFO - [orchestrator] Cleaned up temp file: evaluated_candidates.json
+2026-06-23T14:34:27.908Z - INFO - [orchestrator] Cleaned up temp file: raw_candidates.json
+2026-06-23T14:34:27.909Z - INFO - [orchestrator] Cleaned up temp file: script.json
+2026-06-23T14:34:27.909Z - INFO - [orchestrator] Cleaned up temp file: selected_tool.json
+2026-06-23T14:34:27.911Z - INFO - [orchestrator] Cleaned up temp file: temp_blogs.json
+2026-06-23T14:34:27.912Z - INFO - [orchestrator] Cleaned up temp file: temp_hn.json
+2026-06-23T14:34:27.913Z - INFO - [orchestrator] Cleaned up temp file: validated_script.json
+2026-06-23T14:34:27.914Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T14:34:27.914Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T20:04:28Z - INFO - Fetching Hacker News top stories...
+2026-06-23T20:04:55Z - INFO - Hacker News collector finished. Found 9 AI-related stories out of top 30.
+2026-06-23T14:34:55.945Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-23T14:34:55.946Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-23T14:34:55.946Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-23T20:04:56Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T20:04:56Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T20:04:58Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T20:05:05Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T20:05:07Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T14:35:07.704Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-23T14:35:07.705Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-23T14:35:07.705Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-23T20:05:07Z - INFO - Normalized 19 candidates from 2 sources
+2026-06-23T14:35:07.851Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-23T14:35:07.851Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-23T14:35:07.851Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T20:05:07Z - INFO - Quality filter: 19 passed, 0 rejected
+2026-06-23T14:35:07.956Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-23T14:35:07.957Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-23T14:35:07.957Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T20:05:08Z - INFO - Dedup: replacing 'OpenAI DayBreak – GPT-5.5-Cyber' (hackernews) with 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T20:05:08Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T20:05:08Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T20:05:08Z - INFO - Dedup: dropping duplicate 'Codex-maxxing for long-running work' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T20:05:08Z - INFO - Dedup: dropping duplicate 'Samsung Electronics brings ChatGPT and Codex to employees' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T20:05:08Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T20:05:08Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T20:05:08Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T20:05:08Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T20:05:08Z - INFO - Deduplicator: 10 unique candidates remaining (9 duplicates removed)
+2026-06-23T14:35:08.063Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-23T14:35:08.064Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-23T14:35:08.064Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-23T20:05:08Z - INFO - --- Top 3 Candidates ---
+2026-06-23T20:05:08Z - INFO -   #1: How Omio is building the future of conversational travel (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-23T20:05:08Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-23T20:05:08Z - INFO -   #3: Elevated error rate across multiple models (score: 60, confidence: 0.50, source: hackernews)
+2026-06-23T20:05:08Z - INFO - Evaluated 10 candidates. Written to data/evaluated_candidates.json
+2026-06-23T14:35:08.175Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-23T14:35:08.175Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-23T14:35:08.175Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-23T20:05:08Z - INFO - Skipping already-published: How Omio is building the future of conversational travel
+2026-06-23T20:05:08Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-23T20:05:08Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-23T20:05:08Z - INFO - Editorial selected category: free_alternative
+2026-06-23T20:05:08Z - INFO - Top pick: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65)
+2026-06-23T20:05:08Z - INFO - Content queue built with 3 candidates.
+2026-06-23T14:35:08.298Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-23T14:35:08.298Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-23T14:35:08.298Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-23T14:35:08.354Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-23T14:35:08.354Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-23T14:35:08.355Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-23T20:05:09Z - INFO - Generating script for selected tool: New research shows how AMIE, our medical AI, could help manage health conditions.
+2026-06-23T20:05:10Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-23T20:05:12Z - WARNING - Gemini API call failed, retrying in 10s... (503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}})
+2026-06-23T15:35:36.119Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T15:35:53.645Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T15:36:37.755Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T15:40:42.439Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T15:44:47.540Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T15:45:40.664Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T15:45:40.667Z - INFO - [orchestrator] Performing pre-run cleanup...
+2026-06-23T15:45:40.669Z - INFO - [orchestrator] Cleaned up temp file: content_queue.json
+2026-06-23T15:45:40.670Z - INFO - [orchestrator] Cleaned up temp file: evaluated_candidates.json
+2026-06-23T15:45:40.671Z - INFO - [orchestrator] Cleaned up temp file: raw_candidates.json
+2026-06-23T15:45:40.672Z - INFO - [orchestrator] Cleaned up temp file: selected_tool.json
+2026-06-23T15:45:40.672Z - INFO - [orchestrator] Cleaned up temp file: temp_blogs.json
+2026-06-23T15:45:40.673Z - INFO - [orchestrator] Cleaned up temp file: temp_hn.json
+2026-06-23T15:45:40.674Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T15:45:40.675Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T21:15:40Z - INFO - Fetching Hacker News top stories...
+2026-06-23T15:46:10.693Z - ERROR - [orchestrator] Step '1. Collect Hacker News' timed out after 30 seconds.
+2026-06-23T15:46:10.693Z - ERROR - [orchestrator] Pipeline halted due to unrecoverable failure.
+2026-06-23T21:16:13Z - INFO - Hacker News collector finished. Found 8 AI-related stories out of top 30.
+2026-06-23T21:16:33Z - INFO - Fetching Hacker News top stories...
+2026-06-23T21:17:01Z - INFO - Hacker News collector finished. Found 8 AI-related stories out of top 30.
+2026-06-23T15:57:43.255Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T15:57:43.258Z - INFO - [orchestrator] Performing pre-run cleanup...
+2026-06-23T15:57:43.259Z - INFO - [orchestrator] Cleaned up temp file: temp_hn.json
+2026-06-23T15:57:43.260Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T15:57:43.260Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T21:27:43Z - INFO - Fetching Hacker News top stories...
+2026-06-23T21:28:11Z - INFO - Hacker News collector finished. Found 8 AI-related stories out of top 30.
+2026-06-23T15:58:11.810Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-23T15:58:11.811Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-23T15:58:11.811Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-23T21:28:12Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T21:28:12Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T21:28:14Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T21:28:17Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T21:28:19Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T15:58:19.300Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-23T15:58:19.300Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-23T15:58:19.301Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-23T21:28:19Z - INFO - Normalized 18 candidates from 2 sources
+2026-06-23T15:58:19.443Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-23T15:58:19.444Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-23T15:58:19.444Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T21:28:19Z - INFO - Quality filter: 18 passed, 0 rejected
+2026-06-23T15:58:19.560Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-23T15:58:19.560Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-23T15:58:19.561Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T21:28:19Z - INFO - Dedup: replacing 'OpenAI DayBreak – GPT-5.5-Cyber' (hackernews) with 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:28:19Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:28:19Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:28:19Z - INFO - Dedup: dropping duplicate 'Codex-maxxing for long-running work' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:28:19Z - INFO - Dedup: dropping duplicate 'Samsung Electronics brings ChatGPT and Codex to employees' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:28:19Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:28:19Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:28:19Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:28:19Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:28:19Z - INFO - Deduplicator: 9 unique candidates remaining (9 duplicates removed)
+2026-06-23T15:58:19.675Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-23T15:58:19.675Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-23T15:58:19.676Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-23T21:28:19Z - INFO - --- Top 3 Candidates ---
+2026-06-23T21:28:19Z - INFO -   #1: How Omio is building the future of conversational travel (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-23T21:28:19Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-23T21:28:19Z - INFO -   #3: AI's Affordability Crisis (score: 60, confidence: 0.50, source: hackernews)
+2026-06-23T21:28:19Z - INFO - Evaluated 9 candidates. Written to data/evaluated_candidates.json
+2026-06-23T15:58:19.791Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-23T15:58:19.792Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-23T15:58:19.792Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-23T21:28:19Z - INFO - Skipping already-published: How Omio is building the future of conversational travel
+2026-06-23T21:28:19Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-23T21:28:19Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-23T21:28:19Z - INFO - Editorial selected category: free_alternative
+2026-06-23T21:28:19Z - INFO - Top pick: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65)
+2026-06-23T21:28:19Z - INFO - Content queue built with 3 candidates.
+2026-06-23T15:58:19.897Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-23T15:58:19.898Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-23T15:58:19.898Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-23T15:58:19.972Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-23T15:58:19.972Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-23T15:58:19.973Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-23T21:28:21Z - INFO - Generating script for selected tool: New research shows how AMIE, our medical AI, could help manage health conditions.
+2026-06-23T21:28:21Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-23T21:28:33Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-23T15:58:33.880Z - INFO - [orchestrator] Completed step: 9. Generate AI Script
+2026-06-23T15:58:33.881Z - INFO - [orchestrator] Running step: 10. Validate Script
+2026-06-23T15:58:33.881Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-23T21:28:33Z - INFO - Validating script against max_word_count=95...
+2026-06-23T21:28:33Z - INFO - SUCCESS: Script validated successfully
+2026-06-23T15:58:34.009Z - INFO - [orchestrator] Completed step: 10. Validate Script
+2026-06-23T15:58:34.010Z - INFO - [orchestrator] Running step: 11. Generate TTS Audio
+2026-06-23T15:58:34.010Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-23T21:28:34Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-23T21:28:34Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-23T21:28:39Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-23T15:58:39.692Z - INFO - [orchestrator] Completed step: 11. Generate TTS Audio
+2026-06-23T15:58:39.692Z - INFO - [orchestrator] Running step: 12. Render Video
+2026-06-23T15:58:39.693Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-23T15:58:39.747Z - INFO - [render.js] Reading script data...
+2026-06-23T15:58:39.749Z - INFO - [render.js] Calculating audio duration...
+2026-06-23T15:58:39.839Z - INFO - [render.js] Audio duration: 32.86s (986 frames)
+2026-06-23T15:58:39.842Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-23T15:58:39.842Z - INFO - [render.js] Spawning Remotion render subprocess for composition: FreeAlternative...
+2026-06-23T15:59:22.557Z - INFO - [render.js] Cleaned up props.json
+2026-06-23T15:59:22.558Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-23T15:59:22.558Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-23T15:59:22.573Z - INFO - [orchestrator] Completed step: 12. Render Video
+2026-06-23T15:59:22.573Z - INFO - [orchestrator] Running step: 13. Update History
+2026-06-23T15:59:22.574Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))"
+2026-06-23T15:59:22.635Z - INFO - [orchestrator] Completed step: 13. Update History
+2026-06-23T15:59:22.635Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-23T16:13:28.425Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T16:13:28.428Z - INFO - [orchestrator] Performing pre-run cleanup...
+2026-06-23T16:13:28.428Z - INFO - [orchestrator] Cleaned up temp file: audio.mp3
+2026-06-23T16:13:28.429Z - INFO - [orchestrator] Cleaned up temp file: content_queue.json
+2026-06-23T16:13:28.430Z - INFO - [orchestrator] Cleaned up temp file: evaluated_candidates.json
+2026-06-23T16:13:28.430Z - INFO - [orchestrator] Cleaned up temp file: raw_candidates.json
+2026-06-23T16:13:28.431Z - INFO - [orchestrator] Cleaned up temp file: script.json
+2026-06-23T16:13:28.431Z - INFO - [orchestrator] Cleaned up temp file: selected_tool.json
+2026-06-23T16:13:28.432Z - INFO - [orchestrator] Cleaned up temp file: temp_blogs.json
+2026-06-23T16:13:28.432Z - INFO - [orchestrator] Cleaned up temp file: temp_hn.json
+2026-06-23T16:13:28.433Z - INFO - [orchestrator] Cleaned up temp file: validated_script.json
+2026-06-23T16:13:28.434Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T16:13:28.434Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T21:43:28Z - INFO - Fetching Hacker News top stories...
+2026-06-23T21:43:55Z - INFO - Hacker News collector finished. Found 8 AI-related stories out of top 30.
+2026-06-23T16:13:55.219Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-23T16:13:55.220Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-23T16:13:55.220Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-23T21:43:55Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T21:43:55Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T21:43:57Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T21:43:58Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T21:43:59Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T16:13:59.862Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-23T16:13:59.863Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-23T16:13:59.863Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-23T21:44:00Z - INFO - Normalized 18 candidates from 2 sources
+2026-06-23T16:14:00.096Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-23T16:14:00.096Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-23T16:14:00.097Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T21:44:00Z - INFO - Quality filter: 18 passed, 0 rejected
+2026-06-23T16:14:00.220Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-23T16:14:00.220Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-23T16:14:00.221Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T21:44:00Z - INFO - Dedup: replacing 'OpenAI DayBreak – GPT-5.5-Cyber' (hackernews) with 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:44:00Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:44:00Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:44:00Z - INFO - Dedup: dropping duplicate 'Codex-maxxing for long-running work' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:44:00Z - INFO - Dedup: dropping duplicate 'Samsung Electronics brings ChatGPT and Codex to employees' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:44:00Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:44:00Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:44:00Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:44:00Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:44:00Z - INFO - Deduplicator: 9 unique candidates remaining (9 duplicates removed)
+2026-06-23T16:14:00.338Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-23T16:14:00.339Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-23T16:14:00.339Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-23T21:44:00Z - INFO - --- Top 3 Candidates ---
+2026-06-23T21:44:00Z - INFO -   #1: How Omio is building the future of conversational travel (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-23T21:44:00Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-23T21:44:00Z - INFO -   #3: AI's Affordability Crisis (score: 60, confidence: 0.50, source: hackernews)
+2026-06-23T21:44:00Z - INFO - Evaluated 9 candidates. Written to data/evaluated_candidates.json
+2026-06-23T16:14:00.481Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-23T16:14:00.482Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-23T16:14:00.482Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-23T21:44:00Z - INFO - Skipping already-published: How Omio is building the future of conversational travel
+2026-06-23T21:44:00Z - INFO - Skipping already-published: New research shows how AMIE, our medical AI, could help manage health conditions.
+2026-06-23T21:44:00Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-23T21:44:00Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-23T21:44:00Z - INFO - Editorial selected category: free_alternative
+2026-06-23T21:44:00Z - INFO - Top pick: AI's Affordability Crisis (score: 60)
+2026-06-23T21:44:00Z - INFO - Content queue built with 3 candidates.
+2026-06-23T16:14:00.625Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-23T16:14:00.626Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-23T16:14:00.626Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-23T16:14:00.712Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-23T16:14:00.712Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-23T16:14:00.713Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-23T21:44:02Z - INFO - Generating script for selected tool: AI's Affordability Crisis
+2026-06-23T21:44:03Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-23T21:44:27Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-23T16:14:27.436Z - INFO - [orchestrator] Completed step: 9. Generate AI Script
+2026-06-23T16:14:27.437Z - INFO - [orchestrator] Running step: 10. Validate Script
+2026-06-23T16:14:27.437Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-23T21:44:27Z - INFO - Validating script against max_word_count=95...
+2026-06-23T21:44:27Z - INFO - SUCCESS: Script validated successfully
+2026-06-23T16:14:27.540Z - INFO - [orchestrator] Completed step: 10. Validate Script
+2026-06-23T16:14:27.541Z - INFO - [orchestrator] Running step: 11. Generate TTS Audio
+2026-06-23T16:14:27.541Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-23T21:44:27Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-23T21:44:27Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-23T21:44:33Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-23T16:14:33.557Z - INFO - [orchestrator] Completed step: 11. Generate TTS Audio
+2026-06-23T16:14:33.557Z - INFO - [orchestrator] Running step: 12. Render Video
+2026-06-23T16:14:33.558Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-23T16:14:33.640Z - INFO - [render.js] Reading script data...
+2026-06-23T16:14:33.642Z - INFO - [render.js] Calculating audio duration...
+2026-06-23T16:14:33.745Z - INFO - [render.js] Audio duration: 30.29s (909 frames)
+2026-06-23T16:14:33.747Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-23T16:14:33.748Z - INFO - [render.js] Spawning Remotion render subprocess for composition: FreeAlternative...
+2026-06-23T16:15:25.484Z - INFO - [render.js] Cleaned up props.json
+2026-06-23T16:15:25.485Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-23T16:15:25.486Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-23T16:15:25.503Z - INFO - [orchestrator] Completed step: 12. Render Video
+2026-06-23T16:15:25.504Z - INFO - [orchestrator] Running step: 13. Update History
+2026-06-23T16:15:25.505Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))"
+2026-06-23T16:15:25.564Z - INFO - [orchestrator] Completed step: 13. Update History
+2026-06-23T16:15:25.565Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-23T16:21:31.596Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T16:21:31.599Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T16:21:31.599Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T21:51:31Z - INFO - Fetching Hacker News top stories...
+2026-06-23T21:51:57Z - INFO - Hacker News collector finished. Found 8 AI-related stories out of top 30.
+2026-06-23T16:21:57.377Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-23T16:21:57.378Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-23T16:21:57.379Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-23T21:51:57Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T21:51:57Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T21:51:59Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T21:52:00Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T21:52:02Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T16:22:02.327Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-23T16:22:02.328Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-23T16:22:02.328Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-23T21:52:02Z - INFO - Normalized 18 candidates from 2 sources
+2026-06-23T16:22:02.484Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-23T16:22:02.485Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-23T16:22:02.485Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T21:52:02Z - INFO - Quality filter: 18 passed, 0 rejected
+2026-06-23T16:22:02.588Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-23T16:22:02.589Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-23T16:22:02.589Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T21:52:02Z - INFO - Dedup: replacing 'OpenAI DayBreak – GPT-5.5-Cyber' (hackernews) with 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:52:02Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:52:02Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:52:02Z - INFO - Dedup: dropping duplicate 'Codex-maxxing for long-running work' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:52:02Z - INFO - Dedup: dropping duplicate 'Samsung Electronics brings ChatGPT and Codex to employees' (openai_blog), keeping 'How Omio is building the future of conversational travel' (openai_blog)
+2026-06-23T21:52:02Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:52:02Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:52:02Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:52:02Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T21:52:02Z - INFO - Deduplicator: 9 unique candidates remaining (9 duplicates removed)
+2026-06-23T16:22:02.693Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-23T16:22:02.694Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-23T16:22:02.694Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-23T21:52:02Z - INFO - --- Top 3 Candidates ---
+2026-06-23T21:52:02Z - INFO -   #1: How Omio is building the future of conversational travel (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-23T21:52:02Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-23T21:52:02Z - INFO -   #3: AI's Affordability Crisis (score: 60, confidence: 0.50, source: hackernews)
+2026-06-23T21:52:02Z - INFO - Evaluated 9 candidates. Written to data/evaluated_candidates.json
+2026-06-23T16:22:02.800Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-23T16:22:02.801Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-23T16:22:02.801Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-23T21:52:02Z - INFO - Skipping already-published: How Omio is building the future of conversational travel
+2026-06-23T21:52:02Z - INFO - Skipping already-published: New research shows how AMIE, our medical AI, could help manage health conditions.
+2026-06-23T21:52:02Z - INFO - Skipping already-published: AI's Affordability Crisis
+2026-06-23T21:52:02Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-23T21:52:02Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-23T21:52:02Z - INFO - Editorial selected category: free_alternative
+2026-06-23T21:52:02Z - INFO - Top pick: Open Source for IBM Z and LinuxONE (score: 60)
+2026-06-23T21:52:02Z - INFO - Content queue built with 3 candidates.
+2026-06-23T16:22:02.905Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-23T16:22:02.905Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-23T16:22:02.906Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-23T16:22:02.965Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-23T16:22:02.966Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-23T16:22:02.966Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-23T21:52:04Z - INFO - Generating script for selected tool: Open Source for IBM Z and LinuxONE
+2026-06-23T21:52:04Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-23T21:52:15Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-23T16:22:16.169Z - INFO - [orchestrator] Completed step: 9. Generate AI Script
+2026-06-23T16:22:16.170Z - INFO - [orchestrator] Running step: 10. Validate Script
+2026-06-23T16:22:16.170Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-23T21:52:16Z - INFO - Validating script against max_word_count=95...
+2026-06-23T21:52:16Z - INFO - SUCCESS: Script validated successfully
+2026-06-23T16:22:16.256Z - INFO - [orchestrator] Completed step: 10. Validate Script
+2026-06-23T16:22:16.256Z - INFO - [orchestrator] Running step: 11. Generate TTS Audio
+2026-06-23T16:22:16.257Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-23T21:52:16Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-23T21:52:16Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-23T21:52:22Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-23T16:22:23.005Z - INFO - [orchestrator] Completed step: 11. Generate TTS Audio
+2026-06-23T16:22:23.005Z - INFO - [orchestrator] Running step: 12. Render Video
+2026-06-23T16:22:23.006Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-23T16:22:23.062Z - INFO - [render.js] Reading script data...
+2026-06-23T16:22:23.064Z - INFO - [render.js] Calculating audio duration...
+2026-06-23T16:22:23.154Z - INFO - [render.js] Audio duration: 38.30s (1150 frames)
+2026-06-23T16:22:23.156Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-23T16:22:23.157Z - INFO - [render.js] Spawning Remotion render subprocess for composition: FreeAlternative...
+2026-06-23T16:23:13.292Z - INFO - [render.js] Cleaned up props.json
+2026-06-23T16:23:13.292Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-23T16:23:13.293Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-23T16:23:13.307Z - INFO - [orchestrator] Completed step: 12. Render Video
+2026-06-23T16:23:13.307Z - INFO - [orchestrator] Running step: 13. Update History
+2026-06-23T16:23:13.307Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))"
+2026-06-23T16:23:13.374Z - INFO - [orchestrator] Completed step: 13. Update History
+2026-06-23T16:23:13.375Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-23T16:37:41.996Z - INFO - [render.js] Reading script data...
+2026-06-23T16:37:41.998Z - INFO - [render.js] Calculating audio duration...
+2026-06-23T16:37:42.089Z - INFO - [render.js] Audio duration: 38.30s (1150 frames)
+2026-06-23T16:37:42.092Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-23T16:37:42.092Z - INFO - [render.js] Spawning Remotion render subprocess for composition: FreeAlternative...
+2026-06-23T16:39:01.797Z - INFO - [render.js] Cleaned up props.json
+2026-06-23T16:39:01.798Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-23T16:39:01.798Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-23T17:00:12.796Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T17:00:12.799Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T17:00:12.799Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T22:30:12Z - INFO - Fetching Hacker News top stories...
+2026-06-23T17:00:42.808Z - ERROR - [orchestrator] Step '1. Collect Hacker News' timed out after 30 seconds.
+2026-06-23T17:00:42.809Z - ERROR - [orchestrator] Pipeline halted due to unrecoverable failure.
+2026-06-23T22:30:43Z - ERROR - Failed to fetch https://hacker-news.firebaseio.com/v0/item/48645437.json: The read operation timed out
+2026-06-23T17:01:24.185Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T17:01:24.190Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T17:01:24.190Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T22:31:24Z - INFO - Fetching Hacker News top stories...
+2026-06-23T17:01:54.208Z - ERROR - [orchestrator] Step '1. Collect Hacker News' timed out after 30 seconds.
+2026-06-23T17:01:54.209Z - ERROR - [orchestrator] Pipeline halted due to unrecoverable failure.
+2026-06-23T22:32:13Z - ERROR - Failed to fetch https://hacker-news.firebaseio.com/v0/item/48636377.json: The read operation timed out
+2026-06-23T22:32:36Z - ERROR - Failed to fetch https://hacker-news.firebaseio.com/v0/item/48636377.json: <urlopen error _ssl.c:1015: The handshake operation timed out>
+2026-06-23T22:32:45Z - ERROR - Failed to fetch https://hacker-news.firebaseio.com/v0/item/48644257.json: The read operation timed out
+2026-06-23T17:03:09.549Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T17:03:09.553Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T17:03:09.553Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T22:33:09Z - INFO - Fetching Hacker News top stories...
+2026-06-23T22:33:11Z - ERROR - Failed to fetch https://hacker-news.firebaseio.com/v0/item/48643489.json: <urlopen error _ssl.c:1015: The handshake operation timed out>
+2026-06-23T22:33:12Z - ERROR - Failed to fetch https://hacker-news.firebaseio.com/v0/item/48646276.json: The read operation timed out
+2026-06-23T22:33:20Z - INFO - Hacker News collector finished. Found 5 AI-related stories out of top 30.
+2026-06-23T22:33:22Z - INFO - Hacker News collector finished. Found 5 AI-related stories out of top 30.
+2026-06-23T22:33:34Z - INFO - Hacker News collector finished. Found 6 AI-related stories out of top 30.
+2026-06-23T17:03:34.897Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-23T17:03:34.897Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-23T17:03:34.898Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-23T22:33:35Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T22:33:35Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T22:33:48Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T22:34:02Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T17:04:04.912Z - ERROR - [orchestrator] Step '2. Collect Blogs' timed out after 30 seconds.
+2026-06-23T17:04:04.913Z - ERROR - [orchestrator] Pipeline halted due to unrecoverable failure.
+2026-06-23T22:34:15Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T17:06:16.528Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T17:06:16.531Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T17:06:16.532Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T22:36:16Z - INFO - Fetching Hacker News top stories...
+2026-06-23T17:06:46.537Z - ERROR - [orchestrator] Step '1. Collect Hacker News' timed out after 30 seconds.
+2026-06-23T17:06:46.538Z - ERROR - [orchestrator] Pipeline halted due to unrecoverable failure.
+2026-06-23T22:36:46Z - INFO - Hacker News collector finished. Found 6 AI-related stories out of top 30.
+2026-06-23T17:19:51.747Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T17:19:51.750Z - INFO - [orchestrator] Performing pre-run cleanup...
+2026-06-23T17:19:51.751Z - INFO - [orchestrator] Cleaned up temp file: audio.mp3
+2026-06-23T17:19:51.752Z - INFO - [orchestrator] Cleaned up temp file: content_queue.json
+2026-06-23T17:19:51.753Z - INFO - [orchestrator] Cleaned up temp file: evaluated_candidates.json
+2026-06-23T17:19:51.753Z - INFO - [orchestrator] Cleaned up temp file: raw_candidates.json
+2026-06-23T17:19:51.754Z - INFO - [orchestrator] Cleaned up temp file: script.json
+2026-06-23T17:19:51.756Z - INFO - [orchestrator] Cleaned up temp file: selected_tool.json
+2026-06-23T17:19:51.757Z - INFO - [orchestrator] Cleaned up temp file: temp_blogs.json
+2026-06-23T17:19:51.758Z - INFO - [orchestrator] Cleaned up temp file: temp_hn.json
+2026-06-23T17:19:51.759Z - INFO - [orchestrator] Cleaned up temp file: validated_script.json
+2026-06-23T17:19:51.759Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T17:19:51.760Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T22:49:51Z - INFO - Fetching Hacker News top stories...
+2026-06-23T22:50:19Z - INFO - Hacker News collector finished. Found 6 AI-related stories out of top 30.
+2026-06-23T17:20:19.653Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-23T17:20:19.654Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-23T17:20:19.654Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-23T22:50:19Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T22:50:19Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T22:50:21Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T22:50:22Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T22:50:24Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T17:20:24.458Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-23T17:20:24.458Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-23T17:20:24.458Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-23T22:50:24Z - INFO - Normalized 16 candidates from 2 sources
+2026-06-23T17:20:24.604Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-23T17:20:24.604Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-23T17:20:24.604Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T22:50:24Z - INFO - Quality filter: 16 passed, 0 rejected
+2026-06-23T17:20:24.726Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-23T17:20:24.726Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-23T17:20:24.727Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T22:50:24Z - INFO - Dedup: dropping duplicate 'How Omio is building the future of conversational travel' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-23T22:50:24Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-23T22:50:24Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-23T22:50:24Z - INFO - Dedup: dropping duplicate 'Codex-maxxing for long-running work' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-23T22:50:24Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T22:50:24Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T22:50:24Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T22:50:24Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T22:50:24Z - INFO - Deduplicator: 8 unique candidates remaining (8 duplicates removed)
+2026-06-23T17:20:24.842Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-23T17:20:24.842Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-23T17:20:24.843Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-23T22:50:24Z - INFO - --- Top 3 Candidates ---
+2026-06-23T22:50:24Z - INFO -   #1: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-23T22:50:24Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-23T22:50:24Z - INFO -   #3: Open Source for IBM Z and LinuxONE (score: 60, confidence: 0.50, source: hackernews)
+2026-06-23T22:50:24Z - INFO - Evaluated 8 candidates. Written to data/evaluated_candidates.json
+2026-06-23T17:20:24.967Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-23T17:20:24.967Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-23T17:20:24.968Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-23T22:50:25Z - INFO - Skipping already-published: New research shows how AMIE, our medical AI, could help manage health conditions.
+2026-06-23T22:50:25Z - INFO - Skipping already-published: Open Source for IBM Z and LinuxONE
+2026-06-23T22:50:25Z - INFO - Skipping already-published: AI's Affordability Crisis
+2026-06-23T22:50:25Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-23T22:50:25Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-23T22:50:25Z - INFO - Editorial selected category: free_alternative
+2026-06-23T22:50:25Z - INFO - Top pick: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery (score: 65)
+2026-06-23T22:50:25Z - INFO - Content queue built with 3 candidates.
+2026-06-23T17:20:25.100Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-23T17:20:25.101Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-23T17:20:25.102Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-23T17:20:25.171Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-23T17:20:25.171Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-23T17:20:25.171Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-23T22:50:27Z - INFO - Generating script for selected tool: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery
+2026-06-23T22:50:27Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-23T22:50:40Z - WARNING - Gemini API call failed, retrying in 10s... (503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}})
+2026-06-23T22:50:50Z - INFO - Calling Gemini API (Attempt 2)...
+2026-06-23T17:20:55.184Z - ERROR - [orchestrator] Step '9. Generate AI Script' timed out after 30 seconds.
+2026-06-23T17:20:55.185Z - ERROR - [orchestrator] Pipeline halted due to unrecoverable failure.
+2026-06-23T17:21:32.296Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-23T17:21:32.299Z - INFO - [orchestrator] Performing pre-run cleanup...
+2026-06-23T17:21:32.300Z - INFO - [orchestrator] Cleaned up temp file: content_queue.json
+2026-06-23T17:21:32.301Z - INFO - [orchestrator] Cleaned up temp file: evaluated_candidates.json
+2026-06-23T17:21:32.302Z - INFO - [orchestrator] Cleaned up temp file: raw_candidates.json
+2026-06-23T17:21:32.303Z - INFO - [orchestrator] Cleaned up temp file: selected_tool.json
+2026-06-23T17:21:32.304Z - INFO - [orchestrator] Cleaned up temp file: temp_blogs.json
+2026-06-23T17:21:32.305Z - INFO - [orchestrator] Cleaned up temp file: temp_hn.json
+2026-06-23T17:21:32.305Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-23T17:21:32.306Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-23T22:51:32Z - INFO - Fetching Hacker News top stories...
+2026-06-23T22:52:01Z - INFO - Hacker News collector finished. Found 6 AI-related stories out of top 30.
+2026-06-23T17:22:01.069Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-23T17:22:01.069Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-23T17:22:01.070Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-23T22:52:01Z - INFO - Fetching AI blogs via RSS...
+2026-06-23T22:52:01Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-23T22:52:03Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-23T22:52:06Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-23T22:52:08Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-23T17:22:08.207Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-23T17:22:08.207Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-23T17:22:08.208Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-23T22:52:08Z - INFO - Normalized 16 candidates from 2 sources
+2026-06-23T17:22:08.380Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-23T17:22:08.381Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-23T17:22:08.381Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T22:52:08Z - INFO - Quality filter: 16 passed, 0 rejected
+2026-06-23T17:22:08.510Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-23T17:22:08.511Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-23T17:22:08.511Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-23T22:52:08Z - INFO - Dedup: dropping duplicate 'How Omio is building the future of conversational travel' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-23T22:52:08Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-23T22:52:08Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-23T22:52:08Z - INFO - Dedup: dropping duplicate 'Codex-maxxing for long-running work' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-23T22:52:08Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T22:52:08Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T22:52:08Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T22:52:08Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-23T22:52:08Z - INFO - Deduplicator: 8 unique candidates remaining (8 duplicates removed)
+2026-06-23T17:22:08.665Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-23T17:22:08.666Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-23T17:22:08.666Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-23T22:52:08Z - INFO - --- Top 3 Candidates ---
+2026-06-23T22:52:08Z - INFO -   #1: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-23T22:52:08Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-23T22:52:08Z - INFO -   #3: Open Source for IBM Z and LinuxONE (score: 60, confidence: 0.50, source: hackernews)
+2026-06-23T22:52:08Z - INFO - Evaluated 8 candidates. Written to data/evaluated_candidates.json
+2026-06-23T17:22:08.806Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-23T17:22:08.807Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-23T17:22:08.807Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-23T22:52:08Z - INFO - Skipping already-published: New research shows how AMIE, our medical AI, could help manage health conditions.
+2026-06-23T22:52:08Z - INFO - Skipping already-published: Open Source for IBM Z and LinuxONE
+2026-06-23T22:52:08Z - INFO - Skipping already-published: AI's Affordability Crisis
+2026-06-23T22:52:08Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-23T22:52:08Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-23T22:52:08Z - INFO - Editorial selected category: free_alternative
+2026-06-23T22:52:08Z - INFO - Top pick: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery (score: 65)
+2026-06-23T22:52:08Z - INFO - Content queue built with 3 candidates.
+2026-06-23T17:22:08.922Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-23T17:22:08.923Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-23T17:22:08.923Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-23T17:22:08.995Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-23T17:22:08.996Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-23T17:22:08.996Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-23T22:52:10Z - INFO - Generating script for selected tool: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery
+2026-06-23T22:52:11Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-23T22:52:13Z - WARNING - Gemini API call failed, retrying in 10s... (503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}})
+2026-06-23T22:52:23Z - INFO - Calling Gemini API (Attempt 2)...
+2026-06-23T22:52:25Z - WARNING - Gemini API call failed, retrying in 10s... (503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}})
+2026-06-23T22:52:35Z - INFO - Calling Gemini API (Attempt 3)...
+2026-06-23T22:52:52Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-23T17:22:52.865Z - INFO - [orchestrator] Completed step: 9. Generate AI Script
+2026-06-23T17:22:52.865Z - INFO - [orchestrator] Running step: 10. Validate Script
+2026-06-23T17:22:52.866Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-23T22:52:52Z - INFO - Validating script against max_word_count=95...
+2026-06-23T22:52:52Z - INFO - SUCCESS: Script validated successfully
+2026-06-23T17:22:52.980Z - INFO - [orchestrator] Completed step: 10. Validate Script
+2026-06-23T17:22:52.981Z - INFO - [orchestrator] Running step: 11. Generate TTS Audio
+2026-06-23T17:22:52.982Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-23T22:52:53Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-23T22:52:53Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-23T22:52:59Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-23T17:22:59.234Z - INFO - [orchestrator] Completed step: 11. Generate TTS Audio
+2026-06-23T17:22:59.234Z - INFO - [orchestrator] Running step: 12. Render Video
+2026-06-23T17:22:59.234Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-23T17:22:59.290Z - INFO - [render.js] Reading script data...
+2026-06-23T17:22:59.293Z - INFO - [render.js] Calculating audio duration...
+2026-06-23T17:22:59.416Z - INFO - [render.js] Audio duration: 30.43s (913 frames)
+2026-06-23T17:22:59.418Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-23T17:22:59.419Z - INFO - [render.js] Spawning Remotion render subprocess for composition: FreeAlternative...
+2026-06-23T17:24:03.118Z - INFO - [render.js] Cleaned up props.json
+2026-06-23T17:24:03.119Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-23T17:24:03.120Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-23T17:24:03.138Z - INFO - [orchestrator] Completed step: 12. Render Video
+2026-06-23T17:24:03.138Z - INFO - [orchestrator] Running step: 13. Update History
+2026-06-23T17:24:03.138Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))"
+2026-06-23T17:24:03.199Z - INFO - [orchestrator] Completed step: 13. Update History
+2026-06-23T17:24:03.199Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-24T06:15:00.888Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-24T06:15:00.894Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-24T06:15:00.895Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-24T11:45:01Z - INFO - Fetching Hacker News top stories...
+2026-06-24T11:45:30Z - INFO - Hacker News collector finished. Found 4 AI-related stories out of top 30.
+2026-06-24T06:15:30.326Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-24T06:15:30.327Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-24T06:15:30.328Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-24T11:45:30Z - INFO - Fetching AI blogs via RSS...
+2026-06-24T11:45:30Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-24T11:45:33Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-24T11:45:36Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-24T11:45:38Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-24T06:15:38.119Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-24T06:15:38.120Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-24T06:15:38.121Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-24T11:45:38Z - INFO - Normalized 14 candidates from 2 sources
+2026-06-24T06:15:38.339Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-24T06:15:38.340Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-24T06:15:38.341Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-24T11:45:38Z - INFO - Quality filter: 14 passed, 0 rejected
+2026-06-24T06:15:38.529Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-24T06:15:38.532Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-24T06:15:38.535Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-24T11:45:38Z - INFO - Dedup: replacing 'Helping build shared standards for advanced AI' (openai_blog) with 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-24T11:45:38Z - INFO - Dedup: dropping duplicate 'How Omio is building the future of conversational travel' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-24T11:45:38Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-24T11:45:38Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-24T11:45:38Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-24T11:45:38Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-24T11:45:38Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-24T11:45:38Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-24T11:45:38Z - INFO - Deduplicator: 6 unique candidates remaining (8 duplicates removed)
+2026-06-24T06:15:38.714Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-24T06:15:38.715Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-24T06:15:38.716Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-24T11:45:38Z - INFO - --- Top 3 Candidates ---
+2026-06-24T11:45:38Z - INFO -   #1: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-24T11:45:38Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-24T11:45:38Z - INFO -   #3: Qwen-AgentWorld: Language World Models for General Agents (score: 60, confidence: 0.50, source: hackernews)
+2026-06-24T11:45:38Z - INFO - Evaluated 6 candidates. Written to data/evaluated_candidates.json
+2026-06-24T06:15:38.937Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-24T06:15:38.938Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-24T06:15:38.939Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-24T11:45:39Z - INFO - Skipping already-published: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery
+2026-06-24T11:45:39Z - INFO - Skipping already-published: New research shows how AMIE, our medical AI, could help manage health conditions.
+2026-06-24T11:45:39Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-24T11:45:39Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-24T11:45:39Z - INFO - Editorial selected category: free_alternative
+2026-06-24T11:45:39Z - INFO - Top pick: Qwen-AgentWorld: Language World Models for General Agents (score: 60)
+2026-06-24T11:45:39Z - INFO - Content queue built with 3 candidates.
+2026-06-24T06:15:39.179Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-24T06:15:39.180Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-24T06:15:39.182Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-24T06:15:39.277Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-24T06:15:39.278Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-24T06:15:39.279Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-24T11:45:42Z - INFO - Generating script for selected tool: Qwen-AgentWorld: Language World Models for General Agents
+2026-06-24T11:45:44Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-24T11:46:00Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-24T06:16:01.309Z - INFO - [orchestrator] Completed step: 9. Generate AI Script
+2026-06-24T06:16:01.310Z - INFO - [orchestrator] Running step: 10. Validate Script
+2026-06-24T06:16:01.311Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-24T11:46:01Z - INFO - Validating script against max_word_count=95...
+2026-06-24T11:46:01Z - INFO - SUCCESS: Script validated successfully
+2026-06-24T06:16:01.499Z - INFO - [orchestrator] Completed step: 10. Validate Script
+2026-06-24T06:16:01.500Z - INFO - [orchestrator] Running step: 11. Generate TTS Audio
+2026-06-24T06:16:01.501Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-24T11:46:01Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-24T11:46:01Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-24T11:46:07Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-24T06:16:07.905Z - INFO - [orchestrator] Completed step: 11. Generate TTS Audio
+2026-06-24T06:16:07.906Z - INFO - [orchestrator] Running step: 12. Render Video
+2026-06-24T06:16:07.907Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-24T06:16:08.000Z - INFO - [render.js] Reading script data...
+2026-06-24T06:16:08.005Z - INFO - [render.js] Calculating audio duration...
+2026-06-24T06:16:08.245Z - INFO - [render.js] Audio duration: 19.66s (590 frames)
+2026-06-24T06:16:08.249Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-24T06:16:08.249Z - INFO - [render.js] Spawning Remotion render subprocess for composition: FreeAlternative...
+2026-06-24T06:17:11.265Z - INFO - [render.js] Cleaned up props.json
+2026-06-24T06:17:11.268Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-24T06:17:11.269Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-24T06:17:11.303Z - INFO - [orchestrator] Completed step: 12. Render Video
+2026-06-24T06:17:11.304Z - INFO - [orchestrator] Running step: 13. Update History
+2026-06-24T06:17:11.305Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))"
+2026-06-24T06:17:11.438Z - INFO - [orchestrator] Completed step: 13. Update History
+2026-06-24T06:17:11.440Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===

@@ -1,0 +1,24 @@
+{
+  "channel_id": "ai_tools",
+  "name": "DevByte — AI Tools",
+  "allowed_categories": [
+    "free_alternative", "productivity", "hidden_gem",
+    "comparison", "update", "weekly_roundup", "best_for",
+    "prompt_trick"
+  ],
+  "tone": "fast, direct, developer-friendly, no fluff",
+  "cta_style": "link in bio",
+  "prompt_set": "editorial/prompts/",
+  "template_map": {
+    "free_alternative":  "FreeAlternative",
+    "productivity":      "Productivity",
+    "weekly_roundup":    "WeeklyRoundup",
+    "comparison":        "Comparison",
+    "hidden_gem":        "HiddenGem",
+    "update":            "Update",
+    "best_for":          "HiddenGem",
+    "prompt_trick":      "Productivity"
+  },
+  "upload_schedule": "23:30",
+  "active": true
+}

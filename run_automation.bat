@@ -4,7 +4,7 @@ echo Starting automated YouTube Shorts pipeline >> logs\automation.log
 echo Date: %date% Time: %time% >> logs\automation.log
 echo =================================================== >> logs\automation.log
 
-cd /d "c:\DEV\devilcode development\Youtube-video-automation"
+cd /d "c:\DEV\devilcode development\Devbyte-engine (youtube automation)"
 node orchestrator/run_pipeline.js --fresh >> logs\automation.log 2>&1
 
 echo. >> logs\automation.log
