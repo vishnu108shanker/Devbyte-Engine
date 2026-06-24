@@ -111,8 +111,21 @@ DO NOT:
 - Use "powerful", "robust", or "seamless"
 - Use exclamation marks
 
-TITLE FORMULA: "{name} vs [Competitor] — Honest Verdict in 30 Seconds"
-Keep under 60 characters.
+
+TITLE FORMULA: The product name MUST always appear within the first 1–3 words.
+Never begin with:
+- This AI...
+- This Tool...
+- You Need...
+- Stop Using...
+
+Instead begin with the product name - {name}: [Specific Outcome]
+Examples
+Cursor: Code 3x Faster
+Gamma: Slides in 60 Seconds
+Napkin: Turn Notes into Diagrams
+ElevenLabs: Human Voice in Minutes
+
 
 HASHTAGS: 3 broad (#AITools #TechComparison #AIvsAI) +
           3 niche for {name} category +

@@ -112,8 +112,21 @@ DO NOT:
 - Use exclamation marks
 - Start any sentence with "Whether you..."
 
-TITLE FORMULA: "[Free Tool] — The Free [Paid Tool] Alternative You Need"
-Keep under 60 characters. Front-load the tool name.
+
+TITLE FORMULA: The product name MUST always appear within the first 1–3 words.
+Never begin with:
+- This AI...
+- This Tool...
+- You Need...
+- Stop Using...
+
+Instead begin with the product name - {name}: [Specific Outcome]
+Examples
+Cursor: Code 3x Faster
+Gamma: Slides in 60 Seconds
+Napkin: Turn Notes into Diagrams
+ElevenLabs: Human Voice in Minutes
+
 
 HASHTAGS: 3 broad (#AITools #TechShorts #FreeAI) +
           5 niche based on tool category +
