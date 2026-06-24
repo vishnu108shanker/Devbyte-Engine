@@ -18,7 +18,6 @@ import { Slide } from '../motion/Slide';
 import { Scale } from '../motion/Scale';
 import { GlowPulse } from '../motion/GlowPulse';
 import { Typewriter } from '../motion/Typewriter';
-import { CountUp } from '../motion/CountUp';
 import { VideoProps } from '../Root';
 
 // ─── Shared Layout Helpers ────────────────────────────────────────────────────
@@ -38,6 +37,82 @@ const Col: React.FC<{ children: React.ReactNode; gap?: number; justify?: string;
     {children}
   </div>
 );
+
+// ─── Progress Bar ─────────────────────────────────────────────────────────────
+
+const ProgressBar: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const progress = interpolate(frame, [0, durationInFrames], [0, 100], {
+    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
+  });
+
+  return (
+    <div style={{
+      position: 'absolute', top: 0, left: 0, width: '100%', height: 6,
+      backgroundColor: 'rgba(255,255,255,0.06)', zIndex: 100,
+    }}>
+      <div style={{
+        width: `${progress}%`, height: '100%',
+        background: `linear-gradient(90deg, ${Theme.colors.brand.blue}, ${Theme.colors.brand.violet}, ${Theme.colors.brand.cyan})`,
+        borderRadius: '0 3px 3px 0',
+        boxShadow: `0 0 12px ${Theme.colors.brand.blue}88`,
+      }} />
+    </div>
+  );
+};
+
+// ─── Spring Scale Pop Wrapper ─────────────────────────────────────────────────
+
+/** Wraps children in a spring scale animation on scene entry. */
+const ScenePop: React.FC<{ children: React.ReactNode; delay?: number }> = ({
+  children, delay = 0,
+}) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const pop = spring({
+    frame: frame - delay, fps,
+    config: { damping: 14, stiffness: 120, mass: 0.6 },
+  });
+  const scale = interpolate(pop, [0, 1], [0.88, 1]);
+  const opacity = interpolate(pop, [0, 1], [0, 1]);
+
+  return (
+    <div style={{ transform: `scale(${scale})`, opacity, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      {children}
+    </div>
+  );
+};
+
+// ─── Color Emphasis Helper ────────────────────────────────────────────────────
+
+/** Highlights occurrences of `highlight` word within `text` with a vibrant accent color. */
+const EmphasizedText: React.FC<{
+  text: string;
+  highlight: string;
+  style: React.CSSProperties;
+  accentColor?: string;
+}> = ({ text, highlight, style, accentColor = Theme.colors.brand.cyan }) => {
+  if (!highlight || highlight.length < 2) {
+    return <span style={style}>{text}</span>;
+  }
+
+  // Case-insensitive split around highlight word
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+
+  return (
+    <span style={style}>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <span key={i} style={{ color: accentColor, textShadow: `0 0 20px ${accentColor}66` }}>{part}</span>
+        ) : (
+          <React.Fragment key={i}>{part}</React.Fragment>
+        )
+      )}
+    </span>
+  );
+};
 
 // ─── Persistent Background ────────────────────────────────────────────────────
 
@@ -82,9 +157,9 @@ const Pill: React.FC<{ label: string; color?: string; bgAlpha?: string; from?: n
   );
 };
 
-// ─── Hero Title ───────────────────────────────────────────────────────────────
+// ─── Hero Title (with color emphasis) ─────────────────────────────────────────
 
-const HeroTitle: React.FC<{ text: string; from?: number }> = ({ text, from = 0 }) => {
+const HeroTitle: React.FC<{ text: string; highlight: string; from?: number }> = ({ text, highlight, from = 0 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - from, fps, config: { damping: 16, stiffness: 70, mass: 0.8 } });
@@ -100,35 +175,43 @@ const HeroTitle: React.FC<{ text: string; from?: number }> = ({ text, from = 0 }
         fontWeight: Theme.weight.black,
         lineHeight: 1.05,
         letterSpacing: '-0.03em',
-        color: Theme.colors.text.primary,
         textAlign: 'center',
         width: '100%',
       }}
     >
-      {text}
+      <EmphasizedText
+        text={text}
+        highlight={highlight}
+        style={{ color: Theme.colors.text.primary }}
+        accentColor={Theme.colors.brand.cyan}
+      />
     </div>
   );
 };
 
 // ─── Subtitle ─────────────────────────────────────────────────────────────────
 
-const Subtitle: React.FC<{ text: string; from?: number }> = ({ text, from = 0 }) => (
+const Subtitle: React.FC<{ text: string; highlight: string; from?: number }> = ({ text, highlight, from = 0 }) => (
   <Fade from={from} duration={18}>
     <Slide from={from + 4} direction="up" distance={40}>
-      <p
+      <div
         style={{
           fontFamily: Theme.font.sans,
           fontSize: Theme.size.heading,
           fontWeight: Theme.weight.regular,
-          color: Theme.colors.text.secondary,
           textAlign: 'center',
           lineHeight: 1.5,
           width: '100%',
           margin: '0 auto',
         }}
       >
-        {text}
-      </p>
+        <EmphasizedText
+          text={text}
+          highlight={highlight}
+          style={{ color: Theme.colors.text.secondary }}
+          accentColor={Theme.colors.brand.blue}
+        />
+      </div>
     </Slide>
   </Fade>
 );
@@ -149,10 +232,10 @@ const AnimatedDivider: React.FC<{ from?: number; color?: string }> = ({
   );
 };
 
-// ─── Feature Bullet ───────────────────────────────────────────────────────────
+// ─── Feature Bullet (with color emphasis) ─────────────────────────────────────
 
-const FeatureBullet: React.FC<{ icon: string; text: string; from?: number; delay?: number }> = ({
-  icon, text, from = 0, delay = 0,
+const FeatureBullet: React.FC<{ icon: string; text: string; highlight: string; from?: number; delay?: number }> = ({
+  icon, text, highlight, from = 0, delay = 0,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -176,53 +259,21 @@ const FeatureBullet: React.FC<{ icon: string; text: string; from?: number; delay
       }}
     >
       <span style={{ fontSize: 60, lineHeight: 1, flexShrink: 0 }}>{icon}</span>
-      <p style={{
-        fontFamily: Theme.font.sans,
-        fontSize: Theme.size.body,
-        fontWeight: Theme.weight.medium,
-        color: Theme.colors.text.primary,
-        lineHeight: 1.4,
-        margin: 0,
-      }}>{text}</p>
+      <div style={{ margin: 0 }}>
+        <EmphasizedText
+          text={text}
+          highlight={highlight}
+          style={{
+            fontFamily: Theme.font.sans,
+            fontSize: Theme.size.body,
+            fontWeight: Theme.weight.medium,
+            color: Theme.colors.text.primary,
+            lineHeight: 1.4,
+          }}
+          accentColor={Theme.colors.brand.cyan}
+        />
+      </div>
     </div>
-  );
-};
-
-// ─── Comparison Bar ───────────────────────────────────────────────────────────
-
-const ComparisonBar: React.FC<{
-  label: string; paid: number; free: number; unit: string; from?: number;
-}> = ({ label, paid, free, unit, from = 0 }) => {
-  const frame = useCurrentFrame();
-  const paidWidth = interpolate(frame - from, [0, 40], [0, paid], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const freeWidth = interpolate(frame - (from + 8), [0, 40], [0, free], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-
-  return (
-    <Col gap={16} align="stretch" width="100%">
-      <Row justify="space-between" width="100%">
-        <span style={{ fontFamily: Theme.font.sans, fontSize: Theme.size.body, fontWeight: Theme.weight.medium, color: Theme.colors.text.secondary }}>{label}</span>
-      </Row>
-      {/* Paid bar */}
-      <Row gap={16} align="center" width="100%">
-        <span style={{ fontFamily: Theme.font.mono, fontSize: Theme.size.body, color: Theme.colors.brand.rose, width: 140 }}>PAID</span>
-        <div style={{ flex: 1, height: 20, backgroundColor: Theme.colors.surfaceHigh, borderRadius: 10, overflow: 'hidden' }}>
-          <div style={{ width: `${paidWidth}%`, height: '100%', backgroundColor: Theme.colors.brand.rose, borderRadius: 10 }} />
-        </div>
-        <span style={{ fontFamily: Theme.font.mono, fontSize: Theme.size.body, color: Theme.colors.text.primary, width: 120, textAlign: 'right' }}>
-          <CountUp to={paid} startFrame={from} durationFrames={40} suffix={unit} style={{ color: Theme.colors.brand.rose }} />
-        </span>
-      </Row>
-      {/* Free bar */}
-      <Row gap={16} align="center" width="100%">
-        <span style={{ fontFamily: Theme.font.mono, fontSize: Theme.size.body, color: Theme.colors.brand.emerald, width: 140 }}>FREE</span>
-        <div style={{ flex: 1, height: 20, backgroundColor: Theme.colors.surfaceHigh, borderRadius: 10, overflow: 'hidden' }}>
-          <div style={{ width: `${freeWidth}%`, height: '100%', backgroundColor: Theme.colors.brand.emerald, borderRadius: 10 }} />
-        </div>
-        <span style={{ fontFamily: Theme.font.mono, fontSize: Theme.size.body, color: Theme.colors.text.primary, width: 120, textAlign: 'right' }}>
-          <CountUp to={free} startFrame={from + 8} durationFrames={40} suffix={unit} style={{ color: Theme.colors.brand.emerald }} />
-        </span>
-      </Row>
-    </Col>
   );
 };
 
@@ -329,15 +380,14 @@ const FloatingOrb: React.FC<{ size: number; x: string; y: string; color: string 
 /**
  * FreeAlternative — complete production template.
  *
- * Scene layout (frame-based, fills the FULL audio duration):
- *   0  – S2   →  SCENE 1: Hook — Bold headline + category pill + animated divider
- *   S2 – S3   →  SCENE 2: Feature bullets — 3 animated bullets from validated_script body
- *   S3 – S4   →  SCENE 3: Comparison — Visual "Paid vs Free" bar chart
- *   S4 – S5   →  SCENE 4: Typewriter — highlights the key quote from body
- *   S5 – END  →  SCENE 5: CTA + Hashtags
+ * Scene layout (4 scenes, fills the FULL audio duration):
+ *   0    – S2   →  SCENE 1: Hook — Bold headline + category pill + animated divider
+ *   S2   – S3   →  SCENE 2: Feature bullets — 3 animated bullets from validated_script body
+ *   S3   – S4   →  SCENE 3: Typewriter — highlights the key quote from body
+ *   S4   – END  →  SCENE 4: CTA + Hashtags
  *
- *  Background & ambient animations run for the full duration.
- *  Uses strictly contiguous `<Sequence>` boundaries (no overlap!) to prevent text collisions.
+ *  Persistent layers: Background, Floating Orbs, Progress Bar.
+ *  Uses strictly contiguous `<Sequence>` boundaries (no overlap!).
  */
 export const FreeAlternative: React.FC<VideoProps> = (props) => {
   const { durationInFrames } = useVideoConfig();
@@ -358,12 +408,11 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
 
   const SCENE_ICONS = ['⚡', '🧠', '🚀'];
 
-  // Scene timing (in frames) - perfectly contiguous and dynamic to audio length
+  // 4-scene timeline (contiguous, dynamic to audio length)
   const S1_START = 0;
-  const S2_START = Math.floor(durationInFrames * 0.22); // Hook takes 22% of video (Increased)
-  const S3_START = Math.floor(durationInFrames * 0.47); // Features takes 25%
-  const S4_START = Math.floor(durationInFrames * 0.72); // Comparison takes 25%
-  const S5_START = Math.floor(durationInFrames * 0.85); // Typewriter takes only 13% (Decreased), CTA gets 15%
+  const S2_START = Math.floor(durationInFrames * 0.25);  // Hook: 25%
+  const S3_START = Math.floor(durationInFrames * 0.55);  // Features: 30%
+  const S4_START = Math.floor(durationInFrames * 0.75);  // Typewriter: 20%, CTA: 25%
 
   return (
     <AbsoluteFill style={{ backgroundColor: Theme.colors.bg, overflow: 'hidden' }}>
@@ -381,33 +430,38 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
         <FloatingOrb size={350} x="50%" y="70%" color={Theme.colors.brand.cyan} />
       </AbsoluteFill>
 
+      {/* ── Progress Bar (always visible) ──────────────────────────────────── */}
+      <ProgressBar />
+
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* SCENE 1: Hook                                                       */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       <Sequence from={S1_START} durationInFrames={S2_START - S1_START}>
         <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
-          <Col gap={48} align="center" justify="center" height="100%">
+          <ScenePop delay={0}>
+            <Col gap={48} align="center" justify="center">
 
-            {/* Radial glow burst on entry */}
-            <RadialGlow color={Theme.colors.brand.blue} intensity={0.15} from={5} durationFrames={20} />
+              {/* Radial glow burst on entry */}
+              <RadialGlow color={Theme.colors.brand.blue} intensity={0.15} from={5} durationFrames={20} />
 
-            {/* Category pill */}
-            <Fade from={S1_START} duration={10}>
-              <Pill label={category} color={Theme.colors.brand.violet} from={S1_START} />
-            </Fade>
+              {/* Category pill */}
+              <Fade from={0} duration={10}>
+                <Pill label={category} color={Theme.colors.brand.violet} from={0} />
+              </Fade>
 
-            {/* Hero headline */}
-            <GlowPulse color={Theme.colors.brand.blue} minOpacity={0.1} maxOpacity={0.4} period={90}>
-              <HeroTitle text={title} from={S1_START + 8} />
-            </GlowPulse>
+              {/* Hero headline — tool name highlighted */}
+              <GlowPulse color={Theme.colors.brand.blue} minOpacity={0.1} maxOpacity={0.4} period={90}>
+                <HeroTitle text={title} highlight={toolName} from={8} />
+              </GlowPulse>
 
-            {/* Divider */}
-            <AnimatedDivider from={S1_START + 20} color={Theme.colors.brand.blue} />
+              {/* Divider */}
+              <AnimatedDivider from={20} color={Theme.colors.brand.blue} />
 
-            {/* Hook subtitle */}
-            <Subtitle text={hook} from={S1_START + 24} />
+              {/* Hook subtitle — tool name highlighted */}
+              <Subtitle text={hook} highlight={toolName} from={24} />
 
-          </Col>
+            </Col>
+          </ScenePop>
         </AbsoluteFill>
       </Sequence>
 
@@ -416,45 +470,10 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
       {/* ═══════════════════════════════════════════════════════════════════ */}
       <Sequence from={S2_START} durationInFrames={S3_START - S2_START}>
         <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
-          <Col gap={40} align="stretch" justify="center" height="100%">
+          <ScenePop delay={0}>
+            <Col gap={40} align="stretch" justify="center">
 
-            <Fade from={0} duration={12}>
-              <div style={{
-                fontFamily: Theme.font.sans,
-                fontSize: Theme.size.title,
-                fontWeight: Theme.weight.bold,
-                color: Theme.colors.text.primary,
-                textAlign: 'center',
-                letterSpacing: '-0.02em',
-                width: '100%',
-              }}>
-                Why switch?
-              </div>
-            </Fade>
-
-            {sentences.map((sentence, i) => (
-              <FeatureBullet
-                key={i}
-                icon={SCENE_ICONS[i] || '✨'}
-                text={sentence}
-                from={0}
-                delay={i * 18}
-              />
-            ))}
-
-          </Col>
-        </AbsoluteFill>
-      </Sequence>
-
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* SCENE 3: Comparison Chart                                           */}
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      <Sequence from={S3_START} durationInFrames={S4_START - S3_START}>
-        <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
-          <Col gap={56} align="stretch" justify="center" height="100%">
-
-            <Fade from={0} duration={12}>
-              <Col gap={16} align="center" width="100%">
+              <Fade from={0} duration={12}>
                 <div style={{
                   fontFamily: Theme.font.sans,
                   fontSize: Theme.size.title,
@@ -462,150 +481,123 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
                   color: Theme.colors.text.primary,
                   textAlign: 'center',
                   letterSpacing: '-0.02em',
+                  width: '100%',
                 }}>
-                  The Real Cost
+                  Why switch?
                 </div>
-                <div style={{
-                  fontFamily: Theme.font.sans,
-                  fontSize: Theme.size.heading,
-                  color: Theme.colors.text.secondary,
-                  textAlign: 'center',
-                }}>
-                  Paid alternatives vs FREE
-                </div>
-                <AnimatedDivider from={8} color={Theme.colors.brand.emerald} />
-              </Col>
-            </Fade>
+              </Fade>
 
-            <div style={{
-              backgroundColor: Theme.colors.surface,
-              border: `2px solid ${Theme.colors.border}`,
-              borderRadius: Theme.radius.lg,
-              padding: '60px 56px',
-              width: '100%',
-              boxShadow: `0 10px 40px rgba(0,0,0,0.3)`,
-            }}>
-              <Col gap={48} align="stretch" width="100%">
-                <ComparisonBar label="Monthly Cost" paid={100} free={0} unit="%" from={10} />
-                <div style={{ height: 2, backgroundColor: Theme.colors.border, width: '100%' }} />
-                <ComparisonBar label="Features" paid={80} free={90} unit="%" from={15} />
-                <div style={{ height: 2, backgroundColor: Theme.colors.border, width: '100%' }} />
-                <ComparisonBar label="Time to Start" paid={60} free={95} unit="%" from={20} />
-              </Col>
-            </div>
+              {sentences.map((sentence, i) => (
+                <FeatureBullet
+                  key={i}
+                  icon={SCENE_ICONS[i] || '✨'}
+                  text={sentence}
+                  highlight={toolName}
+                  from={0}
+                  delay={i * 18}
+                />
+              ))}
 
-            <Fade from={50} duration={12}>
-              <Row justify="center" gap={20} width="100%">
-                <div style={{
-                  backgroundColor: `${Theme.colors.brand.emerald}20`,
-                  border: `2px solid ${Theme.colors.brand.emerald}44`,
-                  borderRadius: Theme.radius.md,
-                  padding: '24px 40px',
+            </Col>
+          </ScenePop>
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* SCENE 3: Typewriter Quote                                           */}
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      <Sequence from={S3_START} durationInFrames={S4_START - S3_START}>
+        <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
+          <ScenePop delay={0}>
+            <Col gap={56} align="center" justify="center">
+
+              <Fade from={0} duration={10}>
+                <span style={{
                   fontFamily: Theme.font.mono,
                   fontSize: Theme.size.body,
-                  fontWeight: Theme.weight.bold,
-                  color: Theme.colors.brand.emerald,
+                  color: Theme.colors.brand.cyan,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase' as const,
                 }}>
-                  FREE wins. Always.
-                </div>
-              </Row>
-            </Fade>
+                  // WHAT THEY SAY
+                </span>
+              </Fade>
 
-          </Col>
-        </AbsoluteFill>
-      </Sequence>
-
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* SCENE 4: Typewriter Quote                                           */}
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      <Sequence from={S4_START} durationInFrames={S5_START - S4_START}>
-        <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
-          <Col gap={56} align="center" justify="center" height="100%">
-
-            <Fade from={0} duration={10}>
-              <span style={{
-                fontFamily: Theme.font.mono,
-                fontSize: Theme.size.body,
-                color: Theme.colors.brand.cyan,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase' as const,
-              }}>
-                // WHAT THEY SAY
-              </span>
-            </Fade>
-
-            <div style={{
-              backgroundColor: Theme.colors.surface,
-              border: `2px solid ${Theme.colors.brand.blue}33`,
-              borderLeft: `8px solid ${Theme.colors.brand.blue}`,
-              borderRadius: Theme.radius.md,
-              padding: '60px 56px',
-              width: '100%',
-              boxShadow: `0 10px 40px rgba(0,0,0,0.3)`,
-            }}>
-              <Typewriter
-                text={`"${hook}"`}
-                from={8}
-                speed={2}
-                style={{
-                  fontFamily: Theme.font.sans,
-                  fontSize: Theme.size.title,
-                  fontWeight: Theme.weight.semibold,
-                  color: Theme.colors.text.primary,
-                  lineHeight: 1.35,
-                  display: 'block',
-                }}
-              />
-            </div>
-
-            <Fade from={60} duration={12}>
               <div style={{
-                fontFamily: Theme.font.mono,
-                fontSize: Theme.size.body,
-                color: Theme.colors.text.muted,
+                backgroundColor: Theme.colors.surface,
+                border: `2px solid ${Theme.colors.brand.blue}33`,
+                borderLeft: `8px solid ${Theme.colors.brand.blue}`,
+                borderRadius: Theme.radius.md,
+                padding: '60px 56px',
+                width: '100%',
+                boxShadow: `0 10px 40px rgba(0,0,0,0.3)`,
               }}>
-                — {toolName}
+                <Typewriter
+                  text={`"${hook}"`}
+                  from={8}
+                  speed={2}
+                  style={{
+                    fontFamily: Theme.font.sans,
+                    fontSize: Theme.size.title,
+                    fontWeight: Theme.weight.semibold,
+                    color: Theme.colors.text.primary,
+                    lineHeight: 1.35,
+                    display: 'block',
+                  }}
+                />
               </div>
-            </Fade>
 
-          </Col>
+              <Fade from={60} duration={12}>
+                <div style={{
+                  fontFamily: Theme.font.mono,
+                  fontSize: Theme.size.body,
+                  color: Theme.colors.text.muted,
+                }}>
+                  — <span style={{ color: Theme.colors.brand.cyan }}>{toolName}</span>
+                </div>
+              </Fade>
+
+            </Col>
+          </ScenePop>
         </AbsoluteFill>
       </Sequence>
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* SCENE 5: CTA + Hashtags (runs to end)                              */}
+      {/* SCENE 4: CTA + Hashtags (runs to end)                              */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      <Sequence from={S5_START} durationInFrames={durationInFrames - S5_START}>
+      <Sequence from={S4_START} durationInFrames={durationInFrames - S4_START}>
         <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
-          <Col gap={56} align="stretch" justify="center" height="100%">
+          <ScenePop delay={0}>
+            <Col gap={56} align="stretch" justify="center">
 
-            {/* Radial glow for CTA energy */}
-            <RadialGlow color={Theme.colors.brand.violet} intensity={0.2} from={0} durationFrames={20} />
+              {/* Radial glow for CTA energy */}
+              <RadialGlow color={Theme.colors.brand.violet} intensity={0.2} from={0} durationFrames={20} />
 
-            <Fade from={0} duration={15}>
-              <CTACard cta={cta} from={0} />
-            </Fade>
+              <Fade from={0} duration={15}>
+                <CTACard cta={cta} from={0} />
+              </Fade>
 
-            <Fade from={30} duration={15}>
-              <HashtagRow tags={hashtags} from={30} />
-            </Fade>
+              <Fade from={30} duration={15}>
+                <HashtagRow tags={hashtags} from={30} />
+              </Fade>
 
-            <Fade from={50} duration={12}>
-              <Row justify="center" width="100%">
-                <Scale from={50} initialScale={0.85}>
-                  <div style={{
-                    fontFamily: Theme.font.mono,
-                    fontSize: Theme.size.body,
-                    color: Theme.colors.text.muted,
-                    letterSpacing: '0.05em',
-                  }}>
-                    DEVBYTE — AI Tools for Developers
-                  </div>
-                </Scale>
-              </Row>
-            </Fade>
+              <Fade from={50} duration={12}>
+                <Row justify="center" width="100%">
+                  <Scale from={50} initialScale={0.85}>
+                    <div style={{
+                      fontFamily: Theme.font.mono,
+                      fontSize: Theme.size.body,
+                      color: Theme.colors.text.muted,
+                      letterSpacing: '0.05em',
+                    }}>
+                      DEVBYTE — AI Tools for Developers
+                    </div>
+                  </Scale>
+                </Row>
+              </Fade>
 
-          </Col>
+            </Col>
+          </ScenePop>
         </AbsoluteFill>
       </Sequence>
 

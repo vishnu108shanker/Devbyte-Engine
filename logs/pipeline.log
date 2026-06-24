@@ -1083,3 +1083,99 @@
 2026-06-24T06:17:11.305Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))"
 2026-06-24T06:17:11.438Z - INFO - [orchestrator] Completed step: 13. Update History
 2026-06-24T06:17:11.440Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-24T06:51:01.662Z - INFO - [orchestrator] === STARTING VIDEO AUTOMATION PIPELINE V2 ===
+2026-06-24T06:51:01.671Z - INFO - [orchestrator] Running step: 1. Collect Hacker News
+2026-06-24T06:51:01.672Z - INFO - [orchestrator] Command: python collectors/hackernews.py --input config.json --output data/temp_hn.json
+2026-06-24T12:21:02Z - INFO - Fetching Hacker News top stories...
+2026-06-24T12:21:27Z - INFO - Hacker News collector finished. Found 4 AI-related stories out of top 30.
+2026-06-24T06:51:27.448Z - INFO - [orchestrator] Completed step: 1. Collect Hacker News
+2026-06-24T06:51:27.449Z - INFO - [orchestrator] Running step: 2. Collect Blogs
+2026-06-24T06:51:27.449Z - INFO - [orchestrator] Command: python collectors/blogs.py --input config.json --output data/temp_blogs.json
+2026-06-24T12:21:28Z - INFO - Fetching AI blogs via RSS...
+2026-06-24T12:21:28Z - INFO - Parsing feed: https://openai.com/blog/rss.xml
+2026-06-24T12:21:30Z - INFO - Parsing feed: https://www.anthropic.com/rss.xml
+2026-06-24T12:21:33Z - INFO - Parsing feed: https://blog.google/technology/ai/rss/
+2026-06-24T12:21:34Z - INFO - Blogs collector finished. Found 10 recent announcements.
+2026-06-24T06:51:34.565Z - INFO - [orchestrator] Completed step: 2. Collect Blogs
+2026-06-24T06:51:34.566Z - INFO - [orchestrator] Running step: 3. Normalize Data
+2026-06-24T06:51:34.567Z - INFO - [orchestrator] Command: python ingestion/normalizer.py --input data/temp_hn.json --input data/temp_blogs.json --output data/raw_candidates.json
+2026-06-24T12:21:34Z - INFO - Normalized 14 candidates from 2 sources
+2026-06-24T06:51:34.807Z - INFO - [orchestrator] Completed step: 3. Normalize Data
+2026-06-24T06:51:34.809Z - INFO - [orchestrator] Running step: 4. Quality Filter
+2026-06-24T06:51:34.809Z - INFO - [orchestrator] Command: python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-24T12:21:34Z - INFO - Quality filter: 14 passed, 0 rejected
+2026-06-24T06:51:34.991Z - INFO - [orchestrator] Completed step: 4. Quality Filter
+2026-06-24T06:51:34.992Z - INFO - [orchestrator] Running step: 5. Deduplicate
+2026-06-24T06:51:34.992Z - INFO - [orchestrator] Command: python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+2026-06-24T12:21:35Z - INFO - Dedup: replacing 'Helping build shared standards for advanced AI' (openai_blog) with 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-24T12:21:35Z - INFO - Dedup: dropping duplicate 'How Omio is building the future of conversational travel' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-24T12:21:35Z - INFO - Dedup: dropping duplicate 'Daybreak: Tools for securing every organization in the world' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-24T12:21:35Z - INFO - Dedup: dropping duplicate 'Patch the Planet: a Daybreak initiative to support open source maintainers' (openai_blog), keeping 'How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery' (openai_blog)
+2026-06-24T12:21:35Z - INFO - Dedup: dropping duplicate 'We’re strengthening our presence in Alabama through new investments and community support.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-24T12:21:35Z - INFO - Dedup: dropping duplicate 'Our new community investments in Virginia support local jobs and expand energy affordability.' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-24T12:21:35Z - INFO - Dedup: dropping duplicate 'The latest AI news we announced in May 2026' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-24T12:21:35Z - INFO - Dedup: dropping duplicate '5 ways Google Search can level up your thrift and vintage shopping' (google_blog), keeping 'New research shows how AMIE, our medical AI, could help manage health conditions.' (google_blog)
+2026-06-24T12:21:35Z - INFO - Deduplicator: 6 unique candidates remaining (8 duplicates removed)
+2026-06-24T06:51:35.176Z - INFO - [orchestrator] Completed step: 5. Deduplicate
+2026-06-24T06:51:35.177Z - INFO - [orchestrator] Running step: 6. Evaluate Candidates
+2026-06-24T06:51:35.178Z - INFO - [orchestrator] Command: python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
+2026-06-24T12:21:35Z - INFO - --- Top 3 Candidates ---
+2026-06-24T12:21:35Z - INFO -   #1: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery (score: 65, confidence: 0.50, source: openai_blog)
+2026-06-24T12:21:35Z - INFO -   #2: New research shows how AMIE, our medical AI, could help manage health conditions. (score: 65, confidence: 0.50, source: google_blog)
+2026-06-24T12:21:35Z - INFO -   #3: FUTO Swipe – A new swipe typing model (score: 60, confidence: 0.50, source: hackernews)
+2026-06-24T12:21:35Z - INFO - Evaluated 6 candidates. Written to data/evaluated_candidates.json
+2026-06-24T06:51:35.363Z - INFO - [orchestrator] Completed step: 6. Evaluate Candidates
+2026-06-24T06:51:35.364Z - INFO - [orchestrator] Running step: 7. Editorial Engine
+2026-06-24T06:51:35.364Z - INFO - [orchestrator] Command: python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+2026-06-24T12:21:35Z - INFO - Skipping already-published: How GPT-5 helped immunologist Derya Unutmaz solve a 3-year-old mystery
+2026-06-24T12:21:35Z - INFO - Skipping already-published: New research shows how AMIE, our medical AI, could help manage health conditions.
+2026-06-24T12:21:35Z - INFO - Skipping already-published: Qwen-AgentWorld: Language World Models for General Agents
+2026-06-24T12:21:35Z - INFO - Target category (most underrepresented): free_alternative
+2026-06-24T12:21:35Z - INFO - No candidates matched 'free_alternative' above score 40. Falling back to top-scored eligible.
+2026-06-24T12:21:35Z - INFO - Editorial selected category: free_alternative
+2026-06-24T12:21:35Z - INFO - Top pick: FUTO Swipe – A new swipe typing model (score: 60)
+2026-06-24T12:21:35Z - INFO - Content queue built with 3 candidates.
+2026-06-24T06:51:35.627Z - INFO - [orchestrator] Completed step: 7. Editorial Engine
+2026-06-24T06:51:35.628Z - INFO - [orchestrator] Running step: 8. Select Top Candidate
+2026-06-24T06:51:35.629Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); fs.writeFileSync('data/selected_tool.json', JSON.stringify(JSON.parse(fs.readFileSync('data/content_queue.json'))[0], null, 2))"
+2026-06-24T06:51:35.740Z - INFO - [orchestrator] Completed step: 8. Select Top Candidate
+2026-06-24T06:51:35.741Z - INFO - [orchestrator] Running step: 9. Generate AI Script
+2026-06-24T06:51:35.742Z - INFO - [orchestrator] Command: python services/gemini.py --input data/selected_tool.json --output data/script.json
+2026-06-24T12:21:39Z - INFO - Generating script for selected tool: FUTO Swipe – A new swipe typing model
+2026-06-24T12:21:40Z - INFO - Calling Gemini API (Attempt 1)...
+2026-06-24T12:21:54Z - INFO - SUCCESS: Script successfully generated via Gemini API
+2026-06-24T06:51:55.276Z - INFO - [orchestrator] Completed step: 9. Generate AI Script
+2026-06-24T06:51:55.277Z - INFO - [orchestrator] Running step: 10. Validate Script
+2026-06-24T06:51:55.277Z - INFO - [orchestrator] Command: python utils/validator.py --input data/script.json --output data/validated_script.json
+2026-06-24T12:21:55Z - INFO - Validating script against max_word_count=95...
+2026-06-24T12:21:55Z - INFO - SUCCESS: Script validated successfully
+2026-06-24T06:51:55.520Z - INFO - [orchestrator] Completed step: 10. Validate Script
+2026-06-24T06:51:55.521Z - INFO - [orchestrator] Running step: 11. Generate TTS Audio
+2026-06-24T06:51:55.522Z - INFO - [orchestrator] Command: python services/tts.py --input data/validated_script.json --output data/audio.mp3
+2026-06-24T12:21:55Z - INFO - Generating TTS using voice 'en-US-ChristopherNeural'...
+2026-06-24T12:21:55Z - INFO - Running edge-tts (Attempt 1)...
+2026-06-24T12:22:00Z - INFO - SUCCESS: Audio successfully generated at data/audio.mp3
+2026-06-24T06:52:00.999Z - INFO - [orchestrator] Completed step: 11. Generate TTS Audio
+2026-06-24T06:52:01.000Z - INFO - [orchestrator] Running step: 12. Render Video
+2026-06-24T06:52:01.000Z - INFO - [orchestrator] Command: node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+2026-06-24T06:52:01.089Z - INFO - [render.js] Reading script data...
+2026-06-24T06:52:01.097Z - INFO - [render.js] Calculating audio duration...
+2026-06-24T06:52:01.579Z - INFO - [render.js] Audio duration: 30.10s (903 frames)
+2026-06-24T06:52:01.584Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-24T06:52:01.585Z - INFO - [render.js] Spawning Remotion render subprocess for composition: FreeAlternative...
+2026-06-24T06:53:15.593Z - INFO - [render.js] Cleaned up props.json
+2026-06-24T06:53:15.595Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-24T06:53:15.596Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
+2026-06-24T06:53:15.622Z - INFO - [orchestrator] Completed step: 12. Render Video
+2026-06-24T06:53:15.623Z - INFO - [orchestrator] Running step: 13. Update History
+2026-06-24T06:53:15.624Z - INFO - [orchestrator] Command: node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))"
+2026-06-24T06:53:15.717Z - INFO - [orchestrator] Completed step: 13. Update History
+2026-06-24T06:53:15.718Z - INFO - [orchestrator] === PIPELINE COMPLETED SUCCESSFULLY ===
+2026-06-24T08:11:37.070Z - INFO - [render.js] Reading script data...
+2026-06-24T08:11:37.074Z - INFO - [render.js] Calculating audio duration...
+2026-06-24T08:11:37.320Z - INFO - [render.js] Audio duration: 30.10s (903 frames)
+2026-06-24T08:11:37.324Z - INFO - [render.js] Generated props.json at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\render\props.json
+2026-06-24T08:11:37.325Z - INFO - [render.js] Spawning Remotion render subprocess for composition: FreeAlternative...
+2026-06-24T08:13:25.981Z - INFO - [render.js] Cleaned up props.json
+2026-06-24T08:13:25.982Z - INFO - [render.js] Cleaned up public/audio.mp3
+2026-06-24T08:13:25.983Z - INFO - [render.js] ✅ Video successfully rendered at C:\DEV\devilcode development\Devbyte-engine (youtube automation)\data\video.mp4
