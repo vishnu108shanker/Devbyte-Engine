@@ -58,41 +58,47 @@ def get_script_from_gemini(tool_data: dict, max_retries: int) -> dict:
     raw_prompt = load_prompt_template(category)
     enriched_prompt = inject_variables(raw_prompt, tool_data)
     
-    for attempt in range(max_retries + 1):
-        try:
-            info(f"Calling Gemini API (Attempt {attempt + 1})...")
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=enriched_prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
+    models_to_try = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite']
+    
+    for model_name in models_to_try:
+        for attempt in range(max_retries + 1):
+            try:
+                info(f"Calling Gemini API with {model_name} (Attempt {attempt + 1})...")
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=enriched_prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                    )
                 )
-            )
-            result = json.loads(response.text)
-            
-            # Validate all required output fields exist
-            required_fields = ["hook", "body", "cta", "word_count", "title", "description", "hashtags", "thumbnail_text", "pinned_comment"]
-            for field in required_fields:
-                if field not in result:
-                    raise ValueError(f"Missing required field in Gemini output: {field}")
-            
-            # Augment with our architecture required fields
-            result["source_title"] = tool_data.get("name", "")
-            result["source_url"] = tool_data.get("website", "")
-            result["category"] = tool_data.get("category", "")
-            result["generated_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
-            
-            # Add raw_script for downstream compatibility
-            result["raw_script"] = f"{result['hook']} {result['body']} {result['cta']}"
-            
-            return result
-        except Exception as e:
-            if attempt < max_retries:
-                warning(f"Gemini API call failed, retrying in 10s... ({str(e)})")
-                time.sleep(10)
-            else:
-                error(f"Gemini API failed after {max_retries} retries: {str(e)}")
-                return None
+                result = json.loads(response.text)
+                
+                # Validate all required output fields exist
+                required_fields = ["hook", "body", "cta", "word_count", "title", "description", "hashtags", "thumbnail_text", "pinned_comment"]
+                for field in required_fields:
+                    if field not in result:
+                        raise ValueError(f"Missing required field in Gemini output: {field}")
+                
+                # Augment with our architecture required fields
+                result["source_title"] = tool_data.get("name", "")
+                result["source_url"] = tool_data.get("website", "")
+                result["category"] = tool_data.get("category", "")
+                result["generated_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+                
+                # Add raw_script for downstream compatibility
+                result["raw_script"] = f"{result['hook']} {result['body']} {result['cta']}"
+                
+                return result
+            except Exception as e:
+                if attempt < max_retries:
+                    warning(f"Gemini API call failed with {model_name}, retrying in 10s... ({str(e)})")
+                    time.sleep(10)
+                else:
+                    warning(f"{model_name} failed after {max_retries} retries: {str(e)}. Falling back to next model...")
+                    break # Try the next model
+                    
+    error("All models failed. Pipeline halted.")
+    return None
 
 def main():
     parser = argparse.ArgumentParser()

@@ -147,3 +147,39 @@ node services/render.js --input data/script.json --audio data/audio.mp3 --output
 - `render/`: The React Remotion environment responsible for the visual engine.
 - `logs/pipeline.log`: Master log file tracking execution and errors.
 - `data/`: Ephemeral folder where intermediate JSON files, audio, history, and the final `.mp4` are stored.
+
+
+
+To run the entire automation process from start to finish, run the orchestrator script. 
+---
+### Fresh Run (Recommended)
+Use the `--fresh` flag to safely wipe previous temporary files. The engine will scrape HN and blogs, run them through the editorial/scoring engine, write the script, and render a new vertical video.
+## 🚀 Running the Engine
+### 1. The Generation Pipeline (13 Steps)
+To run the entire automation process from scraping to video rendering:
+**Fresh Run (Recommended)**
+Use the `--fresh` flag to safely wipe previous temporary files and generate a brand new video.
+```bash
+node orchestrator/run_pipeline.js --fresh
+```
+### Resume/Crash Recovery Run
+Run without flags to pick up where a crashed pipeline left off (it will skip any step that already has a completed output file):
+**Resume/Crash Recovery Run**
+Run without flags to pick up where a crashed pipeline left off:
+```bash
+node orchestrator/run_pipeline.js
+```
+### 2. The Publishing Engine
+Once `video.mp4` and `script.json` are generated in the `data/` folder, run the publisher:
+```bash
+python services/upload.py
+```
+*(The first time you run this, a browser window will open to authenticate your Google Account. A `token.json` file will be saved for future runs. Videos are uploaded as **Private** by default).*
+---
+## 🎛️ Advanced Operations
+### Automated Daily Scheduling (Windows)
+A `run_automation.bat` file is included in the project root. You can schedule this to run automatically using Windows Task Scheduler:
+A `run_automation.bat` file is included. Schedule it using Windows Task Scheduler to run the generation pipeline automatically:
+```cmd
+schtasks /create /tn "DevByteAutomation" /tr "\"C:\DEV\devilcode development\Devbyte-engine (youtube automation)\run_automation.bat\"" /sc daily /st 23:30 /f
+```
