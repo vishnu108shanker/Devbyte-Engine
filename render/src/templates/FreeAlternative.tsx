@@ -16,7 +16,8 @@ import { RadialGlow } from '../backgrounds/RadialGlow';
 import { Fade } from '../motion/Fade';
 import { Slide } from '../motion/Slide';
 import { Scale } from '../motion/Scale';
-import { KineticText3D } from '../motion/KineticText3D';
+import { GlowPulse } from '../motion/GlowPulse';
+import { Typewriter } from '../motion/Typewriter';
 import { VideoProps } from '../Root';
 
 // ─── Shared Layout Helpers ────────────────────────────────────────────────────
@@ -156,6 +157,38 @@ const Pill: React.FC<{ label: string; color?: string; bgAlpha?: string; from?: n
   );
 };
 
+// ─── Hero Title (with color emphasis) ─────────────────────────────────────────
+
+const HeroTitle: React.FC<{ text: string; highlight: string; from?: number }> = ({ text, highlight, from = 0 }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const progress = spring({ frame: frame - from, fps, config: { damping: 16, stiffness: 70, mass: 0.8 } });
+  const translateY = interpolate(progress, [0, 1], [60, 0]);
+
+  return (
+    <div
+      style={{
+        transform: `translateY(${translateY}px)`,
+        opacity: progress,
+        fontFamily: Theme.font.sans,
+        fontSize: Theme.size.hero,
+        fontWeight: Theme.weight.black,
+        lineHeight: 1.05,
+        letterSpacing: '-0.03em',
+        textAlign: 'center',
+        width: '100%',
+      }}
+    >
+      <EmphasizedText
+        text={text}
+        highlight={highlight}
+        style={{ color: Theme.colors.text.primary }}
+        accentColor={Theme.colors.brand.cyan}
+      />
+    </div>
+  );
+};
+
 // ─── Subtitle ─────────────────────────────────────────────────────────────────
 
 const Subtitle: React.FC<{ text: string; highlight: string; from?: number }> = ({ text, highlight, from = 0 }) => (
@@ -182,6 +215,22 @@ const Subtitle: React.FC<{ text: string; highlight: string; from?: number }> = (
     </Slide>
   </Fade>
 );
+
+// ─── Divider ──────────────────────────────────────────────────────────────────
+
+const AnimatedDivider: React.FC<{ from?: number; color?: string }> = ({
+  from = 0, color = Theme.colors.brand.blue,
+}) => {
+  const frame = useCurrentFrame();
+  const width = interpolate(frame - from, [0, 25], [0, 400], {
+    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
+  });
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, width: '100%' }}>
+      <div style={{ height: 4, width, background: `linear-gradient(90deg, transparent, ${color}, transparent)`, borderRadius: 4 }} />
+    </div>
+  );
+};
 
 // ─── Feature Bullet (with color emphasis) ─────────────────────────────────────
 
@@ -331,10 +380,11 @@ const FloatingOrb: React.FC<{ size: number; x: string; y: string; color: string 
 /**
  * FreeAlternative — complete production template.
  *
- * Scene layout (3 scenes, fills the FULL audio duration):
- *   0    – S2   →  SCENE 1: Hook — 3D Kinetic Title + category pill + hook subtitle
+ * Scene layout (4 scenes, fills the FULL audio duration):
+ *   0    – S2   →  SCENE 1: Hook — Bold headline + category pill + animated divider
  *   S2   – S3   →  SCENE 2: Feature bullets — 3 animated bullets from validated_script body
- *   S3   – END  →  SCENE 3: CTA + Hashtags
+ *   S3   – S4   →  SCENE 3: Typewriter — highlights the key quote from body
+ *   S4   – END  →  SCENE 4: CTA + Hashtags
  *
  *  Persistent layers: Background, Floating Orbs, Progress Bar.
  *  Uses strictly contiguous `<Sequence>` boundaries (no overlap!).
@@ -348,6 +398,7 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
   const cta        = props.cta           || 'Try it FREE — link in bio!';
   const category   = (props.category     || 'free_alternative').replace(/_/g, ' ');
   const hashtags   = props.hashtags      || ['#AITools', '#Free', '#Dev'];
+  const title      = props.title         || toolName;
 
   // Split body into up to 3 feature sentences
   const sentences = body
@@ -385,23 +436,31 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
       {/* SCENE 1: Hook                                                       */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       <Sequence from={S1_START} durationInFrames={S2_START - S1_START}>
+        <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
+          <ScenePop delay={0}>
+            <Col gap={48} align="center" justify="center">
 
-        {/* 3D Kinetic Title — full-bleed WebGL canvas behind the 2D overlay */}
-        <KineticText3D text={toolName} highlight={toolName} from={8} />
+              {/* Radial glow burst on entry */}
+              <RadialGlow color={Theme.colors.brand.blue} intensity={0.15} from={5} durationFrames={20} />
 
-        {/* 2D overlay: pill on top, hook subtitle at bottom */}
-        <AbsoluteFill style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: '100px 80px 140px 80px', pointerEvents: 'none' }}>
+              {/* Category pill */}
+              <Fade from={0} duration={10}>
+                <Pill label={category} color={Theme.colors.brand.violet} from={0} />
+              </Fade>
 
-          {/* Top: Category pill */}
-          <Fade from={0} duration={10}>
-            <Pill label={category} color={Theme.colors.brand.violet} from={0} />
-          </Fade>
+              {/* Hero headline — tool name highlighted */}
+              <GlowPulse color={Theme.colors.brand.blue} minOpacity={0.1} maxOpacity={0.4} period={90}>
+                <HeroTitle text={title} highlight={toolName} from={8} />
+              </GlowPulse>
 
-          {/* Bottom: Hook subtitle */}
-          <Fade from={18} duration={15}>
-            <Subtitle text={hook} highlight={toolName} from={18} />
-          </Fade>
+              {/* Divider */}
+              <AnimatedDivider from={20} color={Theme.colors.brand.blue} />
 
+              {/* Hook subtitle — tool name highlighted */}
+              <Subtitle text={hook} highlight={toolName} from={24} />
+
+            </Col>
+          </ScenePop>
         </AbsoluteFill>
       </Sequence>
 
