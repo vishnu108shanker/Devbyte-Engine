@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "batch": "node orchestrator/batch_generate_and_upload.js"
+  },
   "dependencies": {
     "axios": "^1.18.0",
     "dotenv": "^17.4.2",
