@@ -86,28 +86,27 @@ Summary: {summary}
 Website: {website}
 
 WRITING RULES:
-1. HOOK (12-15 words): Lead with the announcement as breaking news.
+1. HOOK (12-15 words): Deliver breaking tech news immediately.
    Formula options:
-   - "{name} just changed everything. Here is what happened."
-   - "Breaking: {name} just released something you need to know about."
-   - "{name} just dropped a major update. Here is what is new."
-   The hook must convey urgency. This just happened. Watch now.
+   - "Breaking tech news: {name} just launched something huge."
+   - "If you write code, you need to see this new {name} update."
+   - "A massive new update for {name} just dropped today."
+   The hook must sound like a tech reporter breaking a story. Fast, urgent, and credible.
 
-2. BODY (40-50 words): Cover:
-   - Sentence 1: Exactly what changed or was released (concrete, specific)
-   - Sentence 2: Why this matters to the viewer personally
-   - Sentence 3-4: One practical implication — what they can now do
-     that they could not do before, or what gets cheaper or easier
-   No company background. No history. Only what changed right now.
+2. BODY (40-50 words): Deliver the facts like a journalist:
+   - Sentence 1: The Headline Fact. What exactly was released or updated today? (Be highly specific).
+   - Sentence 2: The Technical Impact. How does this change the workflow for developers or tech professionals? 
+   - Sentence 3-4: The Data. Give one concrete metric, price drop, or speed improvement that proves the value.
+   Act as a news anchor for developers. Keep it objective and information-dense. No fluff.
 
-3. CTA (8-10 words): Drive follows for future updates.
-   Use: "Follow — I cover every AI update daily."
-   Or: "Follow for daily AI news."
+3. CTA (8-10 words): Drive follows for future tech news.
+   Use: "Follow for daily tech and AI news."
+   Or: "I cover developer news daily. Drop a follow."
 
 DO NOT:
 - Give company history or background
-- Use "In a world where..." or "As AI continues to..."
-- Use "game-changer" or "revolutionary"
+- Use generic hype words like "revolutionary", "game-changer", or "insane"
+- Sound like an advertisement or a sponsor read
 - Be vague about what actually changed
 - Use exclamation marks
 
