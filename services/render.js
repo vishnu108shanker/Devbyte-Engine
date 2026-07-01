@@ -78,7 +78,8 @@ async function main() {
     }
     
     // Copy the audio to public directory so Remotion can access it via staticFile
-    const audioFilename = 'audio.mp3';
+    const uniqueId = Date.now().toString() + '_' + Math.floor(Math.random() * 100000).toString();
+    const audioFilename = `audio_${uniqueId}.mp3`;
     fs.copyFileSync(absAudio, path.join(publicDir, audioFilename));
 
     // Prepare props. 
@@ -88,10 +89,10 @@ async function main() {
       audio_url: audioFilename
     };
     
-    const propsPath = path.join(renderDir, 'props.json');
+    const propsPath = path.join(renderDir, `props_${uniqueId}.json`);
     
     fs.writeFileSync(propsPath, JSON.stringify(props, null, 2), 'utf8');
-    logInfo(`Generated props.json at ${propsPath}`);
+    logInfo(`Generated props JSON at ${propsPath}`);
     
     const outDir = path.dirname(absOutput);
     if (!fs.existsSync(outDir)) {
@@ -104,7 +105,7 @@ async function main() {
     const compositionName = category.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
     
     logInfo(`Spawning Remotion render subprocess for composition: ${compositionName}...`);
-    const remotionCmd = `npx remotion render src/index.ts ${compositionName} "${absOutput}" --props=props.json`;
+    const remotionCmd = `npx remotion render src/index.ts ${compositionName} "${absOutput}" --props=${path.basename(propsPath)}`;
     
     try {
       execSync(remotionCmd, { cwd: renderDir, stdio: 'inherit' });
@@ -114,12 +115,12 @@ async function main() {
 
     if (fs.existsSync(propsPath)) {
       fs.unlinkSync(propsPath);
-      logInfo("Cleaned up props.json");
+      logInfo(`Cleaned up ${path.basename(propsPath)}`);
     }
-    const publicAudioPath = path.join(publicDir, 'audio.mp3');
+    const publicAudioPath = path.join(publicDir, audioFilename);
     if (fs.existsSync(publicAudioPath)) {
       fs.unlinkSync(publicAudioPath);
-      logInfo("Cleaned up public/audio.mp3");
+      logInfo(`Cleaned up public/${audioFilename}`);
     }
     
     logInfo(`✅ Video successfully rendered at ${absOutput}`);

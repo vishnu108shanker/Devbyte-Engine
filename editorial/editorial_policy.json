@@ -4,11 +4,11 @@
     "productivity":      20,
     "hidden_gem":        15,
     "comparison":        15,
-    "update":            15,
+    "update":            25,
     "weekly_roundup":    10
   },
   "max_repeat_days": 3,
   "min_score_threshold": 40,
-  "queue_size": 3,
+  "queue_size": 10,
   "breaking_news_override_score": 85
 }
