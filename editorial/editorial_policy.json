@@ -4,8 +4,7 @@
     "productivity":      20,
     "hidden_gem":        15,
     "comparison":        15,
-    "update":            25,
-    "weekly_roundup":    10
+    "update":            25
   },
   "max_repeat_days": 3,
   "min_score_threshold": 40,

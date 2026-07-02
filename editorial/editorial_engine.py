@@ -138,10 +138,11 @@ def main():
         # Already sorted by score from evaluator, take top N
         queue = scored[:queue_size]
 
-    # Assign category to selected candidates if missing or "unknown"
+    # Assign dynamic target category to selected candidates if missing or "unknown"
+    target_cat = find_underrepresented_category(weights, get_category_distribution(history))
     for c in queue:
         if not c.get("category") or c.get("category") == "unknown":
-            c["category"] = "update"
+            c["category"] = target_cat
 
     info(f"Editorial selected category: {queue[0].get('category') if queue else 'none'}")
     info(f"Top pick: {queue[0].get('name') if queue else 'none'} (score: {queue[0].get('score') if queue else 0})")
