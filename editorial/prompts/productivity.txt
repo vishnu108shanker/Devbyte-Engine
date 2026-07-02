@@ -9,66 +9,45 @@ Never mention these checks in the output.
 Before writing the script, silently optimize it using the following
 editorial process.
 
-STEP 1 — Find the Real Hook
+STEP 1 — The Conversational Flow Rule
+Avoid writing in a robotic, staccato tone. Use a flowing, conversational narrative style. Ensure smooth transitions between sentences so it sounds like a human telling an engaging story to a friend. 
+
+STEP 2 — Find the Real Hook
 Do NOT ask: "What does this tool do?"
 Instead ask: "Why would someone stop scrolling for this?"
-The hook must create one of these emotions:
-- Curiosity  • Surprise  • Relief  • Fear of missing out
-- Saving money  • Saving time  • Solving a painful problem
-If none are present, rethink the angle.
+The hook must create curiosity, surprise, relief, or FOMO.
 
-STEP 2 — Find the Core Value
-The viewer should remember exactly ONE idea after watching.
-If the script teaches multiple ideas, simplify until only one remains.
-One video = One takeaway.
+STEP 3 — The "News Story" Structure
+Instead of jumping straight into a list of features, tell a mini-story:
+- The Context: What was the problem before? (e.g. "For years, developers struggled with X...")
+- The Drop: Announce the solution as an event.
+- The Impact: Explain exactly what happened and why it changes things.
 
-STEP 3 — Convert Features into Outcomes
-Never describe features alone. Always translate into a real-world outcome.
-Bad:  "Supports AI image generation."
-Good: "Generate client-ready images in under 30 seconds."
+STEP 4 — The Product Name Isolation Rule
+When introducing the tool, ALWAYS use an isolation phrase to ensure the TTS voice separates the name from surrounding words clearly. 
+Good: "a new AI tool called [PRODUCT NAME]..."
+Good: "an open-source project named [PRODUCT NAME]..."
+Bad: "Today [PRODUCT NAME] launched..." (Too fast for audio)
+Note: If the product name is an acronym, only spell it out with dashes if it is typically pronounced as individual letters (e.g., A-W-S, I-B-M). Otherwise, leave it as is.
 
-STEP 4 — Make Every Sentence Earn Its Place
-Every sentence must perform exactly one job:
-Hook / Build curiosity / Explain / Demonstrate /
-Compare / Increase credibility / Drive action
-Delete any sentence that performs no purpose.
+STEP 4.5 — The Name Extraction Rule
+The "Tool Name" provided in the INPUT DATA is often just an article headline (e.g., "Google releases new updates to Gemini"). DO NOT use the literal headline as the product name in your script. You MUST extract the actual short brand name of the product (max 3 words, e.g., "Gemini", "Claude Code", "Pixel Drop") and use ONLY that short name throughout the script. Never use a name longer than 3 words.
 
-STEP 5 — Be Concrete
+STEP 5 — Be Concrete & Translate Features into Outcomes
 Avoid: fast, easy, powerful, better, smart
-Prefer: ₹ amounts, minutes, clicks, hours saved,
-        number of tasks, specific use cases
+Prefer: $ amounts, minutes, clicks, hours saved, specific use cases.
+Never describe features alone. Always translate into a real-world outcome.
 
 STEP 6 — Eliminate Generic AI Language
-Never use: "This changes everything." / "Game changer." /
-"Mind blowing." / "You need this." / "Revolutionary."
+Never use: "This changes everything." / "Game changer." / "Mind blowing."
 Unless supported by real evidence.
-Prefer demonstrating value instead.
 
-STEP 7 — Imagine the Viewer
-Assume the viewer has already watched dozens of AI tool videos,
-has a short attention span, and will skip immediately if the
-opening feels generic.
-The first 3 seconds must justify watching the remaining 30.
-
-STEP 8 — Screenshot Test
-Imagine the viewer pauses at any random frame.
-Would the visible sentence still communicate something useful?
-If not, rewrite.
-
-STEP 9 — Shareability Test
-Ask: Would someone send this Short to a friend?
-If not, increase the usefulness, surprise, or practical value.
-
-STEP 10 — Final Editorial Review
+STEP 7 — Final Editorial Review
 Before producing the final output, silently verify:
-✓ The hook is impossible to confuse with a generic AI video.
+✓ The script sounds like a human telling a story, not a list of bullet points.
+✓ The product name is clearly isolated for audio clarity.
 ✓ The value is immediately obvious.
-✓ The viewer learns one memorable thing.
-✓ The script sounds human rather than AI-generated.
-✓ No unnecessary words remain.
 ✓ Every line naturally leads into the next.
-✓ The ending creates curiosity or encourages action without
-  sounding like an advertisement.
 
 Only after passing all checks should the final script be generated.
 
@@ -118,7 +97,7 @@ Never begin with:
 - You Need...
 - Stop Using...
 
-Instead begin with the product name - {name}: [Specific Outcome]
+Instead begin with the SHORT product name (max 3 words): [Specific Outcome]. Title must be 6 words max total.
 Examples
 Cursor: Code 3x Faster
 Gamma: Slides in 60 Seconds
