@@ -29,7 +29,7 @@ flowchart TD
 
     %% Flow
     Out -- "video.mp4 + script.json" --> P1
-    P1 -- "YouTube Data API v3" --> YT[YouTube (Private)]
+    P1 -- "YouTube Data API v3" --> YT["YouTube (Private)"]
 ```
 
 ## 📋 Prerequisites
