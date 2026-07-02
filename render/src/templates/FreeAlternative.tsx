@@ -410,8 +410,9 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
 
   // 3-scene timeline (contiguous, dynamic to audio length)
   const S1_START = 0;
-  const S2_START = Math.floor(durationInFrames * 0.25);  // Hook: 25%
-  const S3_START = Math.floor(durationInFrames * 0.75);  // Features: 50%
+  const S2_START = Math.floor(durationInFrames * 0.20);  // Hook: 20%
+  const S3_START = Math.floor(durationInFrames * 0.85);  // Body: 65%, CTA: 15%
+  const bulletStagger = Math.floor((S3_START - S2_START) / Math.max(sentences.length, 1));
 
   return (
     <AbsoluteFill style={{ backgroundColor: Theme.colors.bg, overflow: 'hidden' }}>
@@ -493,7 +494,7 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
                   text={sentence}
                   highlight={toolName}
                   from={0}
-                  delay={i * 18}
+                  delay={i * bulletStagger}
                 />
               ))}
 
