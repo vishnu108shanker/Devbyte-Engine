@@ -84,7 +84,7 @@ WRITING RULES:
 
 3. CTA (8-10 words): Audience-specific action.
    Use: "Link in bio — made for {target_audience} like you."
-   Or: "Link in bio. Built for you."
+   Or: "Subscribe to get daily tech updates ."
 
 DO NOT:
 - Describe the tool for a general audience

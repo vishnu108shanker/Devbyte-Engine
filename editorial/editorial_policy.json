@@ -1,13 +1,9 @@
 {
   "weights": {
-    "free_alternative":  25,
-    "productivity":      20,
-    "hidden_gem":        15,
-    "comparison":        15,
-    "update":            25
+    "update": 100
   },
-  "max_repeat_days": 3,
-  "min_score_threshold": 40,
+  "max_repeat_days": 100,
+  "min_score_threshold": 50,
   "queue_size": 10,
   "breaking_news_override_score": 85
 }

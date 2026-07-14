@@ -67,6 +67,29 @@ def candidate_matches_category(candidate, category):
     return False
 
 
+MAX_PER_SOURCE = 3  # Maximum stories from the same source in a single queue
+
+def select_with_diversity(scored_candidates, queue_size):
+    """Select top N candidates while enforcing source diversity.
+    No single source (e.g. 'openai_blog', 'hackernews') can contribute
+    more than MAX_PER_SOURCE stories to a single daily queue."""
+    queue = []
+    source_counts = {}
+
+    for c in scored_candidates:
+        if len(queue) >= queue_size:
+            break
+        source = c.get("source", "unknown")
+        count = source_counts.get(source, 0)
+        if count < MAX_PER_SOURCE:
+            queue.append(c)
+            source_counts[source] = count + 1
+        else:
+            info(f"Diversity cap: skipping '{c.get('name')}' (already {MAX_PER_SOURCE} from '{source}')")
+
+    return queue
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", required=True, help="Path to evaluated_candidates.json")
@@ -87,7 +110,7 @@ def main():
         sys.exit(1)
 
     weights = policy.get("weights", {})
-    min_score = policy.get("min_score_threshold", 40)
+    min_score = policy.get("min_score_threshold", 50)
     queue_size = policy.get("queue_size", 3)
     breaking_threshold = policy.get("breaking_news_override_score", 85)
 
@@ -112,7 +135,10 @@ def main():
     breaking = [c for c in eligible if c.get("score", 0) >= breaking_threshold]
     if breaking:
         info(f"Breaking news override! '{breaking[0].get('name')}' scored {breaking[0].get('score')}")
-        queue = breaking[:queue_size]
+        # Combine breaking news + remaining eligible, then select with diversity
+        non_breaking = [c for c in eligible if c.get("score", 0) < breaking_threshold and c.get("score", 0) >= min_score]
+        combined = breaking + non_breaking
+        queue = select_with_diversity(combined, queue_size)
     else:
         # Find underrepresented category
         recent_dist = get_category_distribution(history)
@@ -135,8 +161,8 @@ def main():
             warning(f"No candidates above score threshold {min_score}. Taking top eligible regardless.")
             scored = eligible
 
-        # Already sorted by score from evaluator, take top N
-        queue = scored[:queue_size]
+        # Already sorted by score from evaluator, pick top N with source diversity
+        queue = select_with_diversity(scored, queue_size)
 
     # Assign dynamic target category to selected candidates if missing or "unknown"
     target_cat = find_underrepresented_category(weights, get_category_distribution(history))

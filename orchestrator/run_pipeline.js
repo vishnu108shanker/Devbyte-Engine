@@ -58,8 +58,9 @@ function cleanup() {
     for (const file of files) {
       if (!safeFiles.includes(file)) {
         try {
-          fs.unlinkSync(path.join(dataDir, file));
-          logInfo(`Cleaned up temp file: ${file}`);
+          const filePath = path.join(dataDir, file);
+          fs.rmSync(filePath, { recursive: true, force: true });
+          logInfo(`Cleaned up temp file/folder: ${file}`);
         } catch (err) {
           logWarning(`Could not clean up ${file}: ${err.message}`);
         }
@@ -125,9 +126,27 @@ const steps = [
     outputPath: "data/temp_blogs.json"
   },
   {
+    name: "2b. Collect GitHub",
+    command: "python",
+    args: ["collectors/github_releases.py", "--input", "config.json", "--output", "data/temp_github.json"],
+    outputPath: "data/temp_github.json"
+  },
+  {
+    name: "2c. Collect Product Hunt",
+    command: "python",
+    args: ["collectors/product_hunt.py", "--input", "config.json", "--output", "data/temp_product_hunt.json"],
+    outputPath: "data/temp_product_hunt.json"
+  },
+  {
     name: "3. Normalize Data",
     command: "python",
-    args: ["ingestion/normalizer.py", "--input", "data/temp_hn.json", "--input", "data/temp_blogs.json", "--output", "data/raw_candidates.json"],
+    args: ["ingestion/normalizer.py", "--input", "data/temp_hn.json", "--input", "data/temp_blogs.json", "--input", "data/temp_github.json", "--input", "data/temp_product_hunt.json", "--output", "data/raw_candidates.json"],
+    outputPath: "data/raw_candidates.json"
+  },
+  {
+    name: "3b. Signal Filter",
+    command: "python",
+    args: ["ingestion/signal_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"],
     outputPath: "data/raw_candidates.json"
   },
   {

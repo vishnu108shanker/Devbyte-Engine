@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const MAX_VIDEOS = 5;
+const MAX_VIDEOS = 4 ;
 
 // Utility to run sync commands (for Phase 1)
 function runCommandSync(command, args, cwd = PROJECT_ROOT) {
@@ -27,11 +27,14 @@ async function main() {
   console.log(`🚀 Starting PARALLEL batch generation of ${MAX_VIDEOS} videos...\n`);
 
   // Phase 1: Ingestion & Evaluation (Run once)
-  console.log(`--- PHASE 1: INGESTION & EVALUATION ---`);
+  console.log(`--- PHASE 1: INGESTION, FILTERING & EVALUATION ---`);
   const ingestSteps = [
     ["python", ["collectors/hackernews.py", "--input", "config.json", "--output", "data/temp_hn.json"]],
     ["python", ["collectors/blogs.py", "--input", "config.json", "--output", "data/temp_blogs.json"]],
-    ["python", ["ingestion/normalizer.py", "--input", "data/temp_hn.json", "--input", "data/temp_blogs.json", "--output", "data/raw_candidates.json"]],
+    ["python", ["collectors/github_releases.py", "--input", "config.json", "--output", "data/temp_github.json"]],
+    ["python", ["collectors/product_hunt.py", "--input", "config.json", "--output", "data/temp_product_hunt.json"]],
+    ["python", ["ingestion/normalizer.py", "--input", "data/temp_hn.json", "--input", "data/temp_blogs.json", "--input", "data/temp_github.json", "--input", "data/temp_product_hunt.json", "--output", "data/raw_candidates.json"]],
+    ["python", ["ingestion/signal_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
     ["python", ["ingestion/quality_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
     ["python", ["ingestion/deduplicator.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
     ["python", ["evaluation/evaluator.py", "--input", "data/raw_candidates.json", "--output", "data/evaluated_candidates.json"]],
@@ -114,7 +117,7 @@ async function main() {
     ok = await runCommandAsync('python', ['services/upload.py', '--video', `${wDir}/video.mp4`, '--script', `${wDir}/script.json`]);
     if (!ok) return false;
     
-    console.log(`[Worker ${wId}] ✅ Successfully completed video!`);
+    console.log(`[Worker ${wId}] ✅ Successfully generated and uploaded video!`);
     return true;
   });
 
@@ -125,7 +128,9 @@ async function main() {
   let successCount = 0;
   for (let i = 0; i < results.length; i++) {
     if (results[i]) {
-      historyData.push(workers[i].candidate);
+      const cand = workers[i].candidate;
+      cand.published_at = new Date().toISOString();
+      historyData.push(cand);
       successCount++;
     }
   }
@@ -133,7 +138,7 @@ async function main() {
   fs.writeFileSync(path.join(PROJECT_ROOT, 'data', 'history.json'), JSON.stringify(historyData, null, 2), 'utf8');
   console.log(`✅ Updated data/history.json with ${successCount} new videos.`);
   
-  console.log(`\n🎉 BATCH JOB COMPLETE! Successfully generated and uploaded ${successCount} videos.`);
+  console.log(`\n🎉 BATCH JOB of 5 videos COMPLETE! Successfully generated and uploaded ${successCount} videos.`);
 }
 
 main();

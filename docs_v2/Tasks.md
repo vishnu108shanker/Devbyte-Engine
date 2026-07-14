@@ -557,5 +557,107 @@ These are noted here so agents do not accidentally build them:
 - Feedback Loop         → V3
 - YouTube Analytics API → V3
 - Playwright scraping   → V3
-- producthunt.py        → add in Week 3 after V2 is stable
 - Multi-channel launch  → V4
+
+---
+
+## V2.2 — Automated Newsroom Overhaul (July 4, 2026)
+
+### Source Configuration
+
+[x] Create `sources/official_feeds.json`
+    Centralized RSS feed registry with 8 feeds (OpenAI, Anthropic, Google, Vercel, AWS, Cloudflare, Supabase, Bun).
+
+[x] Create `sources/github_repos.json`
+    Curated list of 8 high-interest repos (React, Next.js, Bun, Tailwind, Supabase, VS Code, Deno, Docker).
+
+[x] Create `sources/filters.json`
+    Rule-based HN whitelist (released, launches, announces, etc.) and noise blacklist (tutorial, guide, essay, etc.).
+
+[x] Refactor `collectors/blogs.py`
+    Dynamically loads feeds from `sources/official_feeds.json` instead of hardcoding URLs.
+
+---
+
+### New Collectors
+
+[x] Create `collectors/github_releases.py`
+    Polls GitHub `/releases/latest` API for repos in `github_repos.json`.
+    Outputs structured candidates with release notes, version tags, `event_type: open_source_release`.
+
+[x] Create `collectors/product_hunt.py`
+    Parses Product Hunt RSS feed for daily trending products.
+    Outputs structured candidates with `event_type: new_tool`.
+
+---
+
+### Signal Filter
+
+[x] Create `ingestion/signal_filter.py`
+    New pipeline stage between Normalizer and Quality Filter.
+    HN stories must match whitelist keywords or are dropped.
+    All sources checked against noise blacklist.
+    First run: dropped 15/15 HN essays and 1 noise blog. Zero false positives.
+
+---
+
+### Evaluator Overhaul
+
+[x] Rewrite `evaluation/evaluator.py`
+    Batch Gemini call as "YouTube Shorts Editor" returning `editor_score` (0-100) and `reason`.
+    Soft score, not binary gate. Python enforces threshold from `editorial_policy.json`.
+
+[x] Update `evaluation/scoring.py`
+    - `calculate_total_score` now accepts `editor_score` as a multiplier.
+    - Hype Bonus keyword matching uses word-boundary regex to prevent false positives.
+
+---
+
+### Orchestrator Updates
+
+[x] Update `batch_generate_and_upload.js` Phase 1
+    Added GitHub, Product Hunt collectors. Added Signal Filter step.
+    Updated Normalizer to merge 4 input sources.
+
+[x] Update `run_pipeline.js` steps array
+    Added steps 2b (GitHub), 2c (Product Hunt), 3b (Signal Filter).
+    Updated step 3 (Normalize) to accept 4 input files.
+
+---
+
+### Pipeline Fixes (V2.1)
+
+[x] Fix queue truncation bug in `editorial_engine.py`
+    Breaking News Override now fills remaining queue slots with non-breaking candidates.
+
+[x] Fix `update.txt` prompt persona
+    Rewrote from "news anchor" to "passionate tech enthusiast" tone.
+
+[x] Fix hype keyword scanner
+    Word-boundary regex prevents "anti-Amazon" from matching "amazon".
+
+---
+
+---
+
+### V2.2.1 — Deduplication & Source Diversity Fix (July 4, 2026)
+
+[x] Rewrite `ingestion/deduplicator.py`
+    Removed domain-based grouping (which incorrectly merged all GitHub releases).
+    Replaced with story-level identity (exact ID, exact Canonical URL, near-identical Normalized Title).
+
+[x] Update `editorial/editorial_engine.py` source diversity limit
+    Added `select_with_diversity` loop to enforce `MAX_PER_SOURCE = 2`.
+    Applied to both breaking news and standard queue selections.
+
+---
+
+### Known Issues (Deferred)
+
+[x] Deduplicator is too aggressive with Product Hunt
+    **FIXED:** Resolved by V2.2.1 deduplicator rewrite (now uses story-level identity instead of domain-based grouping).
+
+[ ] GitHub release summaries too short for some repos
+    Next.js and VS Code releases were rejected by quality filter (under 20 words).
+    Fix: fetch fuller release body from API or generate summary padding.
+

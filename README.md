@@ -1,35 +1,44 @@
-# DevByte Engine V2 (YouTube Shorts Automation)
+# DevByte Engine V2 (Newsroom Automation)
 
-An end-to-end automated pipeline that scrapes Hacker News and tech blogs, evaluates news with an editorial engine, uses Google Gemini to write engaging scripts, generates text-to-speech using Edge TTS, and renders highly aesthetic, premium SaaS-style YouTube Short videos automatically using Remotion.
+An end-to-end automated YouTube Shorts pipeline that acts as a tech newsroom. It scrapes Hacker News, official company blogs, GitHub releases, and Product Hunt to find the highest signal product launches and engineering announcements. It evaluates them using Gemini as an AI Editor, writes engaging scripts, generates text-to-speech using Edge TTS, and renders premium aesthetic videos using Remotion.
 
 ## 🏗️ Architecture
 
-The DevByte Engine follows a strict separation of concerns, divided into two primary subsystems: the **Generation Pipeline** and the **Publishing Engine**.
+The DevByte Engine follows a strict separation of concerns:
 
 ```mermaid
 flowchart TD
     %% Generation Pipeline
-    subgraph Generation [Content Generation Pipeline]
+    subgraph Newsroom Ingestion
         direction TB
-        A1[Hacker News & RSS Collectors] -->|Raw Data| A2[Ingestion & Normalizer]
-        A2 -->|Deduplication| A3[Evaluator]
-        A3 -->|Scored Candidates| A4[Editorial Engine]
-        A4 -->|Content Queue| A5[Gemini AI Scriptwriter]
-        A5 -->|Raw Script| A6[Validator]
-        A6 -->|script.json| A7[Edge TTS]
-        A7 -->|audio.mp3| A8[Remotion Renderer]
-        A8 -->|video.mp4| Out[(data/)]
+        A1[GitHub Releases] --> N[Normalizer]
+        A2[Product Hunt] --> N
+        A3[Official Blogs] --> N
+        A4[Hacker News] --> N
+        
+        N -->|Normalized Data| S[Signal Filter]
+        S -->|High-Signal Candidates| Q[Quality Filter]
+        Q -->|Valid Word Count| D[Deduplicator]
+        D -->|Unique Stories| E[Gemini AI Evaluator]
     end
 
-    %% Publishing Pipeline
-    subgraph Publishing [Publishing Engine]
+    subgraph Editorial Engine
         direction TB
-        P1[upload.py]
+        E -->|Scored Candidates| Ed[Editorial Engine]
+        Ed -->|Source Diversity & Override| Queue[Content Queue]
+    end
+    
+    subgraph Video Production
+        direction TB
+        Queue --> G[Gemini AI Scriptwriter]
+        G --> T[Edge TTS]
+        T --> R[Remotion Renderer]
+        R -->|video.mp4| Out[(data/)]
     end
 
     %% Flow
-    Out -- "video.mp4 + script.json" --> P1
-    P1 -- "YouTube Data API v3" --> YT["YouTube (Private)"]
+    Newsroom Ingestion --> Editorial Engine
+    Editorial Engine --> Video Production
 ```
 
 ## 📋 Prerequisites
@@ -37,7 +46,7 @@ flowchart TD
 - **Python 3.9+**
 - **Node.js 18+**
 - **[FFmpeg](https://ffmpeg.org/download.html)** (Ensure it is in your system PATH)
-- **Google Gemini API Key** (For script generation)
+- **Google Gemini API Key** (For script generation and evaluation)
 - **Google Cloud Console OAuth Credentials** (For YouTube publishing)
 
 ## 🛠️ Setup & Installation
@@ -57,7 +66,7 @@ flowchart TD
 3. **Install Dependencies**
    ```bash
    # Python Dependencies
-   pip install edge-tts google-generativeai requests beautifulsoup4 python-dotenv
+   pip install edge-tts google-generativeai requests beautifulsoup4 python-dotenv feedparser python-slugify
    pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
    
    # Node Dependencies (Root & Render)
@@ -76,23 +85,16 @@ flowchart TD
 
 ## 🚀 Running the Engine
 
-### 1. The Generation Pipeline (13 Steps)
-To run the entire automation process from scraping to video rendering:
+### The Generation Pipeline
+To run the entire automation process from scraping to rendering a batch of videos:
 
-**Fresh Run (Recommended)**
-Use the `--fresh` flag to safely wipe previous temporary files and generate a brand new video.
 ```bash
-node orchestrator/run_pipeline.js --fresh
+npm run batch
 ```
+*(This triggers Phase 1: Ingestion & Evaluation, followed by Phase 2: Batch Generation of up to 5 videos).*
 
-**Resume/Crash Recovery Run**
-Run without flags to pick up where a crashed pipeline left off:
-```bash
-node orchestrator/run_pipeline.js
-```
-
-### 2. The Publishing Engine
-Once `video.mp4` and `script.json` are generated in the `data/` folder, run the publisher:
+### The Publishing Engine
+Once videos are generated in the `data/` folder, run the publisher:
 ```bash
 python services/upload.py
 ```
@@ -100,20 +102,27 @@ python services/upload.py
 
 ---
 
-## 🎛️ Advanced Operations
+## 🎛️ Configuration & Editorial Sources
 
-### Automated Daily Scheduling (Windows)
-A `run_automation.bat` file is included. Schedule it using Windows Task Scheduler to run the generation pipeline automatically:
-```cmd
-schtasks /create /tn "DevByteAutomation" /tr "\"C:\DEV\devilcode development\Devbyte-engine (youtube automation)\run_automation.bat\"" /sc daily /st 23:30 /f
-```
+You can configure what the engine tracks without changing any code by editing the JSON files in the `sources/` directory:
 
-### Previewing Video Visuals
-If you want to edit the React Remotion components or preview the video without waiting for a full MP4 render:
-```bash
-cd render
-npm run dev
-```
+- **`sources/official_feeds.json`**: Add any company RSS feed (e.g. OpenAI, Vercel, Supabase).
+- **`sources/github_repos.json`**: Add any GitHub repository in `owner/repo` format to track its latest releases.
+- **`sources/filters.json`**: Configure the whitelist for Hacker News and the global noise blacklist.
+- **`editorial/editorial_policy.json`**: Tweak scoring weights (Freshness, Popularity, Quality) and thresholds.
+- **`config.json`**: Master configuration (voice selection, timeouts, retries).
+
+## 📂 Project Structure
+
+- `collectors/`: Python scripts that fetch data from various sources (HN, Blogs, GitHub, PH).
+- `ingestion/`: Normalization, Signal Filtering, and Deduplication logic.
+- `evaluation/`: The Gemini AI evaluator and algorithmic scoring logic.
+- `editorial/`: Selects the final candidates based on diversity and historical category distribution.
+- `orchestrator/`: Node.js scripts (`run_pipeline.js`, `batch_generate_and_upload.js`) that control execution flow.
+- `render/`: The React Remotion environment responsible for the visual engine.
+- `logs/`: Master log files tracking execution and errors.
+- `data/`: Ephemeral folder for intermediate JSON files, audio, and the final `.mp4` outputs.
+
 
 ### Running Modules Independently
 If you are debugging or testing specific modules, you can run them manually:
@@ -137,49 +146,6 @@ python services/tts.py --input data/script.json --output data/audio.mp3
 node services/render.js --input data/script.json --audio data/audio.mp3 --output data/video.mp4
 ```
 
----
 
-## 📂 Project Architecture
-
-- `config.json`: Master configuration (voice selection, timeouts, retries).
-- `orchestrator/run_pipeline.js`: The central task runner orchestrating the 13 Python/Node scripts.
-- `services/upload.py`: The standalone V1 Publishing Engine.
-- `render/`: The React Remotion environment responsible for the visual engine.
-- `logs/pipeline.log`: Master log file tracking execution and errors.
-- `data/`: Ephemeral folder where intermediate JSON files, audio, history, and the final `.mp4` are stored.
-
-
-
-To run the entire automation process from start to finish, run the orchestrator script. 
----
-### Fresh Run (Recommended)
-Use the `--fresh` flag to safely wipe previous temporary files. The engine will scrape HN and blogs, run them through the editorial/scoring engine, write the script, and render a new vertical video.
-## 🚀 Running the Engine
-### 1. The Generation Pipeline (13 Steps)
-To run the entire automation process from scraping to video rendering:
-**Fresh Run (Recommended)**
-Use the `--fresh` flag to safely wipe previous temporary files and generate a brand new video.
-```bash
-node orchestrator/run_pipeline.js --fresh
-```
-### Resume/Crash Recovery Run
-Run without flags to pick up where a crashed pipeline left off (it will skip any step that already has a completed output file):
-**Resume/Crash Recovery Run**
-Run without flags to pick up where a crashed pipeline left off:
-```bash
-node orchestrator/run_pipeline.js
-```
-### 2. The Publishing Engine
-Once `video.mp4` and `script.json` are generated in the `data/` folder, run the publisher:
-```bash
-python services/upload.py
-```
-*(The first time you run this, a browser window will open to authenticate your Google Account. A `token.json` file will be saved for future runs. Videos are uploaded as **Private** by default).*
----
-## 🎛️ Advanced Operations
-### Automated Daily Scheduling (Windows)
-A `run_automation.bat` file is included in the project root. You can schedule this to run automatically using Windows Task Scheduler:
-A `run_automation.bat` file is included. Schedule it using Windows Task Scheduler to run the generation pipeline automatically:
-```cmd
-schtasks /create /tn "DevByteAutomation" /tr "\"C:\DEV\devilcode development\Devbyte-engine (youtube automation)\run_automation.bat\"" /sc daily /st 23:30 /f
-```
+To upload the already generatedd videos inddependently 
+cd "c:/DEV/devilcode development/Devbyte-engine (youtube automation)"; python services/upload.py --video data/worker_0/video.mp4 --script data/worker_0/script.json

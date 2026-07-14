@@ -1,8 +1,8 @@
 import argparse
 import json
+import re
 import sys
 import os
-import urllib.parse
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
@@ -11,21 +11,13 @@ if PROJECT_ROOT not in sys.path:
 from utils.logger import info
 from utils.file_utils import read_json
 
-def extract_root_domain(url):
-    """Extract root domain, stripping www and subdomains."""
-    try:
-        netloc = urllib.parse.urlparse(url).netloc
-        # Remove port if present
-        netloc = netloc.split(":")[0]
-        # Strip www
-        netloc = netloc.replace("www.", "")
-        # Get last two parts (e.g. "blog.openai.com" -> "openai.com")
-        parts = netloc.split(".")
-        if len(parts) >= 2:
-            return ".".join(parts[-2:])
-        return netloc
-    except Exception:
-        return ""
+def normalize_title(title):
+    """Normalize a title for near-duplicate comparison.
+    Lowercase, strip punctuation, collapse whitespace."""
+    title = title.lower().strip()
+    title = re.sub(r'[^\w\s]', '', title)
+    title = re.sub(r'\s+', ' ', title)
+    return title
 
 def main():
     parser = argparse.ArgumentParser()
@@ -40,58 +32,46 @@ def main():
             json.dump([], f, indent=2)
         return
 
-    seen_ids = {}      # id -> index in unique list
-    seen_domains = {}  # root_domain -> index in unique list
+    seen_ids = set()
+    seen_urls = set()
+    seen_titles = set()
     unique = []
     duplicates_removed = 0
 
     for candidate in data:
         cid = candidate.get("id", "")
-        domain = extract_root_domain(candidate.get("website", ""))
-        tier = candidate.get("source_tier", 99)
-        released = candidate.get("released_at", "")
+        url = candidate.get("website", "").rstrip("/")
+        title_key = normalize_title(candidate.get("name", ""))
 
         is_dup = False
-        existing_idx = None
+        dup_reason = ""
 
-        # Check by id
-        if cid in seen_ids:
+        # Level 1: Exact same ID
+        if cid and cid in seen_ids:
             is_dup = True
-            existing_idx = seen_ids[cid]
-        # Check by domain
-        elif domain and domain in seen_domains:
+            dup_reason = f"duplicate id '{cid}'"
+
+        # Level 2: Exact same canonical URL
+        elif url and url in seen_urls:
             is_dup = True
-            existing_idx = seen_domains[domain]
+            dup_reason = f"duplicate url '{url[:80]}'"
 
-        if is_dup and existing_idx is not None:
-            existing = unique[existing_idx]
-            existing_tier = existing.get("source_tier", 99)
+        # Level 3: Near-identical normalized title
+        elif title_key and title_key in seen_titles:
+            is_dup = True
+            dup_reason = f"duplicate title '{title_key[:60]}'"
 
-            # Keep the one with higher source_tier (lower number)
-            # If equal, keep more recent released_at
-            replace = False
-            if tier < existing_tier:
-                replace = True
-            elif tier == existing_tier and released > existing.get("released_at", ""):
-                replace = True
-
-            if replace:
-                info(f"Dedup: replacing '{existing.get('name')}' ({existing.get('source')}) with '{candidate.get('name')}' ({candidate.get('source')})")
-                unique[existing_idx] = candidate
-                # Update index maps
-                seen_ids[candidate.get("id", "")] = existing_idx
-                if domain:
-                    seen_domains[domain] = existing_idx
-            else:
-                info(f"Dedup: dropping duplicate '{candidate.get('name')}' ({candidate.get('source')}), keeping '{existing.get('name')}' ({existing.get('source')})")
-
+        if is_dup:
             duplicates_removed += 1
+            info(f"Dedup: dropping '{candidate.get('name')}' ({candidate.get('source')}) -> {dup_reason}")
         else:
-            idx = len(unique)
             unique.append(candidate)
-            seen_ids[cid] = idx
-            if domain:
-                seen_domains[domain] = idx
+            if cid:
+                seen_ids.add(cid)
+            if url:
+                seen_urls.add(url)
+            if title_key:
+                seen_titles.add(title_key)
 
     info(f"Deduplicator: {len(unique)} unique candidates remaining ({duplicates_removed} duplicates removed)")
 

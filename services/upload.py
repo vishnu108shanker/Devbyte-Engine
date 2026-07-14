@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+from google.auth.exceptions import RefreshError
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -9,30 +10,46 @@ from googleapiclient.http import MediaFileUpload
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOKEN_PATH = os.path.join(PROJECT_ROOT, 'token.json')
+CLIENT_SECRETS_PATH = os.path.join(PROJECT_ROOT, 'client_secrets.json')
+
 
 def authenticate_youtube():
     """Authenticates the user and returns the YouTube service."""
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    
+    if os.path.exists(TOKEN_PATH):
+        try:
+            creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+        except Exception:
+            creds = None
+            if os.path.exists(TOKEN_PATH):
+                os.remove(TOKEN_PATH)
+
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            if not os.path.exists('client_secrets.json'):
+            try:
+                creds.refresh(Request())
+            except RefreshError:
+                print("Stored YouTube credentials are no longer valid. Starting a fresh authorization flow...")
+                creds = None
+                if os.path.exists(TOKEN_PATH):
+                    os.remove(TOKEN_PATH)
+
+        if not creds or not creds.valid:
+            if not os.path.exists(CLIENT_SECRETS_PATH):
                 print("Error: 'client_secrets.json' not found.")
                 print("Please download it from the Google Cloud Console and place it in the project root.")
                 exit(1)
-            
-            flow = InstalledAppFlow.from_client_secrets_file('client_secrets.json', SCOPES)
+
+            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_PATH, SCOPES)
             creds = flow.run_local_server(port=0)
-        
+
         # Save the credentials for the next run
-        with open('token.json', 'w') as token:
+        with open(TOKEN_PATH, 'w', encoding='utf-8') as token:
             token.write(creds.to_json())
 
     return build('youtube', 'v3', credentials=creds)

@@ -10,6 +10,7 @@ import datetime
 import sys
 import os
 import urllib.parse
+from typing import cast
 from slugify import slugify
 from bs4 import BeautifulSoup
 
@@ -18,12 +19,6 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from utils.logger import info, error, warning
-
-FEEDS = [
-    {"url": "https://openai.com/blog/rss.xml", "source": "openai_blog"},
-    {"url": "https://www.anthropic.com/rss.xml", "source": "anthropic_blog"},
-    {"url": "https://blog.google/technology/ai/rss/", "source": "google_blog"}
-]
 
 def clean_html(html_content):
     if not html_content:
@@ -37,19 +32,31 @@ def main():
     parser.add_argument("--output", required=True, help="Path to output json")
     args = parser.parse_args()
 
-    info("Fetching AI blogs via RSS...")
+    feeds_config_path = os.path.join(PROJECT_ROOT, "sources", "official_feeds.json")
+    if not os.path.exists(feeds_config_path):
+        error(f"Official feeds config missing at: {feeds_config_path}")
+        sys.exit(1)
+
+    with open(feeds_config_path, "r", encoding="utf-8") as f:
+        feeds = json.load(f)
+
+    info("Fetching official blogs via RSS...")
     candidates = []
     current_time = datetime.datetime.now(datetime.timezone.utc)
     thirty_days_ago = current_time - datetime.timedelta(days=30)
     current_time_str = current_time.isoformat().replace("+00:00", "Z")
 
-    for feed_info in FEEDS:
+    for feed_info in feeds:
         url = feed_info["url"]
         source_name = feed_info["source"]
         info(f"Parsing feed: {url}")
         
         try:
-            parsed_feed = feedparser.parse(url)
+            import requests
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+            parsed_feed = feedparser.parse(response.content)
             
             # Take latest 5 entries
             entries = parsed_feed.entries[:5]
@@ -60,14 +67,15 @@ def main():
                 if not published_tuple:
                     continue
                     
+                published_tuple = cast(tuple[int, ...], published_tuple)
                 published_dt = datetime.datetime(*published_tuple[:6], tzinfo=datetime.timezone.utc)
                 
                 # Filter out older than 30 days
                 if published_dt < thirty_days_ago:
                     continue
                 
-                title = entry.get("title", "")
-                link = entry.get("link", "")
+                title = str(entry.get("title", "") or "")
+                link = str(entry.get("link", "") or "")
                 
                 # Try to get summary
                 summary_raw = entry.get("summary", "")
@@ -95,7 +103,7 @@ def main():
                     "competitors": [],
                     "use_cases": [],
                     "event_type": "update",
-                    "tags": ["ai", "blog", "official", source_name.split("_")[0]],
+                    "tags": ["tech", "blog", "official", source_name.split("_")[0]],
                     "source": source_name,
                     "source_tier": 2,
                     "released_at": published_dt.isoformat().replace("+00:00", "Z"),

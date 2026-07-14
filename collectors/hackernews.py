@@ -19,9 +19,10 @@ from utils.logger import info, error, warning
 
 def fetch_json(url):
     try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'DevByte/2.0'})
-        with urllib.request.urlopen(req, timeout=10) as response:
-            return json.loads(response.read().decode('utf-8'))
+        import requests
+        response = requests.get(url, headers={'User-Agent': 'DevByte/2.0'}, timeout=10)
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
         error(f"Failed to fetch {url}: {e}")
         return None
@@ -39,10 +40,8 @@ def main():
         error("Could not fetch top stories from Hacker News.")
         sys.exit(1)
 
-    # Take first 30 story IDs
-    top_story_ids = top_story_ids[:30]
-    
-    ai_keywords = ["ai", "gpt", "llm", "claude", "gemini", "ml", "tool", "agent", "model", "open source", "release"]
+    # Take first 15 story IDs (since we are not filtering, 15 is plenty for the daily queue)
+    top_story_ids = top_story_ids[:15]
     
     candidates = []
     
@@ -54,50 +53,43 @@ def main():
             continue
             
         title_lower = story["title"].lower()
-        if any(keyword in title_lower for keyword in ai_keywords):
-            # Parse event type
-            event_type = "other"
-            if "release" in title_lower or "launch" in title_lower:
-                event_type = "new_tool"
-            elif "update" in title_lower:
-                event_type = "major_update"
+        
+        # Parse event type
+        event_type = "other"
+        if "release" in title_lower or "launch" in title_lower:
+            event_type = "new_tool"
+        elif "update" in title_lower:
+            event_type = "major_update"
                 
-            domain = urllib.parse.urlparse(story["url"]).netloc.replace("www.", "")
-            slug = slugify(story["title"])
-            item_id = f"{slug}-{domain}"
+        domain = urllib.parse.urlparse(story["url"]).netloc.replace("www.", "")
+        slug = slugify(story["title"])
+        item_id = f"{slug}-{domain}"
             
-            # Map to enriched normalized schema
-            candidate = {
-                "id": item_id,
-                "name": story["title"][:120],
-                "category": "unknown", # Will be assigned by editorial or normalizer later
-                "summary": story.get("title", ""), # Hacker News doesn't provide a summary, using title as a fallback. 
-                                                   # NOTE: Quality filter expects >20 words. Normalizer/scraper might need to fetch HTML to get real summary if needed. 
-                                                   # For V2 HN collector, we will just pass the title and let it fail quality filter if too short, 
-                                                   # or we can mock a longer summary for testing, but let's stick to the raw data.
-                                                   # Actually, HN titles are often short. I will append the URL so it's not totally empty.
-                "website": story["url"],
-                "pricing": "unknown",
-                "target_audience": "",
-                "competitors": [],
-                "use_cases": [],
-                "event_type": event_type,
-                "tags": ["ai", "hackernews"],
-                "source": "hackernews",
-                "source_tier": 3,
-                "released_at": datetime.datetime.fromtimestamp(story.get("time", 0), datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
-                "collected_at": current_time,
-                "score": 0,
-                "confidence": 0.0
-            }
-            # HN doesn't have descriptions, so we repeat the title to satisfy the string requirement.
-            # The quality filter expects > 20 words for the summary. Since HN doesn't provide summaries, 
-            # we will provide a generic summary block so it passes the word count filter.
-            candidate["summary"] = f"{story['title']}. Discovered via Hacker News top stories. This tool is currently trending among developers and tech enthusiasts on the front page of Hacker News."
-            
-            candidates.append(candidate)
+        # Map to enriched normalized schema
+        candidate = {
+            "id": item_id,
+            "name": story["title"][:120],
+            "category": "unknown",
+            "summary": story.get("title", ""),
+            "website": story["url"],
+            "pricing": "unknown",
+            "target_audience": "",
+            "competitors": [],
+            "use_cases": [],
+            "event_type": event_type,
+            "tags": ["tech", "hackernews"],
+            "source": "hackernews",
+            "source_tier": 3,
+            "released_at": datetime.datetime.fromtimestamp(story.get("time", 0), datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+            "collected_at": current_time,
+            "score": 0,
+            "confidence": 0.0
+        }
+        candidate["summary"] = f"{story['title']}. Discovered via Hacker News top stories. This tool is currently trending among developers and tech enthusiasts on the front page of Hacker News."
+        
+        candidates.append(candidate)
 
-    info(f"Hacker News collector finished. Found {len(candidates)} AI-related stories out of top 30.")
+    info(f"Hacker News collector finished. Found {len(candidates)} stories.")
     
     with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(candidates, f, indent=2)
