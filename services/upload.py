@@ -118,7 +118,7 @@ def main():
         if status:
             print(f"Uploaded {int(status.progress() * 100)}%")
 
-    print("\nUpload Successful!")
+    print("\nUpload Successful!😘")
     print(f"Video ID: {response['id']}")
     print(f"YouTube URL: https://youtu.be/{response['id']}")
 
