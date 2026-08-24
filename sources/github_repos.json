@@ -1,0 +1,10 @@
+[
+  "vercel/next.js",
+  "oven-sh/bun",
+  "tailwindlabs/tailwindcss",
+  "supabase/supabase",
+  "denoland/deno",
+  "langchain-ai/langchain-js",
+  "nodejs/node",
+  "torvalds/linux"
+]

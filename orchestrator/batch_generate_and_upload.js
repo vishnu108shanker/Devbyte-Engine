@@ -3,8 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const MAX_VIDEOS = 4 ;
-
+const MAX_VIDEOS = 5;  // Limit to 5 videos per batch
 // Utility to run sync commands (for Phase 1)
 function runCommandSync(command, args, cwd = PROJECT_ROOT) {
   console.log(`\n> [SYNC] ${command} ${args.join(' ')}`);

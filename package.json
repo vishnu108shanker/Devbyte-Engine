@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^1.18.0",
     "dotenv": "^17.4.2",
-    "music-metadata": "^11.13.0"
+    "music-metadata": "^11.13.0",
+    "repomix": "^1.18.0"
   }
 }

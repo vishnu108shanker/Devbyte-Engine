@@ -76,7 +76,7 @@ Scoring Criteria:
 Score Reference:
 - 90+: Tech Updates from major tech giants (e.g. Gemini , Anthropic , Meta , Open ai , Gpt , Google , Nvidia, Claude Code release).
 - 40-50: Solid, relevant tech announcements or minor tool releases.
-- Below 40: Dry opinion essays, retrospectives, tutorials, or academic research without immediate developer utility (e.g. "Costco is the anti-Amazon" or "What I learned from SQL").And also the contents related to vercel or cloudfare  .  Set these strictly below 40.
+- Below 10: Dry opinion essays, retrospectives, tutorials, or academic research without immediate developer utility (e.g. "Costco is the anti-Amazon" or "What I learned from SQL").And also the contents related to vercel or cloudfare  .  Set these strictly below 40.
 
 Candidates:
 """

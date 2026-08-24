@@ -79,6 +79,9 @@ WRITING RULES:
    Take a clear stance. "Both are great" is not a comparison, it is
    a waste of the viewer's time. Give them a real recommendation.
 
+STRICT WORD COUNT LIMIT: Maximum 95 words total (hook + body + cta combined).
+This is non-negotiable. Count every word before submitting JSON.
+
 3. CTA (8-10 words): One action only.
    Use: "Try it free — link in bio." or "Link in bio. It's free."
    Subscribe to get daily tech updates

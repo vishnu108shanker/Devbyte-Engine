@@ -78,6 +78,9 @@ WRITING RULES:
    - Sentence 2-3: Exactly what {name} does, step by step
    - Sentence 4: The after state (specific outcome or time saved)
    Use concrete numbers whenever possible. "Saves hours" is weak.
+
+STRICT WORD COUNT LIMIT: Maximum 95 words total (hook + body + cta combined).
+This is non-negotiable. Count every word before submitting JSON.
    "Cuts a 3-hour task to 8 minutes" is strong.
 
 3. CTA (8-10 words): One action only.

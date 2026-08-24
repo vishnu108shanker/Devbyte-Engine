@@ -1,0 +1,31 @@
+{
+  "hook": "Tailwind CSS just dropped a new update to smooth out some common dev headaches.",
+  "body": "Version v4.3.2 brings two useful fixes. You can now use bare spacing values for grid utilities like `auto-rows-12`, allowing for more flexible styling. Crucially, a frustrating crash in `--watch` mode for Windows users, when `@source` directories didn't exist, has been squashed. This means more stable and reliable development, especially on Windows.",
+  "cta": "Hit subscribe and like for more daily tech updates.",
+  "word_count": 74,
+  "title": "Tailwind CSS Fixes Watch Mode",
+  "description": "Tailwind CSS v4.3.2 brings key bug fixes, including bare spacing support for grid utilities and a crucial fix for the `--watch` mode crash on Windows, improving developer experience and stability.",
+  "hashtags": [
+    "DevNews",
+    "TechNews",
+    "Programming",
+    "TailwindCSS",
+    "CSS",
+    "Frontend",
+    "WebDev",
+    "Developers",
+    "Coding",
+    "SoftwareUpdate"
+  ],
+  "thumbnail_text": "TAILWIND CSS FIXED",
+  "pinned_comment": "🔗 Full details → https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.2 \nFollow so you never miss an AI update.",
+  "source_title": "tailwindcss v4.3.2: v4.3.2",
+  "source_url": "https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.2",
+  "category": "update",
+  "generated_at": "2026-07-06T07:40:47.384637Z",
+  "raw_script": "Tailwind CSS just dropped a new update to smooth out some common dev headaches. Version v4.3.2 brings two useful fixes. You can now use bare spacing values for grid utilities like `auto-rows-12`, allowing for more flexible styling. Crucially, a frustrating crash in `--watch` mode for Windows users, when `@source` directories didn't exist, has been squashed. This means more stable and reliable development, especially on Windows. Hit subscribe and like for more daily tech updates.",
+  "validated": true,
+  "validated_at": "2026-07-06T07:40:47.705111Z",
+  "durationInFrames": 1067,
+  "audio_url": "audio_1783505447178_66779.mp3"
+}

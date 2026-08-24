@@ -3,6 +3,8 @@
 All V1 conventions remain in force.
 This file adds V2-specific rules only.
 
+CORE PRINCIPLES _ DONT REPEAT YOURSELF 
+
 ---
 
 ## Data Acquisition Rule (NEW — applies to ALL collectors)

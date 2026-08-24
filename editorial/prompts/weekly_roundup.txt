@@ -78,6 +78,9 @@ WRITING RULES:
    Or: "Here are the 5 best AI launches from this week."
    The number "5" must appear in the hook.
 
+STRICT WORD COUNT LIMIT: Maximum 95 words total (hook + body + cta combined).
+This is non-negotiable. Count every word before submitting JSON.
+
 2. BODY (45-55 words): List exactly 5 tools, one sentence each.
    Format for each line: "[Tool Name] — [one punchy sentence of what it does]."
    Start with {name} as tool #1.

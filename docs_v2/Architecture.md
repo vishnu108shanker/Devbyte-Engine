@@ -364,6 +364,11 @@ Step 1:  collectors     → run all available collectors in parallel
                           each writes to a temp array in memory
 Step 2:  normalizer     → merge all collector arrays, apply schema
                           output: data/raw_candidates.json
+
+
+*The signal_filter.py script is a pipeline stage situated directly between the Normalizer and the Quality Filter
+. Its main job is to weed out "noise" (like tutorials, opinion essays, and guides) so your engine only makes videos about actual, high-signal product launches and announcements*
+
 Step 3:  quality_filter → reject invalid candidates
                           (modifies raw_candidates.json in place,
                            or writes filtered version)
@@ -381,11 +386,6 @@ Step 9:  validator      → output: data/validated_script.json
 Step 10: tts            → output: data/audio.mp3
 Step 11: render         → output: data/video.mp4
 Step 12: history        → append entry to data/history.json
-
-Step-skipping rule (from V1, unchanged):
-If a step's output file exists and is non-empty, skip that step.
-This means if render crashes, next run resumes from step 11 only.
-content_queue.json persisting means steps 1-7 are also skipped.
 
 ---
 

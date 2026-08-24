@@ -1,0 +1,30 @@
+{
+  "hn_whitelist": [
+    "released",
+    "launches",
+    "announces",
+    "introduces",
+    "acquires",
+    "funding",
+    "open sources",
+    "preview",
+    "beta",
+    "version",
+    "v[0-9]"
+  ],
+  "noise_blacklist": [
+    "tutorial",
+    "guide",
+    "walkthrough",
+    "roundup",
+    "course",
+    "how to",
+    "book club",
+    "discussion",
+    "essay",
+    "opinion",
+    "post-mortem",
+    "retrospective",
+    "why i"
+  ]
+}

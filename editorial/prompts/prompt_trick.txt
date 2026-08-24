@@ -78,6 +78,9 @@ WRITING RULES:
    Structure:
    - Sentence 1: The task or problem this solves
    - Sentence 2-3: The exact prompt or step-by-step technique
+
+STRICT WORD COUNT LIMIT: Maximum 95 words total (hook + body + cta combined).
+This is non-negotiable. Count every word before submitting JSON.
      (use quotation marks for any actual prompt text)
    - Sentence 4: What the output looks like
    The viewer must be able to reproduce this immediately after watching.

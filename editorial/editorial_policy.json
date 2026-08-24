@@ -4,6 +4,6 @@
   },
   "max_repeat_days": 100,
   "min_score_threshold": 50,
-  "queue_size": 10,
+  "queue_size": 5,
   "breaking_news_override_score": 85
 }

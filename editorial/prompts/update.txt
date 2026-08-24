@@ -48,6 +48,8 @@ Every script should answer one question:
 "Why is this worth 30-40 seconds of a developer's attention today?"
 
 You have to write a 30-40 seconds script.
+STRICT WORD COUNT LIMIT: Maximum 95 words total (hook + body + cta combined). 
+This is non-negotiable. Count every word carefully before submitting.
 Audience: developers, students, and tech-curious professionals aged 25-35.
 
 TONE:

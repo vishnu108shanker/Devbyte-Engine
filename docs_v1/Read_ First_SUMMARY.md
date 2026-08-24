@@ -1,4 +1,4 @@
-Summary of our entire discussion
+ Summary of our entire discussion
 
 The project evolved through several design iterations.
 

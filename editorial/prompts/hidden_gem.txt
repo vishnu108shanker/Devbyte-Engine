@@ -78,6 +78,9 @@ WRITING RULES:
    - What {name} does, in the most concrete specific terms possible
    - One feature that makes it stand out from similar tools
    - Why it is underrated (low marketing budget, niche audience, etc.)
+
+STRICT WORD COUNT LIMIT: Maximum 95 words total (hook + body + cta combined).
+This is non-negotiable. Count every word before submitting JSON.
    Avoid generic superlatives. Show, do not tell.
 
 3. CTA (8-10 words): Create mild urgency.

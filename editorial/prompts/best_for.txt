@@ -78,6 +78,9 @@ WRITING RULES:
 2. BODY (40-50 words): Cover:
    - Sentence 1: The specific problem {target_audience} faces daily
    - Sentence 2-3: Exactly how {name} solves it, with one concrete feature
+
+STRICT WORD COUNT LIMIT: Maximum 95 words total (hook + body + cta combined).
+This is non-negotiable. Count every word before submitting JSON.
    - Sentence 4: The outcome — what the {target_audience} can now do
    Keep it audience-specific. Do not describe the tool generically.
    Every line should make sense only for this specific audience.
