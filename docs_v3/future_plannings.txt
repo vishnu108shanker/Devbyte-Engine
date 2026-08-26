@@ -1,0 +1,34 @@
+So, bro — here's your actual priority stack
+🔥 NOW
+1. Docker
+2. Get the entire DevByte pipeline running inside Docker
+3. Oracle deployment
+4. Remote scheduled execution
+5. Make rendering reliable on the server
+
+🟡 NEXT
+6. Cloud database / history
+7. Minimal DevByte website
+8. Instagram distribution
+9. LLM abstraction + benchmark Gemini/Groq
+10. Pipeline metrics + YouTube analytics
+
+🟢 AFTER YOU HAVE DATA
+11. Improve editorial policy
+12. Experiment with content formats
+13. Long-form
+14. More sources
+15. Articles/docs
+16. Multi-platform publishing
+
+🔴 DON'T TOUCH YET
+Kubernetes
+Kafka
+Agentic editorial swarm
+RAG everywhere
+Huge CMS
+Wikipedia clone
+Microservices everywhere
+10+ new content sources
+Complex AI newsroom
+
