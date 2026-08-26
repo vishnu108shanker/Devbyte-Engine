@@ -1,5 +1,5 @@
 # Data acquisition method: Official JSON API
-# Endpoint: https://api.github.com/repos/{owner}/{repo}/releases/latest
+# Endpoints: GitHub releases, with a tag fallback for repositories without Releases
 # Auth required: No
 # Rate limit: 60 requests per hour (unauthenticated)
 
@@ -18,15 +18,35 @@ if PROJECT_ROOT not in sys.path:
 
 from utils.logger import info, error, warning
 
-def fetch_json(url):
+def fetch_json(url, warn=True):
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'DevByte/2.0'})
         with urllib.request.urlopen(req, timeout=10) as response:
             return json.loads(response.read().decode('utf-8'))
     except Exception as e:
-        # 404 means no releases yet, which is expected for some repos
-        warning(f"Could not fetch releases from {url}: {e}")
+        if warn:
+            warning(f"Could not fetch data from {url}: {e}")
         return None
+
+def fetch_latest_release(repo):
+    releases_url = f"https://api.github.com/repos/{repo}/releases?per_page=1"
+    releases = fetch_json(releases_url)
+    if isinstance(releases, list) and releases:
+        return releases[0]
+
+    tags_url = f"https://api.github.com/repos/{repo}/tags?per_page=1"
+    tags = fetch_json(tags_url)
+    if not isinstance(tags, list) or not tags:
+        return None
+
+    tag = tags[0].get("name", "")
+    return {
+        "tag_name": tag,
+        "name": tag,
+        "html_url": f"https://github.com/{repo}/releases/tag/{urllib.parse.quote(tag, safe='')}",
+        "body": "Published as a Git tag; no GitHub Release notes are available.",
+        "published_at": None,
+    }
 
 def main():
     parser = argparse.ArgumentParser()
@@ -47,8 +67,7 @@ def main():
     current_time = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
 
     for repo in repos:
-        url = f"https://api.github.com/repos/{repo}/releases/latest"
-        release = fetch_json(url)
+        release = fetch_latest_release(repo)
         if not release:
             continue
 
@@ -81,7 +100,7 @@ def main():
             "tags": ["tech", "github", repo_name.lower()],
             "source": "github",
             "source_tier": 2,
-            "released_at": release.get("published_at", current_time),
+            "released_at": release.get("published_at") or current_time,
             "collected_at": current_time,
             "score": 0,
             "confidence": 0.0

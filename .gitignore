@@ -1,6 +1,6 @@
 node_modules
 .env
-DEVLOG.md
+
 data
 
 # Python
@@ -25,3 +25,7 @@ audio/
 logs/
 token.json
 client_secrets.json
+
+
+Brainstorming_ideas/
+repopack-output.txt

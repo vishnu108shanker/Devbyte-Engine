@@ -4,6 +4,10 @@ const fs = require('fs');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const MAX_VIDEOS = 5;  // Limit to 5 videos per batch
+
+
+
+
 // Utility to run sync commands (for Phase 1)
 function runCommandSync(command, args, cwd = PROJECT_ROOT) {
   console.log(`\n> [SYNC] ${command} ${args.join(' ')}`);
@@ -27,17 +31,19 @@ async function main() {
 
   // Phase 1: Ingestion & Evaluation (Run once)
   console.log(`--- PHASE 1: INGESTION, FILTERING & EVALUATION ---`);
+const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
+
   const ingestSteps = [
-    ["python", ["collectors/hackernews.py", "--input", "config.json", "--output", "data/temp_hn.json"]],
-    ["python", ["collectors/blogs.py", "--input", "config.json", "--output", "data/temp_blogs.json"]],
-    ["python", ["collectors/github_releases.py", "--input", "config.json", "--output", "data/temp_github.json"]],
-    ["python", ["collectors/product_hunt.py", "--input", "config.json", "--output", "data/temp_product_hunt.json"]],
-    ["python", ["ingestion/normalizer.py", "--input", "data/temp_hn.json", "--input", "data/temp_blogs.json", "--input", "data/temp_github.json", "--input", "data/temp_product_hunt.json", "--output", "data/raw_candidates.json"]],
-    ["python", ["ingestion/signal_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
-    ["python", ["ingestion/quality_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
-    ["python", ["ingestion/deduplicator.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
-    ["python", ["evaluation/evaluator.py", "--input", "data/raw_candidates.json", "--output", "data/evaluated_candidates.json"]],
-    ["python", ["editorial/editorial_engine.py", "--input", "data/evaluated_candidates.json", "--output", "data/content_queue.json", "--channel", "channels/ai_tools.json", "--policy", "editorial/editorial_policy.json", "--history", "data/history.json"]]
+    [PYTHON_CMD, ["collectors/hackernews.py", "--input", "config.json", "--output", "data/temp_hn.json"]],
+    [PYTHON_CMD, ["collectors/blogs.py", "--input", "config.json", "--output", "data/temp_blogs.json"]],
+    [PYTHON_CMD, ["collectors/github_releases.py", "--input", "config.json", "--output", "data/temp_github.json"]],
+    [PYTHON_CMD, ["collectors/product_hunt.py", "--input", "config.json", "--output", "data/temp_product_hunt.json"]],
+    [PYTHON_CMD, ["ingestion/normalizer.py", "--input", "data/temp_hn.json", "--input", "data/temp_blogs.json", "--input", "data/temp_github.json", "--input", "data/temp_product_hunt.json", "--output", "data/raw_candidates.json"]],
+    [PYTHON_CMD, ["ingestion/signal_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
+    [PYTHON_CMD, ["ingestion/quality_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
+    [PYTHON_CMD, ["ingestion/deduplicator.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
+    [PYTHON_CMD, ["evaluation/evaluator.py", "--input", "data/raw_candidates.json", "--output", "data/evaluated_candidates.json"]],
+    [PYTHON_CMD, ["editorial/editorial_engine.py", "--input", "data/evaluated_candidates.json", "--output", "data/content_queue.json", "--channel", "channels/ai_tools.json", "--policy", "editorial/editorial_policy.json", "--history", "data/history.json"]]
   ];
 
   for (const [cmd, args] of ingestSteps) {
@@ -97,23 +103,23 @@ async function main() {
     console.log(`[Worker ${wId}] Starting generation for: ${worker.candidate.name}`);
     
     // AI Script
-    let ok = await runCommandAsync('python', ['services/gemini.py', '--input', `${wDir}/selected_tool.json`, '--output', `${wDir}/script.json`]);
+    let ok = await runCommandAsync(PYTHON_CMD, ['services/gemini.py', '--input', `${wDir}/selected_tool.json`, '--output', `${wDir}/script.json`]);
     if (!ok) return false;
-    
-    // Validate
-    ok = await runCommandAsync('python', ['utils/validator.py', '--input', `${wDir}/script.json`, '--output', `${wDir}/validated_script.json`]);
+
+    // 2. Validate
+    ok = await runCommandAsync(PYTHON_CMD, ['utils/validator.py', '--input', `${wDir}/script.json`, '--output', `${wDir}/validated_script.json`]);
     if (!ok) return false;
-    
-    // TTS
-    ok = await runCommandAsync('python', ['services/tts.py', '--input', `${wDir}/validated_script.json`, '--output', `${wDir}/audio.mp3`]);
+
+    // 3. TTS
+    ok = await runCommandAsync(PYTHON_CMD, ['services/tts.py', '--input', `${wDir}/validated_script.json`, '--output', `${wDir}/audio.mp3`]);
     if (!ok) return false;
-    
+
     // Render (Concurrency safe now that props/audio names are dynamic!)
     ok = await runCommandAsync('node', ['services/render.js', '--input', `${wDir}/validated_script.json`, '--audio', `${wDir}/audio.mp3`, '--output', `${wDir}/video.mp4`]);
     if (!ok) return false;
-    
-    // Upload
-    ok = await runCommandAsync('python', ['services/upload.py', '--video', `${wDir}/video.mp4`, '--script', `${wDir}/script.json`]);
+
+    // 5. Upload
+    ok = await runCommandAsync(PYTHON_CMD, ['services/upload.py', '--video', `${wDir}/video.mp4`, '--script', `${wDir}/script.json`]);
     if (!ok) return false;
     
     console.log(`[Worker ${wId}] ✅ Successfully generated and uploaded video!`);

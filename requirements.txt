@@ -1,0 +1,15 @@
+# -- Core AI & Google APIs --
+google-genai
+python-dotenv
+google-auth
+google-auth-oauthlib
+google-api-python-client
+
+# -- Content collection --
+requests
+beautifulsoup4
+feedparser
+python-slugify
+
+# -- Media production --
+edge-tts

@@ -1,0 +1,16 @@
+services:
+  devbyte:
+    build: .
+    container_name: devbyte-engine
+    volumes:
+      # Secrets — read-only, never baked into the image
+      - ./.env:/app/.env:ro
+      - ./client_secrets.json:/app/client_secrets.json:ro
+      # YouTube OAuth token — read-write (SDK may refresh it)
+      - ./token.json:/app/token.json:rw
+      # Runtime data — read-write (history, queues, rendered videos persist
+      # outside the container so rebuilds don't wipe state)
+      - ./data:/app/data:rw
+      # Pipeline logs
+      - ./logs:/app/logs:rw
+    # No exposed ports — no web server at this stage

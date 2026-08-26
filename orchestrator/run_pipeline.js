@@ -73,7 +73,7 @@ function runStep(step) {
   logInfo(`Running step: ${step.name}`);
   logInfo(`Command: ${step.command} ${step.args.join(' ')}`);
 
-  const stepTimeoutMs = step.command === "python" ? timeoutSeconds * 1000 : 0;
+  const stepTimeoutMs = step.command.startsWith("python") ? timeoutSeconds * 1000 : 0;
 
   const result = spawnSync(step.command, step.args, {
     cwd: PROJECT_ROOT,
@@ -115,61 +115,61 @@ function runStep(step) {
 const steps = [
   {
     name: "1. Collect Hacker News",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["collectors/hackernews.py", "--input", "config.json", "--output", "data/temp_hn.json"],
     outputPath: "data/temp_hn.json"
   },
   {
     name: "2. Collect Blogs",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["collectors/blogs.py", "--input", "config.json", "--output", "data/temp_blogs.json"],
     outputPath: "data/temp_blogs.json"
   },
   {
     name: "2b. Collect GitHub",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["collectors/github_releases.py", "--input", "config.json", "--output", "data/temp_github.json"],
     outputPath: "data/temp_github.json"
   },
   {
     name: "2c. Collect Product Hunt",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["collectors/product_hunt.py", "--input", "config.json", "--output", "data/temp_product_hunt.json"],
     outputPath: "data/temp_product_hunt.json"
   },
   {
     name: "3. Normalize Data",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["ingestion/normalizer.py", "--input", "data/temp_hn.json", "--input", "data/temp_blogs.json", "--input", "data/temp_github.json", "--input", "data/temp_product_hunt.json", "--output", "data/raw_candidates.json"],
     outputPath: "data/raw_candidates.json"
   },
   {
     name: "3b. Signal Filter",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["ingestion/signal_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"],
     outputPath: "data/raw_candidates.json"
   },
   {
     name: "4. Quality Filter",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["ingestion/quality_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"],
     outputPath: "data/raw_candidates.json"
   },
   {
     name: "5. Deduplicate",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["ingestion/deduplicator.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"],
     outputPath: "data/raw_candidates.json"
   },
   {
     name: "6. Evaluate Candidates",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["evaluation/evaluator.py", "--input", "data/raw_candidates.json", "--output", "data/evaluated_candidates.json"],
     outputPath: "data/evaluated_candidates.json"
   },
   {
     name: "7. Editorial Engine",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["editorial/editorial_engine.py", "--input", "data/evaluated_candidates.json", "--output", "data/content_queue.json", "--channel", "channels/ai_tools.json", "--policy", "editorial/editorial_policy.json", "--history", "data/history.json"],
     outputPath: "data/content_queue.json"
   },
@@ -181,19 +181,19 @@ const steps = [
   },
   {
     name: "9. Generate AI Script",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["services/gemini.py", "--input", "data/selected_tool.json", "--output", "data/script.json"],
     outputPath: "data/script.json"
   },
   {
     name: "10. Validate Script",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["utils/validator.py", "--input", "data/script.json", "--output", "data/validated_script.json"],
     outputPath: "data/validated_script.json"
   },
   {
     name: "11. Generate TTS Audio",
-    command: "python",
+    command: process.platform === 'win32' ? "python" : "python3",
     args: ["services/tts.py", "--input", "data/validated_script.json", "--output", "data/audio.mp3"],
     outputPath: "data/audio.mp3"
   },

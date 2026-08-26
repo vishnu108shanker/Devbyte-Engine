@@ -1,5 +1,5 @@
 # DevByte Engine — V2
-
+##### (pre dockerization version, to read the documentation of possible changes after containerization See [DOCKER_NOTES.md](docs_v2_Dockerization/DOCKER_NOTES.md) )
 > An autonomous digital newsroom that discovers, evaluates, scripts, renders, and publishes developer-focused YouTube Shorts — entirely on autopilot.
 
 DevByte Engine V2 transforms the original single-source video pipeline into a production-grade content automation system. It pulls from four independent news sources, filters noise with rule-based signal detection, scores candidates through an AI editorial layer, writes scripts using category-specific prompts, renders up to five videos in parallel, and publishes them directly to YouTube.
@@ -229,7 +229,7 @@ cd Youtube-video-automation
 mkdir -p data logs
 
 # 2. Python dependencies
-pip install python-dotenv google-generativeai requests beautifulsoup4 edge-tts feedparser python-slugify
+pip install python-dotenv google-genai requests beautifulsoup4 edge-tts feedparser python-slugify google-auth google-auth-oauthlib google-api-python-client
 
 # 3. Node orchestrator dependencies
 npm install
@@ -409,7 +409,7 @@ Each category has a dedicated prompt template in `editorial/prompts/` that shape
 | **2.0.0** | Jun 23, 2026 | Full architectural rewrite — editorial engine, parallel batch, YouTube upload |
 | **1.0.0** | Jun 2026 | Initial pipeline — GitHub Trending → Gemini → TTS → Remotion |
 
-See [DEVLOG.md](DEVLOG.md) for detailed changelogs.
+See [DEVLOG.md](docs_v2/DEVLOG.md) for detailed changelogs.
 
 ---
 

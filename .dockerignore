@@ -1,0 +1,34 @@
+# Git and repository metadata
+.git
+.gitignore
+*.md
+future_plannings.txt
+
+# Python cache and build files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Node dependencies and build files (ALL nested folders)
+**/node_modules/
+node_modules/
+render/node_modules/
+render/dist/
+render/out/
+render/build/
+.npm/
+npm-debug.log*
+
+# Secret and configuration overrides (Mounted at runtime)
+.env
+client_secrets.json
+token.json
+
+# Local runtime data and execution logs (Mounted as volumes)
+data/
+logs/

@@ -20,13 +20,20 @@ def authenticate_youtube():
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first time.
+    if os.path.isdir(TOKEN_PATH):
+        raise RuntimeError(
+            f"OAuth token path is a directory: {TOKEN_PATH}. "
+            "Remove that directory and create an empty token.json file."
+        )
+
     if os.path.exists(TOKEN_PATH):
         try:
             creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
         except Exception:
             creds = None
             if os.path.exists(TOKEN_PATH):
-                os.remove(TOKEN_PATH)
+                with open(TOKEN_PATH, 'w', encoding='utf-8') as token:
+                    token.write('{}')
 
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
@@ -37,7 +44,8 @@ def authenticate_youtube():
                 print("Stored YouTube credentials are no longer valid. Starting a fresh authorization flow...")
                 creds = None
                 if os.path.exists(TOKEN_PATH):
-                    os.remove(TOKEN_PATH)
+                    with open(TOKEN_PATH, 'w', encoding='utf-8') as token:
+                        token.write('{}')
 
         if not creds or not creds.valid:
             if not os.path.exists(CLIENT_SECRETS_PATH):

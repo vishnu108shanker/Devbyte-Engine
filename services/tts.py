@@ -17,33 +17,45 @@ def generate_tts(text: str, voice: str, output_path: str, max_retries: int = 2):
     # Ensure output directory exists
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     
-    cmd = ["edge-tts", "--text", text, "--voice", voice, "--write-media", output_path]
+    # Write text to temp file to avoid shell argument length issues
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        f.write(text)
+        temp_text_file = f.name
     
-    for attempt in range(max_retries + 1):
-        try:
-            info(f"Running edge-tts (Attempt {attempt + 1})...")
-            # shell=True handles Windows PATH resolution for edge-tts installed via pip
-            result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
-            
-            if result.returncode == 0 and os.path.exists(output_path):
-                # Verify file is not empty
-                if os.path.getsize(output_path) > 0:
-                    return True
-                else:
-                    warning("edge-tts produced an empty file.")
-            
-            err_msg = result.stderr.strip() if result.stderr else "Unknown error"
-            warning(f"edge-tts failed: {err_msg}")
-            
-        except Exception as e:
-            warning(f"Failed to execute edge-tts: {str(e)}")
-            
-        if attempt < max_retries:
-            info("Retrying TTS in 5 seconds due to failure or rate limiting...")
-            time.sleep(5)
-            
-    error(f"Failed to generate TTS after {max_retries} attempts.")
-    return False
+    try:
+        cmd = ["edge-tts", "--file", temp_text_file, "--voice", voice, "--write-media", output_path]
+        
+        for attempt in range(max_retries + 1):
+            try:
+                info(f"Running edge-tts (Attempt {attempt + 1})...")
+                # Use shell=False (the default) so the OS passes the arguments directly to the binary.
+                # This prevents argument-dropping on Linux and preserves quotes/spaces properly.
+                result = subprocess.run(cmd, capture_output=True, text=True, shell=False)
+                
+                if result.returncode == 0 and os.path.exists(output_path):
+                    # Verify file is not empty
+                    if os.path.getsize(output_path) > 0:
+                        return True
+                    else:
+                        warning("edge-tts produced an empty file.")
+                
+                err_msg = result.stderr.strip() if result.stderr else "Unknown error"
+                warning(f"edge-tts failed: {err_msg}")
+                
+            except Exception as e:
+                warning(f"Failed to execute edge-tts: {str(e)}")
+                
+            if attempt < max_retries:
+                info("Retrying TTS in 5 seconds due to failure or rate limiting...")
+                time.sleep(5)
+                
+        error(f"Failed to generate TTS after {max_retries} attempts.")
+        return False
+    finally:
+        # Clean up temp file
+        if os.path.exists(temp_text_file):
+            os.unlink(temp_text_file)
 
 def main():
     parser = argparse.ArgumentParser()

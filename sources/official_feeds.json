@@ -1,10 +1,9 @@
 [
   {"url": "https://openai.com/blog/rss.xml", "source": "openai_blog"},
-  {"url": "https://www.anthropic.com/news/feed.xml", "source": "anthropic_blog"},
   {"url": "https://blog.google/technology/rss/", "source": "google_blog"},
   {"url": "https://vercel.com/blog/feed", "source": "vercel_blog"},
   {"url": "https://aws.amazon.com/blogs/aws/feed/", "source": "aws_blog"},
   {"url": "https://blog.cloudflare.com/rss/", "source": "cloudflare_blog"},
   {"url": "https://supabase.com/feed.xml", "source": "supabase_blog"},
-  {"url": "https://bun.sh/feed.xml", "source": "bun_blog"}
+  {"url": "https://bun.com/rss.xml", "source": "bun_blog"}
 ]
