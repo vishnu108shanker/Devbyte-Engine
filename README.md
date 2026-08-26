@@ -229,7 +229,7 @@ cd Youtube-video-automation
 mkdir -p data logs
 
 # 2. Python dependencies
-pip install python-dotenv google-generativeai requests beautifulsoup4 edge-tts feedparser python-slugify
+pip install python-dotenv google-genai requests beautifulsoup4 edge-tts feedparser python-slugify google-auth google-auth-oauthlib google-api-python-client
 
 # 3. Node orchestrator dependencies
 npm install
