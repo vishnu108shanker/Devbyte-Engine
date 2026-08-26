@@ -4,7 +4,7 @@
   "tailwindlabs/tailwindcss",
   "supabase/supabase",
   "denoland/deno",
-  "langchain-ai/langchain-js",
+  "langchain-ai/langchainjs",
   "nodejs/node",
   "torvalds/linux"
 ]
