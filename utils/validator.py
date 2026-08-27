@@ -12,14 +12,8 @@ from utils.logger import info, error, warning, success
 from utils.file_utils import read_json, write_json
 from utils.config import load_config
 
-def strip_non_ascii(text: str) -> str:
-    """Strip emojis and non-ASCII characters."""
-    if not text:
-        return ""
-    return text.encode('ascii', 'ignore').decode('ascii').strip()
-
 def validate_script(script_data: dict, max_word_count: int) -> dict:
-    """Validates the script and strips non-ascii characters."""
+    """Validates the script structure and word count."""
     # Verify required fields
     required_fields = ["hook", "body", "cta"]
     for field in required_fields:
@@ -27,9 +21,9 @@ def validate_script(script_data: dict, max_word_count: int) -> dict:
             raise ValueError(f"Missing or empty required field: {field}")
             
     # Clean strings and calculate exact word count
-    hook = strip_non_ascii(script_data["hook"])
-    body = strip_non_ascii(script_data["body"])
-    cta = strip_non_ascii(script_data["cta"])
+    hook = script_data["hook"].strip()
+    body = script_data["body"].strip()
+    cta = script_data["cta"].strip()
     
     total_words = len(hook.split()) + len(body.split()) + len(cta.split())
     

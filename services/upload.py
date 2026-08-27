@@ -41,7 +41,7 @@ def authenticate_youtube():
             try:
                 creds.refresh(Request())
             except RefreshError:
-                print("Stored YouTube credentials are no longer valid. Starting a fresh authorization flow...")
+                print("😅🤡Stored YouTube credentials are no longer valid. Starting a fresh authorization flow...")
                 creds = None
                 if os.path.exists(TOKEN_PATH):
                     with open(TOKEN_PATH, 'w', encoding='utf-8') as token:

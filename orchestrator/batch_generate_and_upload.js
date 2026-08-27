@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const MAX_VIDEOS = 5;  // Limit to 5 videos per batch
+const MAX_VIDEOS = 2 ;  // Limit to 5 videos per batch
 
 
 
@@ -33,11 +33,16 @@ async function main() {
   console.log(`--- PHASE 1: INGESTION, FILTERING & EVALUATION ---`);
 const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
 
-  const ingestSteps = [
-    [PYTHON_CMD, ["collectors/hackernews.py", "--input", "config.json", "--output", "data/temp_hn.json"]],
-    [PYTHON_CMD, ["collectors/blogs.py", "--input", "config.json", "--output", "data/temp_blogs.json"]],
-    [PYTHON_CMD, ["collectors/github_releases.py", "--input", "config.json", "--output", "data/temp_github.json"]],
-    [PYTHON_CMD, ["collectors/product_hunt.py", "--input", "config.json", "--output", "data/temp_product_hunt.json"]],
+  console.log("Running collectors concurrently...");
+  const collectorPromises = [
+    runCommandAsync(PYTHON_CMD, ["collectors/hackernews.py", "--input", "config.json", "--output", "data/temp_hn.json"]),
+    runCommandAsync(PYTHON_CMD, ["collectors/blogs.py", "--input", "config.json", "--output", "data/temp_blogs.json"]),
+    runCommandAsync(PYTHON_CMD, ["collectors/github_releases.py", "--input", "config.json", "--output", "data/temp_github.json"]),
+    runCommandAsync(PYTHON_CMD, ["collectors/product_hunt.py", "--input", "config.json", "--output", "data/temp_product_hunt.json"])
+  ];
+  await Promise.all(collectorPromises);
+
+  const sequentialSteps = [
     [PYTHON_CMD, ["ingestion/normalizer.py", "--input", "data/temp_hn.json", "--input", "data/temp_blogs.json", "--input", "data/temp_github.json", "--input", "data/temp_product_hunt.json", "--output", "data/raw_candidates.json"]],
     [PYTHON_CMD, ["ingestion/signal_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
     [PYTHON_CMD, ["ingestion/quality_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
@@ -46,7 +51,7 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     [PYTHON_CMD, ["editorial/editorial_engine.py", "--input", "data/evaluated_candidates.json", "--output", "data/content_queue.json", "--channel", "channels/ai_tools.json", "--policy", "editorial/editorial_policy.json", "--history", "data/history.json"]]
   ];
 
-  for (const [cmd, args] of ingestSteps) {
+  for (const [cmd, args] of sequentialSteps) {
     if (!runCommandSync(cmd, args)) {
       console.error(`❌ Ingestion failed at step: ${args[0]}`);
       process.exit(1);

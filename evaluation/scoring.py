@@ -61,17 +61,6 @@ def calculate_quality_score(candidate, cross_source_count=1):
     if cross_source_count >= 2:
         score += 15
 
-    # HYPE BONUS: Popular tech names get a massive boost
-    hype_keywords = [
-        "claude", "groq", "gpt", "gemini", "openai", "anthropic", "chatgpt", "midjourney",
-        "apple", "google", "microsoft", "meta", "nvidia", "aws", "amazon", "tesla",
-        "react", "python", "javascript", "linux", "open source", "github"
-    ]
-    import re
-    text_to_check = (candidate.get("name", "") + " " + candidate.get("summary", "")).lower()
-    if any(re.search(r'\b' + re.escape(kw) + r'\b', text_to_check) for kw in hype_keywords):
-        score += 25
-
     return score
 
 
@@ -89,23 +78,6 @@ def calculate_confidence(candidate, cross_source_count=1):
 
     if cross_source_count >= 2:
         confidence += 0.30
-
-    # Give Tier 2 (official blogs) a solid boost so they reach ~0.80
-    if candidate.get("source_tier") == 1:
-        confidence += 0.20
-    elif candidate.get("source_tier") == 2:
-        confidence += 0.25
-
-    # HYPE BONUS: Confidence bump for major players
-    hype_keywords = [
-        "claude", "groq", "gpt", "gemini", "openai", "anthropic", "chatgpt", "midjourney",
-        "apple", "google", "microsoft", "meta", "nvidia", "aws", "amazon", "tesla",
-        "react", "python", "javascript", "linux", "open source", "github"
-    ]
-    import re
-    text_to_check = (candidate.get("name", "") + " " + summary).lower()
-    if any(re.search(r'\b' + re.escape(kw) + r'\b', text_to_check) for kw in hype_keywords):
-        confidence += 0.45
 
     return min(1.0, confidence)
 

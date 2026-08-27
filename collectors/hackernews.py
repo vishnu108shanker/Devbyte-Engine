@@ -83,9 +83,9 @@ def main():
             "released_at": datetime.datetime.fromtimestamp(story.get("time", 0), datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
             "collected_at": current_time,
             "score": 0,
-            "confidence": 0.0
+            "confidence": 0.0,
+            "_hn_points": story.get("score", 0)
         }
-        candidate["summary"] = f"{story['title']}. Discovered via Hacker News top stories. This tool is currently trending among developers and tech enthusiasts on the front page of Hacker News."
         
         candidates.append(candidate)
 

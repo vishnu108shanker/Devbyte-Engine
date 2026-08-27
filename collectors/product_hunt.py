@@ -67,10 +67,6 @@ def main():
         raw_summary = entry.get("description", "") or entry.get("summary", "")
         summary = clean_html(raw_summary)
 
-        # PH descriptions might be short, let's append fallback details to satisfy the schema's word limit
-        if len(summary.split()) < 20:
-            summary = f"{title}. {summary}. This new tech product is currently featured and trending on Product Hunt today."
-
         link = entry.get("link", "")
         # Try to parse published date
         published = current_time

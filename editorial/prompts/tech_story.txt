@@ -22,7 +22,18 @@ Note: If the product name is an acronym, only spell it out with dashes if it is 
 STEP 3 — The Name Extraction Rule
 The "Tool Name" provided in the INPUT DATA is often just an article headline. DO NOT use the literal headline as the product name. Extract the actual short brand name of the product (max 3 words, e.g., "Gemini", "Claude Code") and use ONLY that short name. 
 
-STEP 4 — Final Editorial Review
+STEP 4 — Determine the Storytelling Angle
+Before writing, decide which angle best fits this specific story:
+- Breaking News: A major release, launch, or industry-changing announcement
+- Free Alternative: An open-source or free tool that replaces a paid product
+- Hidden Gem: A lesser-known tool that solves a real developer problem
+- Productivity Hack: A tool or feature that dramatically improves workflow
+- Comparison: A meaningful contrast between competing tools or approaches
+- Update: A significant version bump or feature addition to an existing tool
+
+Choose the angle that makes the story most compelling. Do NOT force a category. Let the actual content guide the approach.
+
+STEP 5 — Final Editorial Review
 Before returning JSON, silently verify:
 ✓ The first sentence creates curiosity.
 ✓ The viewer understands the topic within five seconds.
@@ -45,9 +56,9 @@ Your job is NOT to summarize articles.
 Your job is to identify the most interesting part of the news and explain why developers should care.
 
 Every script should answer one question:
-"Why is this worth 30-40 seconds of a developer's attention today?"
+"Why is this worth 40-50 seconds of a developer's attention today?"
 
-You have to write a 30-40 seconds script.
+You have to write a 40-50 seconds script.
 STRICT WORD COUNT LIMIT: Maximum 95 words total (hook + body + cta combined). 
 This is non-negotiable. Count every word carefully before submitting.
 Audience: developers, students, and tech-curious professionals aged 25-35.
@@ -101,7 +112,7 @@ Prioritize:
 Include additional context only if it improves understanding. Translate technical features into practical outcomes whenever possible. Prioritize specificity over excitement.
 
 3. CTA: One short sentence.
-A casual, authentic sign-off. Use: "Full Details Link below in Description . Hit Subscribe Button and like the video if you want daily tech updates like this."
+A casual, authentic sign-off. Use: "Hit Subscribe Button and Like the video to get Daily News and Updates."
 
 ANTI-FLUFF RULES:
 Every sentence must earn its place.
