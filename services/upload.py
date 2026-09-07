@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 import argparse
 from google.auth.exceptions import RefreshError
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -8,9 +9,14 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from utils.logger import info, error, warning
+
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOKEN_PATH = os.path.join(PROJECT_ROOT, 'token.json')
 CLIENT_SECRETS_PATH = os.path.join(PROJECT_ROOT, 'client_secrets.json')
 
@@ -69,17 +75,17 @@ def main():
     args = parser.parse_args()
 
     if not os.path.exists(args.video):
-        print(f"Error: Video file not found at {args.video}")
+        error(f"Video file not found at {args.video}")
         return
     
     if not os.path.exists(args.script):
-        print(f"Error: Script file not found at {args.script}")
+        error(f"Script file not found at {args.script}")
         return
 
-    print("Authenticating with YouTube API...")
+    info("Authenticating with YouTube API...")
     youtube = authenticate_youtube()
 
-    print("Reading metadata...")
+    info("Reading metadata...")
     with open(args.script, 'r', encoding='utf-8') as f:
         script_data = json.load(f)
     
@@ -110,10 +116,10 @@ def main():
         }
     }
 
-    # Prepare the video file
-    media = MediaFileUpload(args.video, chunksize=-1, resumable=True, mimetype='video/mp4')
+    # Prepare the video file with 2MB chunking for optimal throughput & network stability
+    media = MediaFileUpload(args.video, chunksize=2 * 1024 * 1024, resumable=True, mimetype='video/mp4')
 
-    print(f"Uploading '{title}' (Private)...")
+    info(f"Starting YouTube Upload: '{title}' (Private)...")
     request = youtube.videos().insert(
         part=','.join(body.keys()),
         body=body,
@@ -121,14 +127,16 @@ def main():
     )
 
     response = None
+    last_pct = -1
     while response is None:
         status, response = request.next_chunk()
         if status:
-            print(f"Uploaded {int(status.progress() * 100)}%")
+            pct = int(status.progress() * 100)
+            if pct != last_pct and (pct % 20 == 0 or pct == 100):
+                info(f"YouTube Upload Progress: {pct}%")
+                last_pct = pct
 
-    print("\nUpload Successful!😘")
-    print(f"Video ID: {response['id']}")
-    print(f"YouTube URL: https://youtu.be/{response['id']}")
+    info(f"✅ YouTube Upload Successful! Video ID: {response.get('id', 'unknown')} | URL: https://youtu.be/{response.get('id', '')}")
 
 if __name__ == '__main__':
     main()

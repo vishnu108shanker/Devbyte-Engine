@@ -49,7 +49,7 @@ def main():
     args = parser.parse_args()
     
     config = load_config()
-    max_words = config.get("max_word_count", 110)
+    max_words = config.get("max_word_count", 125)
     
     script_data = read_json(args.input)
     if not script_data:
