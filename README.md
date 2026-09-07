@@ -2,7 +2,7 @@
 ##### (pre dockerization version, to read the documentation of possible changes after containerization See [DOCKER_NOTES.md](docs_v2_Dockerization/DOCKER_NOTES.md) )
 > An autonomous digital newsroom that discovers, evaluates, scripts, renders, and publishes developer-focused YouTube Shorts — entirely on autopilot.
 
-DevByte Engine V2 transforms the original single-source video pipeline into a production-grade content automation system. It pulls from four independent news sources, filters noise with rule-based signal detection, scores candidates through an AI editorial layer, writes scripts using category-specific prompts, renders up to five videos in parallel, and publishes them directly to YouTube.
+DevByte Engine V2 transforms the original single-source video pipeline into a production-grade content automation system. It pulls from four independent news sources, filters noise with rule-based signal detection, evaluates candidates through a cached two-pass AI editorial layer, writes scripts using category-specific prompts, produces up to five videos sequentially to protect local resources, and publishes them directly to YouTube.
 
 ### Editorial Mission
 
@@ -35,7 +35,7 @@ flowchart TD
         SC --> ED["Editorial Engine\n(diversity + rotation)"]
     end
 
-    subgraph Production ["Video Production (×5 parallel)"]
+    subgraph Production ["Video Production (up to 5 sequential workers)"]
         direction TB
         GS["Gemini Scriptwriter"] --> TTS["Edge TTS"]
         TTS --> REM["Remotion Renderer"]
@@ -56,7 +56,7 @@ flowchart TD
 | Sources | GitHub Trending only | HN + Blogs + GitHub Releases + Product Hunt |
 | Selection | Random trending repo | AI-scored editorial queue with category rotation |
 | Filtering | None | Signal filter → Quality filter → Deduplicator |
-| Output | 1 video (sequential) | Up to 5 videos (parallel workers) |
+| Output | 1 video (sequential) | Up to 5 videos (isolated sequential workers) |
 | Publishing | Manual upload | Automated YouTube API upload |
 | History | None | Append-only ledger preventing repeat coverage |
 | Prompts | Single generic template | 8 category-specific editorial prompts |
@@ -73,16 +73,18 @@ The V1 rendering pipeline (Gemini → Validator → TTS → Remotion) is **compl
 - **Signal filter** with HN keyword whitelists and global noise blacklists (blocks tutorials, guides, essays, roundups)
 
 ### AI Newsroom
-- **Batch Gemini evaluation** — all candidates scored in a single API call as a "YouTube Shorts Editor" (0–100 + reason)
-- **Multi-dimensional scoring** — combines editor score with freshness, popularity, source tier trust, and cross-source validation
+- **Two-pass Gemini evaluation** — uncached candidates are mission-checked in chunks of 10, then publishable items are relatively ranked
+- **Parallel mission checks** — up to 5 chunks are evaluated concurrently with `ThreadPoolExecutor`
+- **Evidence-driven decisions** — Gemini returns `publish` or `reject` decisions and editorial reasons using factual evidence rather than an arbitrary composite score
 - **Editorial rotation** — balances daily output across 8 content categories using publishing history
 - **Source diversity limit** — max 2 stories per source in a single daily batch
 - **Breaking news override** — high-scoring announcements (85+) bypass category rotation
 
 ### Production & Publishing
-- **Parallel batch processing** — 5 isolated worker directories rendering simultaneously
+- **Resource-safe batch processing** — up to 5 isolated worker directories are processed one at a time
 - **20+ animated React components** — spring physics, frosted glass, mesh gradients, typewriter subtitles
-- **Automated YouTube upload** — OAuth 2.0 integration, private staging, dynamic metadata injection
+- **Automated YouTube upload** — OAuth 2.0 integration, private staging, dynamic metadata injection, 2 MB resumable chunks, and progress logging
+- **Performance visibility** — per-video timings for script generation, validation, TTS, rendering, and upload with an ASCII bar chart
 
 ---
 
@@ -156,7 +158,7 @@ devbyte-engine/
 │
 ├── orchestrator/                        # Pipeline controllers
 │   ├── run_pipeline.js                  #   Sequential single-video runner
-│   └── batch_generate_and_upload.js     #   Parallel 5-worker batch executor
+│   └── batch_generate_and_upload.js     #   Up to 5-worker sequential batch executor
 │
 ├── utils/                               # Shared helpers
 │   ├── logger.py                        #   Timestamped file + console logger
@@ -171,7 +173,7 @@ devbyte-engine/
 │   ├── content_queue.json               #   Editorial-selected queue
 │   ├── selected_tool.json               #   Current video target
 │   ├── script.json / audio.mp3          #   Per-video production artifacts
-│   └── worker_0/ ... worker_4/          #   Parallel batch worker directories
+│   └── worker_0/ ... worker_4/          #   Isolated batch worker directories
 │
 └── render/                              # Remotion video engine
     ├── remotion.config.ts               #   1080×1920 output, Tailwind, Webpack
@@ -262,15 +264,18 @@ echo [] > data/history.json
 
 ### Batch Production (Recommended)
 
-The primary workflow — ingests from all sources, filters, scores, generates up to 5 videos in parallel, and uploads to YouTube:
+The primary workflow — ingests from all sources, filters, evaluates, generates up to 5 videos sequentially, and uploads each to YouTube:
 
 ```bash
 npm run batch
 ```
 
-This executes two phases:
-1. **Phase 1** — Collect → Normalize → Signal Filter → Quality Filter → Deduplicate → Evaluate → Editorial Queue
-2. **Phase 2** — For each of the top 5 candidates: Script → Validate → TTS → Render → Upload
+This executes five phases:
+1. **Phase 1** — Collect → Normalize → Signal Filter → Quality Filter → Deduplicate → Staleness Gate → Evaluate → Editorial Queue
+2. **Phase 2** — Create isolated worker directories and copy the selected candidates
+3. **Phases 3–4** — For each candidate, run Script → Validate → TTS → Render → Upload sequentially; the next video starts only after the previous one finishes
+4. **Phase 5** — Append successful publications to `data/history.json`
+5. **Performance reporting** — Print and append a timing report after each successful video
 
 ### Single Video Pipeline
 
@@ -295,8 +300,9 @@ python ingestion/normalizer.py --input data/temp_hn.json --output data/raw_candi
 python ingestion/signal_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
 python ingestion/quality_filter.py --input data/raw_candidates.json --output data/raw_candidates.json
 python ingestion/deduplicator.py --input data/raw_candidates.json --output data/raw_candidates.json
+python ingestion/staleness_gate.py --input data/raw_candidates.json --output data/raw_candidates.json --max-days 14
 
-# Score and select
+# Evaluate and select
 python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
 python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json \
   --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
@@ -318,12 +324,12 @@ All editorial behavior is controlled through JSON configuration files — no cod
 |---|---|---|
 | Add an RSS feed | `sources/official_feeds.json` | Append `{"url": "https://blog.example.com/rss", "source": "example_blog"}` |
 | Track a GitHub repo | `sources/github_repos.json` | Append `"owner/repo"` to the array |
-| Block noise keywords | `sources/filters.json` | Add words to `noise_blacklist` array |
-| Allow HN topics | `sources/filters.json` | Add verbs to `whitelist_keywords` array |
-| Adjust category weights | `editorial/editorial_policy.json` | Change percentage values in `weights` |
+| Block noise keywords | `sources/filters.json` | Add words to `noise_blacklist` array (e.g., `"vercel"`, `"cloudflare"`) |
+| Tune editorial constraints | `editorial/editorial_policy.json` | Adjust `queue_size` (5), `max_per_source` (3), or `max_per_company` (2) |
+| Tune staleness cutoff | `editorial/editorial_policy.json` | Adjust `staleness_max_days` (default: 14 days) |
+| Change cache TTL | `editorial/editorial_policy.json` | Adjust `cache_ttl_hours` (default: 30 hours) |
 | Change TTS voice | `config.json` | Set `tts_voice` to any Edge TTS voice name |
 | Edit video colors | `render/src/design/theme.ts` | Modify palette, typography, or spacing tokens |
-| Tune score thresholds | `editorial/editorial_policy.json` | Adjust `min_score_threshold` or `breaking_news_override_score` |
 
 ### Automated Scheduling (Windows)
 
@@ -339,46 +345,92 @@ schtasks /create /tn "DevByteAutomation" /tr "\"C:\path\to\run_automation.bat\""
 
 ```text
                         ┌─────────────┐
-                        │  4 Sources  │
+                        │  4 Sources  │ (HN, Blogs, GitHub, Product Hunt)
                         └──────┬──────┘
                                ↓
-               ┌───────────────────────────────┐
-               │       Normalizer              │  62 raw candidates
-               │       Signal Filter           │  → 46 after noise removal
-               │       Quality Filter          │  → 43 after validation
-               │       Deduplicator            │  → 43 unique stories
-               └───────────────┬───────────────┘
+                ┌───────────────────────────────┐
+                │       Normalizer              │  Schema standardization
+                │       Signal Filter           │  Noise & blacklist removal
+                │       Quality Filter          │  Structure & field validation
+                │       Deduplicator            │  ID, URL & fuzzy title dedup
+                │       Staleness Gate          │  Drops items > 14 days old
+                └───────────────┬───────────────┘
                                ↓
-               ┌───────────────────────────────┐
-               │       Gemini Editor (batch)   │  editor_score 0–100
-               │       Algorithmic Scoring     │  freshness + popularity + trust
-               │       Editorial Engine        │  top 5, diversity-capped
-               └───────────────┬───────────────┘
+                ┌───────────────────────────────┐
+                │       Evidence Builder        │  Objective facts (no arbitrary points)
+                │       Pass 1: Mission Check   │  PUBLISH / REJECT in chunks of 10, up to 5 workers
+                │       Pass 2: Relative Rank   │  Strict rank 1..N (scales to 50+ items)
+                │       Editorial Engine        │  Top 5, source & company diversity
+                └───────────────┬───────────────┘
                                ↓
-               ┌───────────────────────────────┐
-               │     5 Parallel Workers        │
-               │     Script → TTS → Render     │
-               │     → Upload to YouTube       │
-               └───────────────────────────────┘
+                ┌───────────────────────────────┐
+                │     Up to 5 Sequential Workers│
+                │     Script → Validate → TTS   │
+                │     → Render → Upload         │
+                └───────────────────────────────┘
 ```
 
 ---
 
-## Scoring Formula
+## Editorial Evaluation Engine (V2 Architecture)
 
+The legacy 4-factor arithmetic composite score (`freshness + popularity + trust + quality = base * editor_multiplier`) has been replaced with an **evidence-driven editorial engine**:
+
+> **Code determines what is allowed. Gemini determines what is worth publishing.**
+
+### 1. Deterministic Hard Gates
+- **Signal Filter & Blacklist**: Discards noise (`tutorial`, `opinion`, `essay`, `vercel`, `cloudflare`).
+- **Quality Filter**: Enforces schema and required field presence.
+- **Deduplicator**: Prevents duplicate stories across sources.
+- **Staleness Gate**: Enforces a 14-day recency cutoff before sending items to the LLM.
+- **History Gate**: Skips previously published stories unless marked as `major_update`.
+
+### 2. Evidence Builder (Facts, Not Points)
+Instead of converting metrics into arbitrary points, the evidence builder compiles factual context for the editor:
+- Recency: `days_ago`, `is_today`, `is_this_week`.
+- Community Engagement: Raw `hn_points`, `github_stars`, `ph_upvotes` (`null` when not tracked).
+- Source Authority: `source_label` (e.g. "NVIDIA Official Blog/Newsroom").
+- Cross-Source Coverage: Number of distinct sources covering the story.
+
+### 3. Two-Pass Gemini Editorial Judgment
+- **Pass 1 — Mission Check**: Evaluates items in chunks of 10. Up to five chunks are sent concurrently through `ThreadPoolExecutor`; Gemini classifies each item as `publish` or `reject` with a concrete 1–2 sentence editorial reason based on DevByte's core editorial mission.
+- **Pass 2 — Relative Ranking**: Eligible publishable stories are ranked from 1 (the single most important/viral video of the day) to $N$. Large batches (50+ items) are ranked using segmented tournament ranking.
+
+### 4. Probabilistic Robustness & Structural Verification
+- `temperature=0.0` is used as a stability heuristic, but the system is engineered to handle probabilistic variance.
+- **Correctness Invariants**: Every input candidate ID must be returned, decisions must be valid, publishable ranks must be strictly unique integers from $1..N$ with no gaps, and rejects must have `rank: null`.
+- **Self-Healing**: Malformed outputs trigger automated retries (up to 2 attempts) across fallback models (`gemini-2.5-flash`, `gemini-3.5-flash`, `gemini-3.1-flash-lite`).
+- **ID and rank validation**: Responses containing unknown candidate IDs, missing candidates, invalid decisions, duplicate ranks, or malformed ranks are rejected and retried. If every ranking attempt fails, the original candidate order is preserved.
+
+### 5. 30-Hour Caching & Re-Scoring
+- Evaluations are cached in `data/evaluation_cache.json` for 30 hours.
+- Automatic re-scoring is triggered if an item goes viral (`hn_points` surges by > 50%) or gains cross-source validation before the cache expires.
+
+### 6. Operational Constraints & Queue Output
+- **Company Diversity**: Max 2 stories per company per queue (prevents single-company domination).
+- **Source Diversity**: Max 3 stories per source.
+- **Queue Size**: Emits up to 5 ranked stories for sequential batch production.
+
+### 7. Sequential Production and Performance Reporting
+- **One worker at a time**: Each worker completes script generation, validation, TTS, Remotion rendering, and YouTube upload before the next worker starts. This prevents local CPU, GPU, memory, and renderer contention.
+- **Phase timing**: The batch orchestrator measures `Gemini Script`, `Validator`, `TTS Voice`, `Remotion Render`, and `YT Upload` with elapsed-time timers.
+- **Visual report**: Successful videos receive a proportional ASCII bar chart in the terminal and `logs/pipeline.log`, including each phase duration and the total pipeline time.
+
+Example:
+
+```text
+PERFORMANCE REPORT: "NVIDIA to Acquire Hugging Face"
+Gemini Script  :    7.0s  █
+Validator      :    0.3s
+TTS Voice      :    6.0s  █
+Remotion Render:  102.0s  ████████████████████
+YT Upload      :   20.0s  ████
+Total Pipeline  :  135.3s
 ```
-Total Score = Base Score × (editor_score / 100)
 
-Base Score  = Freshness + Popularity + Source Trust + Quality + Hype Bonus
-
-Freshness:     < 7 days → 40  |  < 30 days → 25  |  < 90 days → 10
-Popularity:    min(30, raw_count / 100)
-Source Trust:   Tier 1 → 20  |  Tier 2 → 15  |  Tier 3 → 10
-Quality:       competitors +10  |  use_cases +10  |  audience +5  |  cross-source +15
-Hype Bonus:    title contains high-profile keyword → +25
-```
-
-The `editor_score` is Gemini's assessment of video-worthiness. Python enforces `min_score_threshold` from `editorial_policy.json` — the LLM scores, but code decides.
+### 8. Upload Reliability and Logging
+- YouTube uploads use resumable 2 MB chunks instead of a monolithic upload request, improving stability on residential connections and reducing the chance of socket hangs.
+- Upload start, 20% progress checkpoints, completion, video ID, and the YouTube URL are written through the shared logger to both stdout and `logs/pipeline.log`.
 
 ---
 
@@ -403,6 +455,8 @@ Each category has a dedicated prompt template in `editorial/prompts/` that shape
 
 | Version | Date | Highlights |
 |---|---|---|
+| **2.4.0** | Sep 8, 2026 | Parallel Pass 1 evaluation, sequential resource-safe video production, resumable 2 MB upload chunks, upload progress logging, and per-video performance reports |
+| **2.3.0** | Sep 7, 2026 | Editorial evaluation engine rewrite — scrapped 4-factor scoring for evidence-driven LLM classification & relative ranking, 50+ batch scaling, 30h caching, company diversity cap |
 | **2.2.1** | Jul 4, 2026 | Deduplicator rewrite (story-level identity), source diversity cap |
 | **2.2.0** | Jul 4, 2026 | Newsroom overhaul — 4 sources, signal filter, batch Gemini scoring |
 | **2.1.0** | Jul 4, 2026 | Queue truncation fix, hype bonus, prompt persona refinement |
