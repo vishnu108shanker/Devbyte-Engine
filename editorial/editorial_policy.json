@@ -1,9 +1,8 @@
 {
-  "weights": {
-    "update": 100
-  },
-  "max_repeat_days": 100,
-  "min_score_threshold": 50,
   "queue_size": 5,
-  "breaking_news_override_score": 85
+  "max_per_source": 3,
+  "max_per_company": 2,
+  "max_repeat_days": 14,
+  "staleness_max_days": 14,
+  "cache_ttl_hours": 30
 }

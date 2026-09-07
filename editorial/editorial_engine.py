@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 import os
-
+import re
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
@@ -11,34 +11,93 @@ if PROJECT_ROOT not in sys.path:
 from utils.logger import info, warning, error
 from utils.file_utils import read_json
 
+KNOWN_COMPANIES = [
+    "nvidia", "google", "openai", "microsoft", "meta",
+    "apple", "amazon", "anthropic", "ibm", "github",
+    "intel", "amd", "oracle", "salesforce"
+]
 
+def extract_company_identity(candidate):
+    """
+    Extract key company name if candidate is from or about a major tech firm.
+    Returns normalized company string or None.
+    """
+    tags = [t.lower() for t in candidate.get("tags", [])]
+    source = candidate.get("source", "").lower()
+    title = candidate.get("name", "").lower()
 
+    for comp in KNOWN_COMPANIES:
+        if comp in tags or comp in source:
+            return comp
+        if re.search(r'\b' + re.escape(comp) + r'\b', title):
+            return comp
 
-MAX_PER_SOURCE = 3  # Maximum stories from the same source in a single queue
+    return None
 
-def select_with_diversity(scored_candidates, queue_size):
-    """Select top N candidates while enforcing source diversity.
-    No single source (e.g. 'openai_blog', 'hackernews') can contribute
-    more than MAX_PER_SOURCE stories to a single daily queue."""
+def build_editorial_queue(ranked_candidates, history, policy):
+    """
+    Apply operational editorial constraints to the ranked candidate list:
+    1. Filter: only publishable items (decision == 'publish')
+    2. History gate: skip already published unless event_type == 'major_update'
+    3. Source diversity: max N stories per source (default: 3)
+    4. Company diversity: max N stories per company (default: 2)
+    5. Fill up to queue_size (default: 5)
+    """
+    queue_size = policy.get("queue_size", 5)
+    max_per_source = policy.get("max_per_source", 3)
+    max_per_company = policy.get("max_per_company", 2)
+
+    published_ids = {entry.get("id") for entry in (history or [])}
+
     queue = []
     source_counts = {}
+    company_counts = {}
 
-    for c in scored_candidates:
+    for c in ranked_candidates:
         if len(queue) >= queue_size:
             break
+
+        cid = c.get("id")
+        name = c.get("name", "Unknown")
+
+        # Must be approved by Gemini editorial mission check
+        if c.get("decision") != "publish":
+            continue
+
+        # History Gate
+        if cid in published_ids and c.get("event_type") != "major_update":
+            info(f"Editorial Engine: Skipping already-published -> '{name}'")
+            continue
+
+        # Source Diversity Gate
         source = c.get("source", "unknown")
-        count = source_counts.get(source, 0)
-        if count < MAX_PER_SOURCE:
-            queue.append(c)
-            source_counts[source] = count + 1
-        else:
-            info(f"Diversity cap: skipping '{c.get('name')}' (already {MAX_PER_SOURCE} from '{source}')")
+        s_count = source_counts.get(source, 0)
+        if s_count >= max_per_source:
+            info(f"Source diversity cap ({max_per_source}): skipping '{name}' (source: {source})")
+            continue
+
+        # Company Diversity Gate
+        company = extract_company_identity(c)
+        if company:
+            c_count = company_counts.get(company, 0)
+            if c_count >= max_per_company:
+                info(f"Company diversity cap ({max_per_company}): skipping '{name}' (company: {company})")
+                continue
+
+        # Candidate accepted into queue
+        queue.append(c)
+        source_counts[source] = s_count + 1
+        if company:
+            company_counts[company] = company_counts.get(company, 0) + 1
+
+    # User specification: hardcode category to "update" for all selected candidates
+    for c in queue:
+        c["category"] = "update"
 
     return queue
 
-
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="DevByte Editorial Engine V2")
     parser.add_argument("--input", required=True, help="Path to evaluated_candidates.json")
     parser.add_argument("--output", required=True, help="Path to content_queue.json")
     parser.add_argument("--channel", required=True, help="Path to channel profile JSON")
@@ -46,68 +105,32 @@ def main():
     parser.add_argument("--history", required=True, help="Path to history.json")
     args = parser.parse_args()
 
-    # Load all inputs
     candidates = read_json(args.input)
     channel = read_json(args.channel)
-    policy = read_json(args.policy)
+    policy = read_json(args.policy) or {}
     history = read_json(args.history) or []
 
     if not candidates or not isinstance(candidates, list):
-        error("No evaluated candidates to process.")
-        sys.exit(1)
-
-    min_score = policy.get("min_score_threshold", 50)
-    queue_size = policy.get("queue_size", 3)
-    breaking_threshold = policy.get("breaking_news_override_score", 85)
-
-    # Get history IDs to skip already-published tools
-    published_ids = {entry.get("id") for entry in history}
-
-    # Filter out already-published candidates (unless major_update)
-    eligible = []
-    for c in candidates:
-        if c.get("id") in published_ids and c.get("event_type") != "major_update":
-            info(f"Skipping already-published: {c.get('name')}")
-            continue
-        eligible.append(c)
-
-    if not eligible:
-        warning("No eligible candidates after filtering published history.")
-        with open(args.output, 'w', encoding='utf-8') as f:
+        warning("No evaluated candidates to process.")
+        with open(args.output, "w", encoding="utf-8") as f:
             json.dump([], f, indent=2)
         return
 
-    # Check for breaking news override
-    breaking = [c for c in eligible if c.get("score", 0) >= breaking_threshold]
-    if breaking:
-        info(f"Breaking news override! '{breaking[0].get('name')}' scored {breaking[0].get('score')}")
-        non_breaking = [c for c in eligible if c.get("score", 0) < breaking_threshold and c.get("score", 0) >= min_score]
-        combined = breaking + non_breaking
-        queue = select_with_diversity(combined, queue_size)
-    else:
-        # Simple score-based selection
-        scored = [c for c in eligible if c.get("score", 0) >= min_score]
+    # Filter and rank candidates (candidates are already pre-ranked by evaluator)
+    # Ensure items with rank are sorted ascending
+    ranked_candidates = [c for c in candidates if c.get("rank") is not None]
+    ranked_candidates.sort(key=lambda x: x.get("rank", 999))
 
-        if not scored:
-            warning(f"No candidates above score threshold {min_score}. Taking top eligible regardless.")
-            scored = eligible
+    queue = build_editorial_queue(ranked_candidates, history, policy)
 
-        # Sort by score descending
-        scored.sort(key=lambda c: c.get("score", 0), reverse=True)
+    info(f"Content queue generated with {len(queue)} stories (Target: {policy.get('queue_size', 5)}):")
+    for idx, c in enumerate(queue):
+        info(f"  #{idx + 1} [Rank {c.get('rank')}]: '{c.get('name')}' ({c.get('source')})")
 
-        queue = select_with_diversity(scored, queue_size)
-
-    # Hardcode category to "update" for all selected candidates
-    for c in queue:
-        c["category"] = "update"
-
-    info(f"Top pick: {queue[0].get('name') if queue else 'none'} (score: {queue[0].get('score') if queue else 0})")
-
-    with open(args.output, 'w', encoding='utf-8') as f:
+    with open(args.output, "w", encoding="utf-8") as f:
         json.dump(queue, f, indent=2)
 
-    info(f"Content queue built with {len(queue)} candidates.")
-
+    info(f"Content queue written to {args.output}")
 
 if __name__ == "__main__":
     main()

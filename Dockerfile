@@ -78,3 +78,20 @@ USER devbyte
 
 # ---- 8. Default entrypoint — the batch pipeline ----------------------------
 CMD ["npm", "run", "batch"]
+
+## Dockerfile Reference Table
+##| Instruction  | Meaning                                    |
+##| ------------ | ------------------------------------------ |
+##| `FROM`       | Start from an existing image               |
+##| `WORKDIR`    | Set the working directory                  |
+##| `COPY`       | Copy files into image                      |
+##| `ADD`        | Similar to COPY, but with extra behavior   |
+##| `RUN`        | Execute a command while building the image |
+##| `CMD`        | Default command when container starts      |
+##| `ENTRYPOINT` | Define the executable/entrypoint           |
+##| `ENV`        | Set environment variables                  |
+##| `ARG`        | Build-time variable                        |
+##| `EXPOSE`     | Document intended network port             |
+##| `USER`       | Select the user to run as                  |
+##| `VOLUME`     | Declare a mount point                      |
+##| `LABEL`      | Add metadata                               |

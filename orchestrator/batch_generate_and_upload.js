@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const MAX_VIDEOS = 2 ;  // Limit to 5 videos per batch
+const MAX_VIDEOS = 5;  // Limit to 5 videos per batch
 
 
 
@@ -24,6 +24,39 @@ function runCommandAsync(command, args, cwd = PROJECT_ROOT) {
       resolve(code === 0);
     });
   });
+}
+
+// Performance report generator with visual ASCII bar chart
+function logPerformanceReport(title, timings) {
+  const LOG_FILE = path.join(PROJECT_ROOT, 'logs', 'pipeline.log');
+  const maxDuration = Math.max(...timings.map(t => t.duration), 0.1);
+  const maxBarLength = 20;
+
+  const lines = [
+    `\n⏱️  PERFORMANCE REPORT: "${title}"`,
+    `──────────────────────────────────────────────────`
+  ];
+
+  let totalSec = 0;
+  for (const t of timings) {
+    totalSec += t.duration;
+    const durStr = t.duration.toFixed(1).padStart(6, ' ') + 's';
+    const barCount = Math.round((t.duration / maxDuration) * maxBarLength);
+    const bar = '█'.repeat(barCount);
+    lines.push(`${t.label.padEnd(15, ' ')}: ${durStr}  ${bar}`);
+  }
+
+  lines.push(`──────────────────────────────────────────────────`);
+  lines.push(`Total Pipeline  : ${totalSec.toFixed(1).padStart(6, ' ')}s\n`);
+
+  const reportText = lines.join('\n');
+  console.log(reportText);
+
+  try {
+    fs.appendFileSync(LOG_FILE, `\n${new Date().toISOString()} - INFO - [performance]\n${reportText}\n`, 'utf8');
+  } catch (e) {
+    // ignore
+  }
 }
 
 async function main() {
@@ -47,6 +80,7 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     [PYTHON_CMD, ["ingestion/signal_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
     [PYTHON_CMD, ["ingestion/quality_filter.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
     [PYTHON_CMD, ["ingestion/deduplicator.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json"]],
+    [PYTHON_CMD, ["ingestion/staleness_gate.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json", "--max-days", "14"]],
     [PYTHON_CMD, ["evaluation/evaluator.py", "--input", "data/raw_candidates.json", "--output", "data/evaluated_candidates.json"]],
     [PYTHON_CMD, ["editorial/editorial_engine.py", "--input", "data/evaluated_candidates.json", "--output", "data/content_queue.json", "--channel", "channels/ai_tools.json", "--policy", "editorial/editorial_policy.json", "--history", "data/history.json"]]
   ];
@@ -91,8 +125,9 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     workers.push({ id: i, candidate, dir: workerDir });
   }
 
-  // Phase 3 & 4: Parallel Generation, Rendering & Uploading
-  console.log(`\n--- PHASE 3 & 4: PARALLEL GENERATION & UPLOAD ---`);
+  // Phase 3 & 4: Sequential Video Production & Upload
+  console.log(`\n--- PHASE 3 & 4: SEQUENTIAL VIDEO PRODUCTION & UPLOAD ---`);
+  console.log(`Producing ${workers.length} videos sequentially (one-by-one) to protect system resources...\n`);
   
   let historyData = [];
   try {
@@ -101,37 +136,74 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     // If it doesn't exist, we start fresh
   }
   
-  const workerPromises = workers.map(async (worker) => {
+  const results = [];
+  for (let i = 0; i < workers.length; i++) {
+    const worker = workers[i];
     const wId = worker.id;
     const wDir = `data/worker_${wId}`;
+    const timings = [];
     
-    console.log(`[Worker ${wId}] Starting generation for: ${worker.candidate.name}`);
+    console.log(`\n🎬 [Video ${i + 1}/${workers.length}] Starting generation for: "${worker.candidate.name}"`);
     
-    // AI Script
+    // 1. AI Script
+    const tScript0 = Date.now();
     let ok = await runCommandAsync(PYTHON_CMD, ['services/gemini.py', '--input', `${wDir}/selected_tool.json`, '--output', `${wDir}/script.json`]);
-    if (!ok) return false;
+    const scriptSec = (Date.now() - tScript0) / 1000;
+    timings.push({ label: 'Gemini Script', duration: scriptSec });
+    if (!ok) {
+      console.error(`[Video ${i + 1}] ❌ Script generation failed.`);
+      results.push(false);
+      continue;
+    }
 
     // 2. Validate
+    const tVal0 = Date.now();
     ok = await runCommandAsync(PYTHON_CMD, ['utils/validator.py', '--input', `${wDir}/script.json`, '--output', `${wDir}/validated_script.json`]);
-    if (!ok) return false;
+    const valSec = (Date.now() - tVal0) / 1000;
+    timings.push({ label: 'Validator', duration: valSec });
+    if (!ok) {
+      console.error(`[Video ${i + 1}] ❌ Script validation failed.`);
+      results.push(false);
+      continue;
+    }
 
     // 3. TTS
+    const tTts0 = Date.now();
     ok = await runCommandAsync(PYTHON_CMD, ['services/tts.py', '--input', `${wDir}/validated_script.json`, '--output', `${wDir}/audio.mp3`]);
-    if (!ok) return false;
+    const ttsSec = (Date.now() - tTts0) / 1000;
+    timings.push({ label: 'TTS Voice', duration: ttsSec });
+    if (!ok) {
+      console.error(`[Video ${i + 1}] ❌ TTS audio generation failed.`);
+      results.push(false);
+      continue;
+    }
 
-    // Render (Concurrency safe now that props/audio names are dynamic!)
+    // 4. Render (Sequential — starts only after previous video is fully rendered)
+    const tRender0 = Date.now();
     ok = await runCommandAsync('node', ['services/render.js', '--input', `${wDir}/validated_script.json`, '--audio', `${wDir}/audio.mp3`, '--output', `${wDir}/video.mp4`]);
-    if (!ok) return false;
+    const renderSec = (Date.now() - tRender0) / 1000;
+    timings.push({ label: 'Remotion Render', duration: renderSec });
+    if (!ok) {
+      console.error(`[Video ${i + 1}] ❌ Video rendering failed.`);
+      results.push(false);
+      continue;
+    }
 
     // 5. Upload
+    const tUpload0 = Date.now();
     ok = await runCommandAsync(PYTHON_CMD, ['services/upload.py', '--video', `${wDir}/video.mp4`, '--script', `${wDir}/script.json`]);
-    if (!ok) return false;
+    const uploadSec = (Date.now() - tUpload0) / 1000;
+    timings.push({ label: 'YT Upload', duration: uploadSec });
+    if (!ok) {
+      console.error(`[Video ${i + 1}] ❌ Upload failed.`);
+      results.push(false);
+      continue;
+    }
     
-    console.log(`[Worker ${wId}] ✅ Successfully generated and uploaded video!`);
-    return true;
-  });
-
-  const results = await Promise.all(workerPromises);
+    console.log(`[Video ${i + 1}/${workers.length}] ✅ Successfully generated and uploaded video!`);
+    logPerformanceReport(worker.candidate.name, timings);
+    results.push(true);
+  }
   
   // Phase 5: Cleanup & History Update
   console.log(`\n--- PHASE 5: CLEANUP & HISTORY UPDATE ---`);
