@@ -162,6 +162,12 @@ const steps = [
     outputPath: "data/raw_candidates.json"
   },
   {
+    name: "5b. Staleness Gate",
+    command: process.platform === 'win32' ? "python" : "python3",
+    args: ["ingestion/staleness_gate.py", "--input", "data/raw_candidates.json", "--output", "data/raw_candidates.json", "--max-days", "14"],
+    outputPath: "data/raw_candidates.json"
+  },
+  {
     name: "6. Evaluate Candidates",
     command: process.platform === 'win32' ? "python" : "python3",
     args: ["evaluation/evaluator.py", "--input", "data/raw_candidates.json", "--output", "data/evaluated_candidates.json"],

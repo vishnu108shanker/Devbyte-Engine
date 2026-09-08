@@ -55,33 +55,21 @@ def main():
     with open(filters_path, "r", encoding="utf-8") as f:
         filters = json.load(f)
 
-    hn_whitelist = filters.get("hn_whitelist", [])
     noise_blacklist = filters.get("noise_blacklist", [])
 
     passed = []
-    dropped_hn = 0
     dropped_noise = 0
 
     for candidate in data:
         title = candidate.get("name", "")
-        source = candidate.get("source", "")
 
-        if source == "hackernews":
-            # Hacker News candidates must pass the whitelist check (must contain 'released', 'launches', etc.)
-            if matches_regex_list(title, hn_whitelist):
-                passed.append(candidate)
-            else:
-                dropped_hn += 1
-                info(f"Signal Filter: Dropped HN candidate (no whitelist keyword) -> '{title}'")
+        if matches_regex_list(title, noise_blacklist):
+            dropped_noise += 1
+            info(f"Signal Filter: Dropped candidate (blacklisted keyword) -> '{title}'")
         else:
-            # Other sources (blogs, github, product hunt) just need to avoid noise blacklist (e.g. 'tutorial', 'guide')
-            if matches_regex_list(title, noise_blacklist):
-                dropped_noise += 1
-                info(f"Signal Filter: Dropped candidate (blacklisted keyword) -> '{title}'")
-            else:
-                passed.append(candidate)
+            passed.append(candidate)
 
-    info(f"Signal Filter finished: {len(passed)} passed. (Dropped: {dropped_hn} HN, {dropped_noise} noise)")
+    info(f"Signal Filter finished: {len(passed)} passed. (Dropped: {dropped_noise} noise)")
 
     with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(passed, f, indent=2)

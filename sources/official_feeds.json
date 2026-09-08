@@ -1,9 +1,7 @@
 [
   {"url": "https://openai.com/blog/rss.xml", "source": "openai_blog"},
   {"url": "https://blog.google/technology/rss/", "source": "google_blog"},
-  {"url": "https://vercel.com/blog/feed", "source": "vercel_blog"},
   {"url": "https://aws.amazon.com/blogs/aws/feed/", "source": "aws_blog"},
-  {"url": "https://blog.cloudflare.com/rss/", "source": "cloudflare_blog"},
-  {"url": "https://supabase.com/feed.xml", "source": "supabase_blog"},
-  {"url": "https://bun.com/rss.xml", "source": "bun_blog"}
+  {"url": "https://nvidianews.nvidia.com/releases.xml", "source": "nvidia_blogs"},
+  {"url": "https://newsroom.ibm.com/announcements?pagetemplate=rss", "source": "ibm_allpressrelease"}
 ]

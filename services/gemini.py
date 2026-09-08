@@ -16,10 +16,7 @@ from utils.file_utils import read_json, write_json
 from utils.config import load_config
 
 def load_prompt_template(category: str) -> str:
-    prompt_path = os.path.join(PROJECT_ROOT, "editorial", "prompts", f"{category}.txt")
-    if not os.path.exists(prompt_path):
-        warning(f"Prompt file not found for category '{category}'. Falling back to free_alternative.")
-        prompt_path = os.path.join(PROJECT_ROOT, "editorial", "prompts", "free_alternative.txt")
+    prompt_path = os.path.join(PROJECT_ROOT, "editorial", "prompts", "tech_story.txt")
     
     with open(prompt_path, 'r', encoding='utf-8') as f:
         return f.read()

@@ -84,10 +84,6 @@ def main():
                     
                 summary = clean_html(summary_raw)
                 
-                # Ensure summary is at least 20 words for the quality filter
-                if len(summary.split()) < 20:
-                    summary = f"{title}. {summary}. This announcement was recently published on the official {source_name} blog and is highly relevant to the AI community."
-                    
                 domain = urllib.parse.urlparse(link).netloc.replace("www.", "")
                 slug = slugify(title)
                 item_id = f"{slug}-{domain}"

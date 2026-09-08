@@ -30,8 +30,8 @@ def validate_candidate(candidate):
         return False, "name is empty or missing"
 
     summary = candidate.get("summary", "")
-    if not summary or len(summary.split()) < 20:
-        return False, f"summary missing or under 20 words ({len(summary.split())} words)"
+    if not summary or not summary.strip():
+        return False, "summary is empty or missing"
 
     website = candidate.get("website", "")
     if not website or not website.startswith("https://"):

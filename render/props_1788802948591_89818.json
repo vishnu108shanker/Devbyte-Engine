@@ -1,0 +1,31 @@
+{
+  "hook": "Analyzing long video files just got a whole lot easier.",
+  "body": "Google just updated their flagship AI model, which is -- Gemini --, with agentic video understanding. Instead of just summarizing a clip, it now acts like an active agent. You can ask it to track complex timelines, pinpoint subtle visual changes, or even write code based on video demonstrations. It basically watches the video alongside you, processing hours of footage in seconds to find exactly what you need.",
+  "cta": "Full details link below in description . Subscribe and Like the video to get Daily News and Updates.",
+  "word_count": 96,
+  "title": "Gemini Video Agents",
+  "description": "Google Gemini gets agentic video understanding, allowing developers to analyze, track, and extract data from video footage effortlessly.",
+  "hashtags": [
+    "AINews",
+    "TechNews",
+    "AIUpdate",
+    "Gemini",
+    "GoogleAI",
+    "VideoLLM",
+    "AgenticAI",
+    "DeveloperTools",
+    "MachineLearning",
+    "ComputerVision"
+  ],
+  "thumbnail_text": "BIG GEMINI UPDATE",
+  "pinned_comment": "🔗 Full details → https://www.producthunt.com/products/google \nFollow so you never miss a Tech update.",
+  "source_title": "Agentic Video Understanding in Gemini",
+  "source_url": "https://www.producthunt.com/products/google",
+  "category": "update",
+  "generated_at": "2026-09-07T17:42:22.343694Z",
+  "raw_script": "Analyzing long video files just got a whole lot easier. Google just updated their flagship AI model, which is -- Gemini --, with agentic video understanding. Instead of just summarizing a clip, it now acts like an active agent. You can ask it to track complex timelines, pinpoint subtle visual changes, or even write code based on video demonstrations. It basically watches the video alongside you, processing hours of footage in seconds to find exactly what you need. Full details link below in description . Subscribe and Like the video to get Daily News and Updates.",
+  "validated": true,
+  "validated_at": "2026-09-07T17:42:22.734573Z",
+  "durationInFrames": 900,
+  "audio_url": "audio_1788802948591_89818.mp3"
+}
