@@ -51,15 +51,15 @@ flowchart TD
 
 ## What Changed from V1
 
-| Aspect | V1 | V2 |
-|---|---|---|
-| Sources | GitHub Trending only | HN + Blogs + GitHub Releases + Product Hunt |
-| Selection | Random trending repo | AI-scored editorial queue with category rotation |
-| Filtering | None | Signal filter → Quality filter → Deduplicator |
-| Output | 1 video (sequential) | Up to 5 videos (isolated sequential workers) |
-| Publishing | Manual upload | Automated YouTube API upload |
-| History | None | Append-only ledger preventing repeat coverage |
-| Prompts | Single generic template | 8 category-specific editorial prompts |
+| Aspect       |           V1            |                   V2                               |
+|--------------|-------------------------|----------------------------------------------------|
+| Sources      | GitHub Trending only    | HN + Blogs + GitHub Releases + Product Hunt        |
+| Selection    | Random trending repo    | AI-scored editorial queue with category rotation   |
+| Filtering    | None                    | Signal filter → Quality filter → Deduplicator      |
+| Output       | 1 video (sequential)    | Up to 5 videos (isolated sequential workers)       |
+| Publishing   | Manual upload           | Automated YouTube API upload                       |
+| History      | None                    | Append-only ledger preventing repeat coverage      |
+| Prompts      | Single generic template | 8 category-specific editorial prompts              |
 
 The V1 rendering pipeline (Gemini → Validator → TTS → Remotion) is **completely unchanged**. V2 adds everything *before* Gemini and *after* the render.
 
@@ -90,15 +90,15 @@ The V1 rendering pipeline (Gemini → Validator → TTS → Remotion) is **compl
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Python 3.11, Node.js 18 |
-| LLM | Google Gemini 2.5 Flash / 3.5 Flash (automatic fallback) |
-| Voice | Edge TTS (Microsoft Azure Neural Voices) |
-| Video | Remotion 4.x, React 19, Tailwind CSS v4, TypeScript |
-| Publishing | YouTube Data API v3 (resumable uploads) |
-| Media | FFmpeg 6.x |
-| Storage | File-based JSON — append-only history ledger |
+|    Layer   |               Technology                     |
+|------------|----------------------------------------------|
+| Runtime    | Python 3.11, Node.js 18                      |  
+| LLM        | Google Gemini 2.5 Flash / 3.5 Flash (automatic fallback) |
+| Voice      | Edge TTS (Microsoft Azure Neural Voices)     |
+| Video      | Remotion 4.x, React 19, Tailwind CSS v4, TypeScript |
+| Publishing | YouTube Data API v3 (resumable uploads)      | 
+| Media      | FFmpeg 6.x                                   |
+| Storage    | File-based JSON — append-only history ledger |
 
 ---
 
