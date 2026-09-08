@@ -125,9 +125,9 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     workers.push({ id: i, candidate, dir: workerDir });
   }
 
-  // Phase 3 & 4: Sequential Video Production & Upload
-  console.log(`\n--- PHASE 3 & 4: SEQUENTIAL VIDEO PRODUCTION & UPLOAD ---`);
-  console.log(`Producing ${workers.length} videos sequentially (one-by-one) to protect system resources...\n`);
+  // Phase 3 & 4: Overlapped Production & Upload (Single-Upload-Slot Queue)
+  console.log(`\n--- PHASE 3 & 4: PIPELINED VIDEO PRODUCTION & UPLOAD ---`);
+  console.log(`Sequential rendering (concurrency = 1) overlapped with a single upload slot (concurrency = 1)...\n`);
   
   let historyData = [];
   try {
@@ -136,14 +136,16 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     // If it doesn't exist, we start fresh
   }
   
-  const results = [];
+  let activeUploadPromise = Promise.resolve();
+  const uploadResults = [];
+
   for (let i = 0; i < workers.length; i++) {
     const worker = workers[i];
     const wId = worker.id;
     const wDir = `data/worker_${wId}`;
     const timings = [];
     
-    console.log(`\n🎬 [Video ${i + 1}/${workers.length}] Starting generation for: "${worker.candidate.name}"`);
+    console.log(`\n🎬 [Video ${i + 1}/${workers.length}] Starting production: "${worker.candidate.name}"`);
     
     // 1. AI Script
     const tScript0 = Date.now();
@@ -152,7 +154,6 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     timings.push({ label: 'Gemini Script', duration: scriptSec });
     if (!ok) {
       console.error(`[Video ${i + 1}] ❌ Script generation failed.`);
-      results.push(false);
       continue;
     }
 
@@ -163,7 +164,6 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     timings.push({ label: 'Validator', duration: valSec });
     if (!ok) {
       console.error(`[Video ${i + 1}] ❌ Script validation failed.`);
-      results.push(false);
       continue;
     }
 
@@ -174,7 +174,6 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     timings.push({ label: 'TTS Voice', duration: ttsSec });
     if (!ok) {
       console.error(`[Video ${i + 1}] ❌ TTS audio generation failed.`);
-      results.push(false);
       continue;
     }
 
@@ -185,32 +184,46 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     timings.push({ label: 'Remotion Render', duration: renderSec });
     if (!ok) {
       console.error(`[Video ${i + 1}] ❌ Video rendering failed.`);
-      results.push(false);
       continue;
     }
+    console.log(`[Video ${i + 1}/${workers.length}] ✅ Render complete! (${renderSec.toFixed(1)}s)`);
 
-    // 5. Upload
-    const tUpload0 = Date.now();
-    ok = await runCommandAsync(PYTHON_CMD, ['services/upload.py', '--video', `${wDir}/video.mp4`, '--script', `${wDir}/script.json`]);
-    const uploadSec = (Date.now() - tUpload0) / 1000;
-    timings.push({ label: 'YT Upload', duration: uploadSec });
-    if (!ok) {
-      console.error(`[Video ${i + 1}] ❌ Upload failed.`);
-      results.push(false);
-      continue;
-    }
-    
-    console.log(`[Video ${i + 1}/${workers.length}] ✅ Successfully generated and uploaded video!`);
-    logPerformanceReport(worker.candidate.name, timings);
-    results.push(true);
+    // 5. Pipelined Upload Slot (Queue slot concurrency = 1)
+    // Chain onto the active upload so uploads never run in parallel with each other,
+    // but the next video's render pipeline proceeds immediately.
+    const prevUpload = activeUploadPromise;
+
+    activeUploadPromise = (async () => {
+      await prevUpload;
+
+      console.log(`\n📤 [Upload Slot] Starting YouTube upload for Video ${i + 1}: "${worker.candidate.name}"`);
+      const tUpload0 = Date.now();
+      const uploadOk = await runCommandAsync(PYTHON_CMD, ['services/upload.py', '--video', `${wDir}/video.mp4`, '--script', `${wDir}/script.json`]);
+      const uploadSec = (Date.now() - tUpload0) / 1000;
+      timings.push({ label: 'YT Upload', duration: uploadSec });
+
+      if (uploadOk) {
+        console.log(`[Upload Slot] ✅ Video ${i + 1} uploaded successfully!`);
+      } else {
+        console.error(`[Upload Slot] ❌ Video ${i + 1} upload failed.`);
+      }
+
+      logPerformanceReport(worker.candidate.name, timings);
+      return { success: uploadOk, candidate: worker.candidate };
+    })();
+
+    uploadResults.push(activeUploadPromise);
   }
   
   // Phase 5: Cleanup & History Update
   console.log(`\n--- PHASE 5: CLEANUP & HISTORY UPDATE ---`);
+  console.log(`Waiting for all in-flight uploads to complete...`);
+  const settledUploads = await Promise.all(uploadResults);
+
   let successCount = 0;
-  for (let i = 0; i < results.length; i++) {
-    if (results[i]) {
-      const cand = workers[i].candidate;
+  for (const res of settledUploads) {
+    if (res && res.success) {
+      const cand = res.candidate;
       cand.published_at = new Date().toISOString();
       historyData.push(cand);
       successCount++;
@@ -220,7 +233,7 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
   fs.writeFileSync(path.join(PROJECT_ROOT, 'data', 'history.json'), JSON.stringify(historyData, null, 2), 'utf8');
   console.log(`✅ Updated data/history.json with ${successCount} new videos.`);
   
-  console.log(`\n🎉 BATCH JOB of 5 videos COMPLETE! Successfully generated and uploaded ${successCount} videos.`);
+  console.log(`\n🎉 BATCH JOB COMPLETE! Successfully generated and uploaded ${successCount} videos.`);
 }
 
 main();
