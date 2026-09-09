@@ -391,3 +391,14 @@ The EC2 deployment is ready for unattended operation only when:
 - [ ] `logs/cron.log` records a successful manual scheduled-script run;
 - [ ] the crontab entry is installed and verified;
 - [ ] the first scheduled uploads are checked manually for title, audio, subtitles, and privacy state.
+
+
+
+The Fastest Way to See Per-Core CPU Right Now
+Since you're SSH'd in during the render, just run this in your terminal:
+
+htop
+
+Press F2 → Display options → Show individual CPUs if not already shown. You'll see CPU 0 and CPU 1 as separate bars updating in real time — far more granular than anything CloudWatch can give you without the agent.
+
+Or for a quick non-interactive snapshot:
