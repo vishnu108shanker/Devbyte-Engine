@@ -66,7 +66,7 @@ async function main() {
   console.log(`--- PHASE 1: INGESTION, FILTERING & EVALUATION ---`);
 const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
 
-  console.log("Running collectors concurrently...");
+  console.log("Running all 4 collectors concurrently...");
   const collectorPromises = [
     runCommandAsync(PYTHON_CMD, ["collectors/hackernews.py", "--input", "config.json", "--output", "data/temp_hn.json"]),
     runCommandAsync(PYTHON_CMD, ["collectors/blogs.py", "--input", "config.json", "--output", "data/temp_blogs.json"]),

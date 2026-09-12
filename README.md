@@ -61,7 +61,7 @@ flowchart TD
 | History      | None                    | Append-only ledger preventing repeat coverage      |
 | Prompts      | Single generic template | 8 category-specific editorial prompts              |
 
-The V1 rendering pipeline (Gemini → Validator → TTS → Remotion) is **completely unchanged**. V2 adds everything *before* Gemini and *after* the render.
+The production pipeline still follows Gemini → Validator → TTS → Remotion, with the Remotion template now using dynamic, sound-synchronized scene timing and attention-grabbing vector bullet badges.
 
 ---
 
@@ -83,6 +83,9 @@ The V1 rendering pipeline (Gemini → Validator → TTS → Remotion) is **compl
 ### Production & Publishing
 - **Resource-safe batch processing** — up to 5 isolated worker directories are processed one at a time
 - **20+ animated React components** — spring physics, frosted glass, mesh gradients, typewriter subtitles
+- **Dynamic Remotion timing** — hook, body bullets, and CTA boundaries are calculated from sentence timing metadata, with word-weighted proportional fallback when metadata is missing
+- **Sound-synchronized feature bullets** — each body bullet enters when its sentence starts, and its accent border, glass surface, badge, and pulse state follow the active narration window
+- **Vector bullet badges** — deterministic SVG badges use four rotating tech themes (zap, neural core, rocket, and sparkle) instead of platform-dependent emoji glyphs
 - **Automated YouTube upload** — OAuth 2.0 integration, private staging, dynamic metadata injection, 2 MB resumable chunks, and progress logging
 - **Performance visibility** — per-video timings for script generation, validation, TTS, rendering, and upload with an ASCII bar chart
 
@@ -178,7 +181,7 @@ devbyte-engine/
 └── render/                              # Remotion video engine
     ├── remotion.config.ts               #   1080×1920 output, Tailwind, Webpack
     └── src/
-        ├── Root.tsx                      #   Dynamic duration compositions
+        ├── Root.tsx                      #   Dynamic duration compositions and timing metadata schema
         ├── design/
         │   └── theme.ts                 #   Colors, typography, spacing tokens
         ├── backgrounds/
@@ -205,8 +208,10 @@ devbyte-engine/
         │   └── ...
         ├── scenes/
         │   └── HeroScene.tsx            #   Full-screen title reveal
+        ├── utils/
+        │   └── timing.ts                 #   Sentence-aware scene and bullet timing engine
         └── templates/
-            ├── FreeAlternative.tsx       #   5-scene vertical video composition
+            ├── FreeAlternative.tsx       #   Dynamic vertical video composition and vector badges
             └── Stubs.ts                 #   Template routing for other categories
 ```
 
@@ -312,7 +317,70 @@ python services/gemini.py --input data/selected_tool.json --output data/script.j
 python utils/validator.py --input data/script.json --output data/validated_script.json
 python services/tts.py --input data/validated_script.json --output data/audio.mp3
 node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+python services/upload.py --video data/worker_0/video.mp4 --script data/worker_0/script.json
+
 ```
+
+`services/render.js` is JavaScript and must be run with Node, including in Docker:
+
+```bash
+docker compose run --rm devbyte node services/render.js \
+    --input data/validated_script.json \
+    --audio data/audio.mp3 \
+    --output data/video.mp4
+```
+
+### Dynamic Timing and Bullet Badges
+
+`render/src/templates/FreeAlternative.tsx` delegates timeline calculation to
+`render/src/utils/timing.ts`. The renderer creates three contiguous scenes:
+
+1. **Hook** — starts at frame `0` and lasts for the hook sentence duration.
+2. **Body bullets** — starts immediately after the hook and allocates one duration per body sentence. Each bullet appears at the cumulative start frame of its sentence.
+3. **CTA** — starts immediately after the final body sentence and runs to the end of the audio-driven composition.
+
+The timing engine accepts sentence metadata from `sentence_timings`,
+`sentence_durations`, `metadata.sentence_timings`, `metadata.sentence_durations`,
+or `timings`. It also accepts structured `timings` values such as:
+
+```json
+{
+    "timings": {
+        "hook": 2.5,
+        "body": [3.1, 3.8, 2.9],
+        "cta": 1.7
+    }
+}
+```
+
+Durations may be expressed in seconds, frames, or `{ "start": ..., "end": ... }`
+objects. When metadata is absent or incomplete, durations are estimated from
+the actual word counts and scaled to the total video duration. Minimum scene
+guards and proportional scaling keep the scene boundaries contiguous without
+gaps.
+
+Body bullets use deterministic vector badges rather than system emoji: zap
+(cyan/blue), neural core (pink/violet), rocket (amber/red), and sparkle
+(emerald/cyan). While a sentence is narrated, its card receives an accent
+border and glow, and its badge pulses with the active narration state.
+
+
+### You can have one SSH session and watch the log file live:
+    cmd :     tail -f logs/pipeline.log
+***That means:***
+"Show me the last part of this file, and whenever new lines are appended, keep displaying them."
+
+****The extremely basic but powerful Unix philosophy:****
+tail -f logs/pipeline.log
+
+Then you'll probably find yourself wanting things like:
+tail -f logs/pipeline.log | grep ERROR
+or:
+**grep "worker_3" logs/pipeline.log*
+*or:
+***grep "RENDER" logs/pipeline.log***
+
+And suddenly your EC2 machine becomes much easier to operate.
 
 ---
 
@@ -463,7 +531,9 @@ Each category has a dedicated prompt template in `editorial/prompts/` that shape
 | **2.0.0** | Jun 23, 2026 | Full architectural rewrite — editorial engine, parallel batch, YouTube upload |
 | **1.0.0** | Jun 2026 | Initial pipeline — GitHub Trending → Gemini → TTS → Remotion |
 
-See [DEVLOG.md](docs_v2/DEVLOG.md) for detailed changelogs.
+
+
+
 
 ---
 
