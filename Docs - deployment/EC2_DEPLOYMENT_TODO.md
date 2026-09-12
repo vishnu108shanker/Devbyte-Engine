@@ -403,10 +403,3 @@ Press F2 → Display options → Show individual CPUs if not already shown. You'
 
 Or for a quick non-interactive snapshot:
 
-
-### if you loose the cli midway regaing the cli logs withh this 
-docker compose logs -f
-
-
-### to open the pieline logs 
-tail -f logs/pipeline.log

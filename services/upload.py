@@ -70,12 +70,12 @@ def authenticate_youtube():
 
     return build('youtube', 'v3', credentials=creds)
 
-def extract_thumbnail(video_path, output_path, timestamp="0.02"):
-    """Extracts a frame from the video at the given timestamp using ffmpeg."""
+def extract_thumbnail(video_path, output_path, timestamp=0.2):
+    """Extracts the first decoded video frame at the given timestamp."""
     cmd = [
         "ffmpeg", "-y",
-        "-ss", str(timestamp),
         "-i", video_path,
+        "-ss", str(timestamp),
         "-frames:v", "1",
         "-q:v", "2",
         output_path
@@ -88,9 +88,12 @@ def main():
     parser = argparse.ArgumentParser(description="Upload a video to YouTube.")
     parser.add_argument('--video', default='data/video.mp4', help='Path to the video file.')
     parser.add_argument('--script', default='data/script.json', help='Path to the script JSON file.')
-    parser.add_argument('--thumbnail-time', default='0.02', help='Timestamp (in seconds) to extract thumbnail from video.')
+    parser.add_argument('--thumbnail-time', type=float, default=0.2, help='Timestamp in seconds for the thumbnail frame (default: 0.2).')
     parser.add_argument('--skip-thumbnail', action='store_true', help='Skip extracting and setting a custom video thumbnail.')
     args = parser.parse_args()
+
+    if args.thumbnail_time < 0:
+        parser.error('--thumbnail-time must be zero or greater')
 
     if not os.path.exists(args.video):
         error(f"Video file not found at {args.video}")

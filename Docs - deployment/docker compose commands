@@ -56,3 +56,12 @@ Commands:
 
 Run 'docker compose COMMAND --help' for more information on a command.
 unknown docker command: "compose configuration"
+
+
+
+### if you loose the cli midway regaing the cli logs withh this 
+docker compose logs -f
+
+
+### to open the pieline logs 
+tail -f logs/pipeline.log
