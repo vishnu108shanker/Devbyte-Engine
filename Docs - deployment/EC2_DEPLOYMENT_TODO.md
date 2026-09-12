@@ -402,3 +402,11 @@ htop
 Press F2 → Display options → Show individual CPUs if not already shown. You'll see CPU 0 and CPU 1 as separate bars updating in real time — far more granular than anything CloudWatch can give you without the agent.
 
 Or for a quick non-interactive snapshot:
+
+
+### if you loose the cli midway regaing the cli logs withh this 
+docker compose logs -f
+
+
+### to open the pieline logs 
+tail -f logs/pipeline.log

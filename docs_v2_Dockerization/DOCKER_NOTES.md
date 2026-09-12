@@ -67,3 +67,5 @@ Layer 2 → cache miss Everything from layer 2 onward reruns, including all npm/
 Once the image build finishes (cached or not), docker compose up:
 
 Stops/removes the old devbyte-engine container if one exists Creates a new container from the freshly built image Re-attaches your volume mounts (.env, client_secrets.json, token.json, data/, logs/) — these are untouched by the rebuild since they're not baked into the image Runs **CMD** [*npm*, *run*, *batch*], streaming output to your terminal
+
+
