@@ -88,7 +88,7 @@ def main():
     parser = argparse.ArgumentParser(description="Upload a video to YouTube.")
     parser.add_argument('--video', default='data/video.mp4', help='Path to the video file.')
     parser.add_argument('--script', default='data/script.json', help='Path to the script JSON file.')
-    parser.add_argument('--thumbnail-time', type=float, default=0.2, help='Timestamp in seconds for the thumbnail frame (default: 0.2).')
+    parser.add_argument('--thumbnail-time', type=float, default=2.0, help='Timestamp in seconds for the thumbnail frame (default: 1.0).')
     parser.add_argument('--skip-thumbnail', action='store_true', help='Skip extracting and setting a custom video thumbnail.')
     args = parser.parse_args()
 
