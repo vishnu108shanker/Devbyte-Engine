@@ -19,6 +19,7 @@ import { Scale } from '../motion/Scale';
 import { GlowPulse } from '../motion/GlowPulse';
 import { Typewriter } from '../motion/Typewriter';
 import { VideoProps } from '../Root';
+import { calculateSceneAndBulletTimings } from '../utils/timing';
 
 // ─── Shared Layout Helpers ────────────────────────────────────────────────────
 
@@ -232,34 +233,197 @@ const AnimatedDivider: React.FC<{ from?: number; color?: string }> = ({
   );
 };
 
-// ─── Feature Bullet (with color emphasis) ─────────────────────────────────────
+// ─── Attention-Grabbing Vector Bullet Badges ───────────────────────────────
 
-const FeatureBullet: React.FC<{ icon: string; text: string; highlight: string; from?: number; delay?: number }> = ({
-  icon, text, highlight, from = 0, delay = 0,
-}) => {
+const ZapIcon: React.FC<{ color: string }> = ({ color }) => (
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style={{ filter: `drop-shadow(0 0 10px ${color}aa)` }}>
+    <path
+      d="M13 2L3 14H12L11 22L21 10H12L13 2Z"
+      fill="url(#zapGrad)"
+      stroke="#ffffff"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <defs>
+      <linearGradient id="zapGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#00f2fe" />
+        <stop offset="1" stopColor="#3b82f6" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+const BrainIcon: React.FC<{ color: string }> = ({ color }) => (
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style={{ filter: `drop-shadow(0 0 10px ${color}aa)` }}>
+    <path
+      d="M12 2C8.5 2 6 4.5 6 7.5C6 8.5 6.3 9.4 6.8 10.2C5.1 11.2 4 13 4 15C4 17.8 6.2 20 9 20C9.6 20 10.2 19.9 10.7 19.7C11.1 20.5 11.5 21 12 21C12.5 21 12.9 20.5 13.3 19.7C13.8 19.9 14.4 20 15 20C17.8 20 20 17.8 20 15C20 13 18.9 11.2 17.2 10.2C17.7 9.4 18 8.5 18 7.5C18 4.5 15.5 2 12 2Z"
+      fill="url(#brainGrad)"
+      stroke="#ffffff"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+    <path d="M12 6V18M9 9H15M8 14H16" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" opacity="0.85" />
+    <defs>
+      <linearGradient id="brainGrad" x1="4" y1="2" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#ec4899" />
+        <stop offset="1" stopColor="#8b5cf6" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+const RocketIcon: React.FC<{ color: string }> = ({ color }) => (
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style={{ filter: `drop-shadow(0 0 10px ${color}aa)` }}>
+    <path
+      d="M4.5 16.5C3.5 17.5 3 19.5 3 21C4.5 21 6.5 20.5 7.5 19.5L10 17L7 14L4.5 16.5Z"
+      fill="#ef4444"
+    />
+    <path
+      d="M14.5 3.5C12 3.5 7 8 7 14L10 17C16 17 20.5 12 20.5 9.5C20.5 7 17 3.5 14.5 3.5Z"
+      fill="url(#rocketGrad)"
+      stroke="#ffffff"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="14.5" cy="9.5" r="2.2" fill="#ffffff" />
+    <defs>
+      <linearGradient id="rocketGrad" x1="7" y1="3.5" x2="20.5" y2="17" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#f59e0b" />
+        <stop offset="1" stopColor="#ef4444" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+const SparkleIcon: React.FC<{ color: string }> = ({ color }) => (
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style={{ filter: `drop-shadow(0 0 10px ${color}aa)` }}>
+    <path
+      d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"
+      fill="url(#sparkleGrad)"
+      stroke="#ffffff"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <defs>
+      <linearGradient id="sparkleGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#10b981" />
+        <stop offset="1" stopColor="#06b6d4" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+interface BulletBadgeTheme {
+  renderIcon: (color: string) => React.ReactNode;
+  primaryColor: string;
+  gradStart: string;
+  gradEnd: string;
+  glowColor: string;
+}
+
+const BULLET_THEMES: BulletBadgeTheme[] = [
+  {
+    renderIcon: (c) => <ZapIcon color={c} />,
+    primaryColor: '#00f2fe',
+    gradStart: 'rgba(0, 242, 254, 0.28)',
+    gradEnd: 'rgba(59, 130, 246, 0.16)',
+    glowColor: '#00f2fe',
+  },
+  {
+    renderIcon: (c) => <BrainIcon color={c} />,
+    primaryColor: '#d946ef',
+    gradStart: 'rgba(217, 70, 239, 0.28)',
+    gradEnd: 'rgba(139, 92, 246, 0.16)',
+    glowColor: '#d946ef',
+  },
+  {
+    renderIcon: (c) => <RocketIcon color={c} />,
+    primaryColor: '#f59e0b',
+    gradStart: 'rgba(245, 158, 11, 0.28)',
+    gradEnd: 'rgba(239, 68, 68, 0.16)',
+    glowColor: '#f59e0b',
+  },
+  {
+    renderIcon: (c) => <SparkleIcon color={c} />,
+    primaryColor: '#10b981',
+    gradStart: 'rgba(16, 185, 129, 0.28)',
+    gradEnd: 'rgba(6, 182, 212, 0.16)',
+    glowColor: '#10b981',
+  },
+];
+
+const BulletBadge: React.FC<{ index: number; isActive?: boolean }> = ({ index, isActive = false }) => {
+  const theme = BULLET_THEMES[index % BULLET_THEMES.length];
+  const frame = useCurrentFrame();
+  const pulse = isActive ? Math.sin((frame / 8) * Math.PI) * 0.06 + 1.04 : 1;
+
+  return (
+    <div
+      style={{
+        width: 76,
+        height: 76,
+        borderRadius: 22,
+        background: `linear-gradient(135deg, ${theme.gradStart}, ${theme.gradEnd})`,
+        border: isActive ? `2.5px solid ${theme.primaryColor}` : `1.5px solid ${theme.primaryColor}66`,
+        boxShadow: isActive
+          ? `0 0 36px ${theme.glowColor}99, inset 0 0 16px ${theme.glowColor}55`
+          : `0 8px 24px rgba(0,0,0,0.5), 0 0 16px ${theme.glowColor}33`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        transform: `scale(${pulse})`,
+        transition: 'transform 0.15s ease',
+      }}
+    >
+      {theme.renderIcon(theme.primaryColor)}
+    </div>
+  );
+};
+
+// ─── Feature Bullet (with sound sync & attention-grabbing badge) ───────────────
+
+const FeatureBullet: React.FC<{
+  index: number;
+  text: string;
+  highlight: string;
+  from?: number;
+  delay?: number;
+  isActive?: boolean;
+}> = ({ index, text, highlight, from = 0, delay = 0, isActive = false }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - (from + delay), fps, config: { damping: 14, stiffness: 100 } });
   const tx = interpolate(progress, [0, 1], [-80, 0]);
 
+  const theme = BULLET_THEMES[index % BULLET_THEMES.length];
+
   return (
     <div
       style={{
-        transform: `translateX(${tx}px)`,
+        transform: `translateX(${tx}px) ${isActive ? 'scale(1.02)' : 'scale(1)'}`,
         opacity: progress,
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         gap: 32,
-        backgroundColor: Theme.colors.surface,
-        border: `2px solid ${Theme.colors.border}`,
+        backgroundColor: isActive ? `${theme.primaryColor}10` : Theme.colors.surface,
+        border: isActive ? `2px solid ${theme.primaryColor}` : `2px solid ${Theme.colors.border}`,
         borderRadius: Theme.radius.lg,
         padding: '36px 42px',
         width: '100%',
-        boxShadow: `0 10px 40px rgba(0,0,0,0.3)`,
+        boxShadow: isActive
+          ? `0 14px 48px rgba(0,0,0,0.5), 0 0 32px ${theme.glowColor}40`
+          : `0 10px 40px rgba(0,0,0,0.3)`,
+        position: 'relative',
+        transition: 'border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease',
       }}
     >
-      <span style={{ fontSize: 60, lineHeight: 1, flexShrink: 0 }}>{icon}</span>
-      <div style={{ margin: 0 }}>
+      <BulletBadge index={index} isActive={isActive} />
+
+      <div style={{ margin: 0, flex: 1 }}>
         <EmphasizedText
           text={text}
           highlight={highlight}
@@ -270,9 +434,49 @@ const FeatureBullet: React.FC<{ icon: string; text: string; highlight: string; f
             color: Theme.colors.text.primary,
             lineHeight: 1.4,
           }}
-          accentColor={Theme.colors.brand.cyan}
+          accentColor={theme.primaryColor}
         />
       </div>
+
+      {isActive && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 18,
+            right: 24,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '4px 14px',
+            borderRadius: Theme.radius.full,
+            backgroundColor: `${theme.primaryColor}22`,
+            border: `1px solid ${theme.primaryColor}66`,
+            boxShadow: `0 0 12px ${theme.glowColor}44`,
+          }}
+        >
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: theme.primaryColor,
+              boxShadow: `0 0 8px ${theme.primaryColor}`,
+              display: 'inline-block',
+            }}
+          />
+          <span
+            style={{
+              fontFamily: Theme.font.mono,
+              fontSize: 18,
+              fontWeight: Theme.weight.bold,
+              color: theme.primaryColor,
+              letterSpacing: '0.08em',
+            }}
+          >
+            POINT #{index + 1}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
@@ -380,17 +584,17 @@ const FloatingOrb: React.FC<{ size: number; x: string; y: string; color: string 
 /**
  * FreeAlternative — complete production template.
  *
- * Scene layout (4 scenes, fills the FULL audio duration):
- *   0    – S2   →  SCENE 1: Hook — Bold headline + category pill + animated divider
- *   S2   – S3   →  SCENE 2: Feature bullets — 3 animated bullets from validated_script body
- *   S3   – S4   →  SCENE 3: Typewriter — highlights the key quote from body
- *   S4   – END  →  SCENE 4: CTA + Hashtags
+ * 3-scene sound-synchronized dynamic timeline:
+ *   s1Start – s2Start → SCENE 1: Hook (Sentence 1) — Bold headline + category pill + animated divider
+ *   s2Start – s3Start → SCENE 2: Feature Bullets (Body sentences) — Attention-grabbing vector badges synced with sound
+ *   s3Start – END     → SCENE 3: CTA + Hashtags (Runs to completion)
  *
- *  Persistent layers: Background, Floating Orbs, Progress Bar.
- *  Uses strictly contiguous `<Sequence>` boundaries (no overlap!).
+ * Persistent layers: Background, Floating Orbs, Progress Bar.
+ * Strictly contiguous `<Sequence>` boundaries with frame-accurate audio alignment.
  */
 export const FreeAlternative: React.FC<VideoProps> = (props) => {
-  const { durationInFrames } = useVideoConfig();
+  const { durationInFrames, fps } = useVideoConfig();
+  const currentFrame = useCurrentFrame();
 
   const toolName   = props.source_title  || 'New AI Tool';
   const hook       = props.hook          || 'This changes everything.';
@@ -406,13 +610,14 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
     .filter(Boolean)
     .slice(0, 3);
 
-  const SCENE_ICONS = ['⚡', '🧠', '🚀'];
-
-  // 3-scene timeline (contiguous, dynamic to audio length)
-  const S1_START = 0;
-  const S2_START = Math.floor(durationInFrames * 0.20);  // Hook: 20%
-  const S3_START = Math.floor(durationInFrames * 0.85);  // Body: 65%, CTA: 15%
-  const bulletStagger = Math.floor((S3_START - S2_START) / Math.max(sentences.length, 1));
+  // Dynamically calculate 3-scene boundaries and sound-synced per-bullet delays
+  const timeline = calculateSceneAndBulletTimings(
+    props,
+    sentences,
+    durationInFrames,
+    fps,
+    currentFrame
+  );
 
   return (
     <AbsoluteFill style={{ backgroundColor: Theme.colors.bg, overflow: 'hidden' }}>
@@ -434,9 +639,9 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
       <ProgressBar />
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* SCENE 1: Hook                                                       */}
+      {/* SCENE 1: Hook (Sentence 1)                                          */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      <Sequence from={S1_START} durationInFrames={S2_START - S1_START}>
+      <Sequence from={timeline.s1Start} durationInFrames={timeline.s1Duration}>
         <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
           <ScenePop delay={0}>
             <Col gap={48} align="center" justify="center">
@@ -466,9 +671,9 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
       </Sequence>
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* SCENE 2: Feature Bullets                                            */}
+      {/* SCENE 2: Feature Bullets (Body sentences, synced with audio)        */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      <Sequence from={S2_START} durationInFrames={S3_START - S2_START}>
+      <Sequence from={timeline.s2Start} durationInFrames={timeline.s2Duration}>
         <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
           <ScenePop delay={0}>
             <Col gap={40} align="stretch" justify="center">
@@ -487,14 +692,15 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
                 </div>
               </Fade>
 
-              {sentences.map((sentence, i) => (
+              {timeline.bullets.map((bullet) => (
                 <FeatureBullet
-                  key={i}
-                  icon={SCENE_ICONS[i] || '✨'}
-                  text={sentence}
+                  key={bullet.index}
+                  index={bullet.index}
+                  text={bullet.sentence}
                   highlight={toolName}
                   from={0}
-                  delay={i * bulletStagger}
+                  delay={bullet.delay}
+                  isActive={bullet.isActive}
                 />
               ))}
 
@@ -506,7 +712,7 @@ export const FreeAlternative: React.FC<VideoProps> = (props) => {
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* SCENE 3: CTA + Hashtags (runs to end)                              */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      <Sequence from={S3_START} durationInFrames={durationInFrames - S3_START}>
+      <Sequence from={timeline.s3Start} durationInFrames={timeline.s3Duration}>
         <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 80px' }}>
           <ScenePop delay={0}>
             <Col gap={56} align="stretch" justify="center">

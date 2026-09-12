@@ -3,6 +3,17 @@ import React from 'react';
 import { Composition, getInputProps } from 'remotion';
 import { FreeAlternative } from './templates/FreeAlternative';
 
+export type SentenceTiming = {
+  text?: string;
+  sentence?: string;
+  duration?: number;         // in seconds
+  durationInFrames?: number; // in frames
+  start?: number;            // in seconds
+  end?: number;              // in seconds
+  startFrame?: number;
+  endFrame?: number;
+};
+
 /**
  * VideoProps — the full schema of data passed from validated_script.json + render.js props.json
  */
@@ -16,6 +27,21 @@ export type VideoProps = {
   cta?: string;
   raw_script?: string;
   audio_url?: string;
+  // Timing metadata fields
+  sentence_timings?: SentenceTiming[] | number[];
+  sentence_durations?: number[];
+  timings?: {
+    hook?: number;
+    body?: number[] | number;
+    cta?: number;
+    sentences?: (SentenceTiming | number)[];
+  } | number[];
+  metadata?: {
+    sentence_timings?: SentenceTiming[] | number[];
+    sentence_durations?: number[];
+    timings?: Record<string, any>;
+    [key: string]: any;
+  };
   // V2 enriched fields from gemini.py
   title?: string;
   description?: string;

@@ -38,21 +38,21 @@ token.json
   `docker compose run --rm devbyte python3 services/tts.py --input data/worker_0/validated_script.json --output data/worker_0/audio.mp3`
 
 
-What triggers what
+## What triggers what
 
 Docker caches each layer by hashing its instruction plus the files it copies. The moment one layer's hash changes, every layer after it is invalidated and re-run, even if those later layers themselves didn't change.
 
 So the outcome depends entirely on what you edited:
 
-Case A — you only edited a .py or .js file (e.g. editorial_engine.py)
+### Case A — you only edited a .py or .js file (e.g. editorial_engine.py)
 
 Layers 1–10 are untouched → cache hit, skipped instantly (no apt, no npm ci, no Chromium download, no pip install) Layer 11 (**COPY** . .) sees changed file content → cache miss → re-copies everything Layer 12 (useradd/chown) reruns → fast, just filesystem ops Total time: a few seconds
 
-Case B — you edited requirements.txt
+### Case B — you edited requirements.txt
 
 Layers 1–8 cached Layer 9 (**COPY** requirements.txt) → cache miss Layer 10 (pip install) reruns → downloads/installs Python packages again Layers 11–12 rerun too Total time: moderate, network-dependent
 
-Case C — you edited root package.json or package-lock.json
+### Case C — you edited root package.json or package-lock.json
 
 Layers 1–3 cached Layer 4 → cache miss Layer 5 (npm ci) reruns → reinstalls root Node deps Everything after also reruns Total time: moderate
 
