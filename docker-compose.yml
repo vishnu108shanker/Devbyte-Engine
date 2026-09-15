@@ -14,3 +14,18 @@ services:
       # Pipeline logs
       - ./logs:/app/logs:rw
     # No exposed ports — no web server at this stage
+
+  postgres:
+    image: postgres:17
+    container_name: devbyte-postgres
+    environment:
+      POSTGRES_DB: devbyte
+      POSTGRES_USER: devbyte
+      POSTGRES_PASSWORD: devbyte_dev_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
