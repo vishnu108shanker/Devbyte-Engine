@@ -101,7 +101,7 @@ The production pipeline still follows Gemini → Validator → TTS → Remotion,
 | Video      | Remotion 4.x, React 19, Tailwind CSS v4, TypeScript |
 | Publishing | YouTube Data API v3 (resumable uploads)      | 
 | Media      | FFmpeg 6.x                                   |
-| Storage    | File-based JSON — append-only history ledger |
+| Storage    | PostgreSQL `publications` table (append‑only) + legacy `history.json` for fallback during migration |
 
 ---
 
