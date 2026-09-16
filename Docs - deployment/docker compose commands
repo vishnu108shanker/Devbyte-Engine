@@ -103,3 +103,8 @@ You will see **CPU 0** and **CPU 1** as separate, real-time activity bars. This 
 mpstat -P ALL 1 1
 ```
 *(Note: If `mpstat` is missing, install it via `sudo apt install sysstat`, or use the native snapshot fallback: `top -1 -b -n 1 | head -n 15`)*
+
+
+## Use this to list databases:
+docker exec -it devbyte-postgres psql -U devbyte -d devbyte -c "\l"
+PS C:\DEV\devilcode development\Devbyte-engine (youtube automation)> docker exec -it devbyte-postgres psql -U devbyte -d devbyte -c "SELECt * FROM publications where id = 1 ;" 

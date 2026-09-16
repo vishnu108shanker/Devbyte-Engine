@@ -34,6 +34,20 @@ def extract_company_identity(candidate):
 
     return None
 
+def get_published_ids_from_db():
+    """Query PostgreSQL for all previously published candidate IDs."""
+    try:
+        from database_layer.python.connection import get_connection
+
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT DISTINCT candidate_id FROM publications;")
+                rows = cur.fetchall()
+                return {row[0] for row in rows}
+    except Exception as e:
+        warning(f"Database read failed ({e}). Falling back to history.json.")
+        return None
+
 def build_editorial_queue(ranked_candidates, history, policy):
     """
     Apply operational editorial constraints to the ranked candidate list:
@@ -47,7 +61,14 @@ def build_editorial_queue(ranked_candidates, history, policy):
     max_per_source = policy.get("max_per_source", 3)
     max_per_company = policy.get("max_per_company", 2)
 
-    published_ids = {entry.get("id") for entry in (history or [])}
+    published_ids = get_published_ids_from_db()
+    if published_ids is None:
+        info("Editorial Engine: Using history.json for deduplication check.")
+        published_ids = {entry.get("id") for entry in (history or [])}
+    else:
+        # Keep legacy JSON-only publications protected during the migration period.
+        published_ids.update(entry.get("id") for entry in (history or []))
+        info(f"Editorial Engine: Connected to PostgreSQL ({len(published_ids)} historical publication IDs loaded).")
 
     queue = []
     source_counts = {}

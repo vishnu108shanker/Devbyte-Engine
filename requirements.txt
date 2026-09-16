@@ -13,3 +13,6 @@ python-slugify
 
 # -- Media production --
 edge-tts
+
+#-- Postgresql python dependency --
+psycopg[binary]

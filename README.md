@@ -309,9 +309,14 @@ python ingestion/staleness_gate.py --input data/raw_candidates.json --output dat
 
 # Evaluate and select
 python evaluation/evaluator.py --input data/raw_candidates.json --output data/evaluated_candidates.json
-python editorial/editorial_engine.py --input data/evaluated_candidates.json --output data/content_queue.json \
-  --channel channels/ai_tools.json --policy editorial/editorial_policy.json --history data/history.json
+python editorial/editorial_engine.py `
+  --input data/evaluated_candidates.json `
+  --output data/content_queue.json `
+  --channel channels/ai_tools.json `
+  --policy editorial/editorial_policy.json `
+  --history data/history.json
 
+  
 # Generate a video from the top candidate
 python services/gemini.py --input data/selected_tool.json --output data/script.json
 python utils/validator.py --input data/script.json --output data/validated_script.json
