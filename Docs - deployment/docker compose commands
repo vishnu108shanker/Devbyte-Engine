@@ -106,5 +106,6 @@ mpstat -P ALL 1 1
 
 
 ## Use this to list databases:
-docker exec -it devbyte-postgres psql -U devbyte -d devbyte -c "\l"
+ 1. docker exec -it devbyte-postgres psql -U devbyte -d devbyte -c "\l"
 PS C:\DEV\devilcode development\Devbyte-engine (youtube automation)> docker exec -it devbyte-postgres psql -U devbyte -d devbyte -c "SELECt * FROM publications where id = 1 ;" 
+

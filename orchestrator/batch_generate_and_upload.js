@@ -5,6 +5,10 @@ const fs = require('fs');
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const MAX_VIDEOS = 5;  // Limit to 5 videos per batch
 
+// Initialize database connection pool from database layer
+const { getPool } = require('../database_layer/node/connection');
+const pool = getPool();
+
 
 
 
@@ -225,6 +229,25 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
     if (res && res.success) {
       const cand = res.candidate;
       cand.published_at = new Date().toISOString();
+
+      if (pool) {
+        try {
+          await pool.query(
+            `INSERT INTO publications (candidate_id, published_at, event_type, candidate_snapshot)
+             VALUES ($1, $2, $3, $4)`,
+            [
+              cand.id,
+              cand.published_at,
+              cand.event_type || 'update',
+              cand
+            ]
+          );
+          console.log(`[DB] ✅ Recorded publication for '${cand.id}' in PostgreSQL.`);
+        } catch (dbErr) {
+          console.error(`[DB] ⚠️ Failed to insert '${cand.id}' into PostgreSQL: ${dbErr.message}`);
+        }
+      }
+
       historyData.push(cand);
       successCount++;
     }
@@ -232,6 +255,10 @@ const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
   
   fs.writeFileSync(path.join(PROJECT_ROOT, 'data', 'history.json'), JSON.stringify(historyData, null, 2), 'utf8');
   console.log(`✅ Updated data/history.json with ${successCount} new videos.`);
+
+  if (pool) {
+    await pool.end();
+  }
   
   console.log(`\n🎉 BATCH JOB COMPLETE! Successfully generated and uploaded ${successCount} videos.`);
 }

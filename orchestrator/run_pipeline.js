@@ -212,7 +212,7 @@ const steps = [
   {
     name: "13. Update History",
     command: "node",
-    args: ["-e", "\"const fs=require('fs'); const h=JSON.parse(fs.readFileSync('data/history.json') || '[]'); h.push(JSON.parse(fs.readFileSync('data/selected_tool.json'))); fs.writeFileSync('data/history.json', JSON.stringify(h, null, 2))\""]
+    args: ["scripts/update_history.js"]
   }
 ];
 
