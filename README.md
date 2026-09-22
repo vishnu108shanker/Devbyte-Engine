@@ -1,8 +1,8 @@
 # DevByte Engine — V2
 ##### (pre dockerization version, to read the documentation of possible changes after containerization See [DOCKER_NOTES.md](docs_v2_Dockerization/DOCKER_NOTES.md) )
-> An autonomous digital newsroom that discovers, evaluates, scripts, renders, and publishes developer-focused YouTube Shorts — entirely on autopilot.
+> An autonomous digital newsroom that discovers, evaluates, scripts, renders, and publishes developer-focused short-form videos across YouTube Shorts, Instagram Reels, and Facebook Pages — entirely on autopilot.
 
-DevByte Engine V2 transforms the original single-source video pipeline into a production-grade content automation system. It pulls from four independent news sources, filters noise with rule-based signal detection, evaluates candidates through a cached two-pass AI editorial layer, writes scripts using category-specific prompts, produces up to five videos sequentially to protect local resources, and publishes them directly to YouTube.
+DevByte Engine V2 transforms the original single-source video pipeline into an industrial-grade content automation and multi-platform publishing system. It pulls from four independent news sources, filters noise with rule-based signal detection, evaluates candidates through a cached two-pass AI editorial layer, writes scripts using category-specific prompts, concurrently synthesizes scripts and neural audio, renders videos utilizing 100% of host CPU cores, and broadcasts across YouTube Shorts, Instagram Reels, and Facebook Pages simultaneously via an automated AWS S3 temporary bridge.
 
 ### Editorial Mission
 
@@ -35,16 +35,26 @@ flowchart TD
         SC --> ED["Editorial Engine\n(diversity + rotation)"]
     end
 
-    subgraph Production ["Video Production (up to 5 sequential workers)"]
+    subgraph Production ["Concurrent Video Production"]
         direction TB
-        GS["Gemini Scriptwriter"] --> TTS["Edge TTS"]
-        TTS --> REM["Remotion Renderer"]
-        REM --> UP["YouTube Uploader"]
+        GS["Gemini Scriptwriter\n(Concurrent)"] --> TTS["Edge TTS\n(Concurrent)"]
+        TTS --> REM["Remotion Renderer\n(100% CPU Concurrency)"]
+    end
+
+    subgraph Publishing ["Multi-Platform Publishing Engine"]
+        direction TB
+        REM --> YT["YouTube Shorts\n(Resumable Chunks)"]
+        REM --> S3["AWS S3 Temporary Asset Bridge"]
+        S3 --> IG["Instagram Reels\n(Graph API)"]
+        S3 --> FB["Facebook Page\n(Graph API)"]
+        IG --> DEL["S3 Auto-Cleanup"]
+        FB --> DEL
     end
 
     Discovery --> Ingestion
     Ingestion --> Intelligence
     Intelligence --> Production
+    Production --> Publishing
 ```
 
 ---
@@ -56,12 +66,14 @@ flowchart TD
 | Sources      | GitHub Trending only    | HN + Blogs + GitHub Releases + Product Hunt        |
 | Selection    | Random trending repo    | AI-scored editorial queue with category rotation   |
 | Filtering    | None                    | Signal filter → Quality filter → Deduplicator      |
-| Output       | 1 video (sequential)    | Up to 5 videos (isolated sequential workers)       |
-| Publishing   | Manual upload           | Automated YouTube API upload                       |
-| History      | None                    | Append-only ledger preventing repeat coverage      |
+| Output       | 1 video (sequential)    | Up to 5 videos (isolated workers with concurrent pre-production) |
+| Publishing   | Manual upload           | Multi-platform: YouTube Shorts + Instagram Reels + Facebook Pages |
+| S3 Bridge    | None                    | Automated temporary S3 presigned asset distribution & auto-cleanup |
+| Concurrency  | Single-threaded         | Concurrent pre-production, 100% CPU core rendering, overlapped upload I/O |
+| History      | None                    | PostgreSQL `publications` table + append-only ledger |
 | Prompts      | Single generic template | 8 category-specific editorial prompts              |
 
-The production pipeline still follows Gemini → Validator → TTS → Remotion, with the Remotion template now using dynamic, sound-synchronized scene timing and attention-grabbing vector bullet badges.
+The production pipeline follows Gemini → Validator → TTS → Remotion, with Remotion templates utilizing dynamic, sound-synchronized scene timing, attention-grabbing vector bullet badges, and full multi-core thread saturation.
 
 ---
 
@@ -80,14 +92,19 @@ The production pipeline still follows Gemini → Validator → TTS → Remotion,
 - **Source diversity limit** — max 2 stories per source in a single daily batch
 - **Breaking news override** — high-scoring announcements (85+) bypass category rotation
 
-### Production & Publishing
-- **Resource-safe batch processing** — up to 5 isolated worker directories are processed one at a time
+### Production & Multi-Platform Publishing
+- **High-throughput batch processing** — up to 5 isolated worker directories with concurrent pre-production (script + TTS) and pipelined rendering
 - **20+ animated React components** — spring physics, frosted glass, mesh gradients, typewriter subtitles
 - **Dynamic Remotion timing** — hook, body bullets, and CTA boundaries are calculated from sentence timing metadata, with word-weighted proportional fallback when metadata is missing
 - **Sound-synchronized feature bullets** — each body bullet enters when its sentence starts, and its accent border, glass surface, badge, and pulse state follow the active narration window
 - **Vector bullet badges** — deterministic SVG badges use four rotating tech themes (zap, neural core, rocket, and sparkle) instead of platform-dependent emoji glyphs
 - **Automated YouTube upload** — OAuth 2.0 integration, private staging, dynamic metadata injection, 2 MB resumable chunks, and progress logging
-- **Performance visibility** — per-video timings for script generation, validation, TTS, rendering, and upload with an ASCII bar chart
+- **Automated Instagram Reels upload** — Meta Graph API integration with direct `REELS` media containers, container status polling, and instant publishing
+- **Automated Facebook Page upload** — Meta Graph API Page Video integration with asynchronous processing verification
+- **AWS S3 Temporary Asset Bridge** — uploads the rendered video once to an Amazon S3 temporary bucket, generates a 2-hour presigned URL, broadcasts concurrently to Instagram and Facebook, and automatically deletes the temporary asset upon publication
+- **Maximum Hardware Utilization** — concurrent pre-production, 100% host CPU core saturation for Remotion rendering, and overlapped I/O multi-platform uploads
+- **Clear, Uncluttered Logging** — buffered subprocess execution with clean ANSI milestone lines, suppressing noisy terminal clutter while capturing full traces in `logs/pipeline.log`
+- **Performance visibility** — per-video timings for script generation, validation, TTS, rendering, and all upload targets with a visual ASCII bar chart
 
 ---
 
@@ -99,7 +116,8 @@ The production pipeline still follows Gemini → Validator → TTS → Remotion,
 | LLM        | Google Gemini 2.5 Flash / 3.5 Flash (automatic fallback) |
 | Voice      | Edge TTS (Microsoft Azure Neural Voices)     |
 | Video      | Remotion 4.x, React 19, Tailwind CSS v4, TypeScript |
-| Publishing | YouTube Data API v3 (resumable uploads)      | 
+| Publishing | YouTube Data API v3 (resumable chunks), Meta Graph API v19.0 (Instagram Reels, Facebook Page Videos) |
+| Asset Relay| AWS S3 (boto3 presigned URLs with automated lifecycle cleanup) |
 | Media      | FFmpeg 6.x                                   |
 | Storage    | PostgreSQL `publications` table (append‑only) + legacy `history.json` for fallback during migration |
 
@@ -111,7 +129,7 @@ The production pipeline still follows Gemini → Validator → TTS → Remotion,
 devbyte-engine/
 ├── config.json                          # Voice, timeouts, retry limits
 ├── package.json                         # Node deps — npm run batch
-├── .env                                 # GEMINI_API_KEY (gitignored)
+├── .env                                 # GEMINI_API_KEY, META tokens, AWS keys (gitignored)
 ├── client_secrets.json                  # YouTube OAuth credentials (gitignored)
 ├── token.json                           # Saved YouTube access token (gitignored)
 │
@@ -156,8 +174,11 @@ devbyte-engine/
 ├── services/                            # Core production services
 │   ├── gemini.py                        #   Script + metadata generator
 │   ├── tts.py                           #   Text-to-speech compiler
-│   ├── render.js                        #   Remotion video renderer
-│   └── upload.py                        #   YouTube API uploader
+│   ├── render.js                        #   Remotion multi-core video renderer
+│   ├── upload.py                        #   YouTube Data API v3 uploader
+│   ├── upload_instagram.py              #   Instagram Reels Graph API uploader
+│   ├── upload_facebook.py               #   Facebook Page Graph API uploader
+│   └── s3_temp_upload.py                #   AWS S3 temporary bridge & lifecycle cleanup
 │
 ├── orchestrator/                        # Pipeline controllers
 │   ├── run_pipeline.js                  #   Sequential single-video runner
@@ -236,7 +257,7 @@ cd Youtube-video-automation
 mkdir -p data logs
 
 # 2. Python dependencies
-pip install python-dotenv google-genai requests beautifulsoup4 edge-tts feedparser python-slugify google-auth google-auth-oauthlib google-api-python-client
+pip install python-dotenv google-genai requests beautifulsoup4 edge-tts feedparser python-slugify google-auth google-auth-oauthlib google-api-python-client boto3
 
 # 3. Node orchestrator dependencies
 npm install
@@ -245,18 +266,36 @@ npm install
 cd render && npm install && cd ..
 ```
 
-### API Credentials
+### API Credentials & Environment Configuration
 
-**Gemini** — create `.env` in the project root:
+Configure `.env` in the project root with the following keys:
+
 ```env
+# ── Core AI & Database ──
 GEMINI_API_KEY=your_google_gemini_api_key_here
+DATABASE_URL=postgresql://user:password@localhost:5432/devbyte
+
+# ── Meta Platforms (Instagram Reels & Facebook Page) ──
+META_LONG_LIVED_TOKEN=your_meta_long_lived_user_access_token
+INSTAGRAM_ACCOUNT_ID=your_instagram_business_account_id
+FB_PAGE_ID=your_facebook_page_id
+FB_LONG_LIVED_TOKEN=your_facebook_page_access_token
+
+# ── AWS S3 Temporary Asset Bridge ──
+S3_TEMP_BUCKET=your_s3_temporary_bucket_name
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_DEFAULT_REGION=us-east-1
+
+# ── Optional Concurrency Overrides ──
+REMOTION_CONCURRENCY=4  # Defaults to 100% of host CPU cores
 ```
 
-**YouTube** — for automated publishing:
+**YouTube Data API Configuration:**
 1. Enable the **YouTube Data API v3** in Google Cloud Console
 2. Create an **OAuth 2.0 Client ID** (Desktop application)
-3. Download the credentials JSON, rename to `client_secrets.json`, place in project root
-4. On first upload, a browser window opens for authentication — `token.json` is saved for future runs
+3. Download the credentials JSON, rename to `client_secrets.json`, and place in the project root
+4. On the first upload, a browser window opens for authentication — `token.json` is saved for future automated runs
 
 **Initialize the history ledger:**
 ```bash
@@ -322,7 +361,15 @@ python services/gemini.py --input data/selected_tool.json --output data/script.j
 python utils/validator.py --input data/script.json --output data/validated_script.json
 python services/tts.py --input data/validated_script.json --output data/audio.mp3
 node services/render.js --input data/validated_script.json --audio data/audio.mp3 --output data/video.mp4
+# Multi-Platform Publishing (independent execution)
 python services/upload.py --video data/worker_0/video.mp4 --script data/worker_0/script.json
+python services/upload_instagram.py --video data/worker_0/video.mp4 --caption "DevByte AI Tool Spotlight"
+python services/upload_facebook.py --video data/worker_0/video.mp4 --caption "DevByte AI Tool Spotlight"
+
+# Or manage the S3 temporary asset manually:
+python services/s3_temp_upload.py --file data/worker_0/video.mp4
+# Output: {"presigned_url": "...", "bucket": "...", "key": "..."}
+python services/s3_temp_upload.py --delete --key meta_uploads/...mp4
 
 ```
 
@@ -484,26 +531,33 @@ Instead of converting metrics into arbitrary points, the evidence builder compil
 - **Source Diversity**: Max 3 stories per source.
 - **Queue Size**: Emits up to 5 ranked stories for sequential batch production.
 
-### 7. Sequential Production and Performance Reporting
-- **One worker at a time**: Each worker completes script generation, validation, TTS, Remotion rendering, and YouTube upload before the next worker starts. This prevents local CPU, GPU, memory, and renderer contention.
-- **Phase timing**: The batch orchestrator measures `Gemini Script`, `Validator`, `TTS Voice`, `Remotion Render`, and `YT Upload` with elapsed-time timers.
-- **Visual report**: Successful videos receive a proportional ASCII bar chart in the terminal and `logs/pipeline.log`, including each phase duration and the total pipeline time.
+### 7. High-Throughput Concurrent Production & Resource Saturation
+- **Concurrent Pre-Production**: Script generation (Gemini), validation, and neural voice synthesis (Edge TTS) run in parallel across all batch candidates at the start of Phase 3. All scripts and audio files are ready in ~10–15 seconds total.
+- **100% Host CPU Saturation**: Remotion rendering dynamically detects host hardware and invokes `--concurrency=${os.cpus().length}` so all CPU cores on the EC2 instance are pinned at 100% throughout the render.
+- **Pipelined CPU & I/O Overlapping**: As soon as Worker $i$ finishes rendering, it hands off its output to the background multi-platform publishing engine, and Worker $i+1$ immediately begins rendering on the CPU. The CPU is never waiting on outbound network uploads, and outbound network bandwidth is never waiting on the CPU.
+- **Phase timing & Visual Report**: The orchestrator measures `Gemini Script`, `Validator`, `TTS Voice`, `Remotion Render`, `YT Upload`, `S3 Temp Upload`, `IG Upload`, and `FB Upload` with millisecond timers, generating a proportional ASCII bar chart in the terminal and `logs/pipeline.log`.
 
 Example:
 
 ```text
-PERFORMANCE REPORT: "NVIDIA to Acquire Hugging Face"
-Gemini Script  :    7.0s  █
-Validator      :    0.3s
-TTS Voice      :    6.0s  █
-Remotion Render:  102.0s  ████████████████████
-YT Upload      :   20.0s  ████
-Total Pipeline  :  135.3s
+⏱️   PERFORMANCE REPORT: "NVIDIA to Acquire Hugging Face"
+────────────────────────────────────────────────────────────
+  Gemini Script   :    6.2s  █
+  Validator       :    0.2s
+  TTS Voice       :    4.1s  █
+  Remotion Render :   58.4s  ████████████████████
+  YT Upload       :   18.2s  ██████
+  S3 Temp Upload  :    4.3s  █
+  IG Upload       :   26.5s  █████████
+  FB Upload       :   24.1s  ████████
+────────────────────────────────────────────────────────────
+  Total Pipeline  :  142.0s
 ```
 
-### 8. Upload Reliability and Logging
-- YouTube uploads use resumable 2 MB chunks instead of a monolithic upload request, improving stability on residential connections and reducing the chance of socket hangs.
-- Upload start, 20% progress checkpoints, completion, video ID, and the YouTube URL are written through the shared logger to both stdout and `logs/pipeline.log`.
+### 8. Multi-Platform Publishing & Zero-Clutter Logging
+- **Multi-Platform Distribution**: Simultaneously publishes to YouTube Shorts (resumable 2 MB chunks), Instagram Reels (Meta Graph API container lifecycle), and Facebook Pages (Page Video processing status polling).
+- **Temporary S3 Bridge**: Uploads the finished MP4 once to an Amazon S3 temporary bucket, generates a 2-hour presigned URL, broadcasts concurrently to Instagram and Facebook, and automatically deletes the temporary asset when both platforms finish.
+- **Zero-Clutter Terminal Logs**: Subprocess stdout and stderr are buffered and filtered. High-level milestone lines with tagged ANSI worker prefixes keep the terminal clean and readable, while full diagnostics and error stack traces are written to `logs/pipeline.log`.
 
 ---
 
@@ -528,6 +582,7 @@ Each category has a dedicated prompt template in `editorial/prompts/` that shape
 
 | Version | Date | Highlights |
 |---|---|---|
+| **2.5.0** | Sep 22, 2026 | Multi-platform publishing engine (YouTube Shorts, Instagram Reels, Facebook Pages), AWS S3 temporary asset bridge with automated lifecycle cleanup, high-concurrency pipelining (concurrent pre-production, 100% multi-core Remotion CPU saturation, parallel platform uploads), and clean buffered terminal logging |
 | **2.4.0** | Sep 8, 2026 | Parallel Pass 1 evaluation, sequential resource-safe video production, resumable 2 MB upload chunks, upload progress logging, and per-video performance reports |
 | **2.3.0** | Sep 7, 2026 | Editorial evaluation engine rewrite — scrapped 4-factor scoring for evidence-driven LLM classification & relative ranking, 50+ batch scaling, 30h caching, company diversity cap |
 | **2.2.1** | Jul 4, 2026 | Deduplicator rewrite (story-level identity), source diversity cap |
