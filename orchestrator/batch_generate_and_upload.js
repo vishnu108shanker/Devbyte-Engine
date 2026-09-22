@@ -436,6 +436,13 @@ async function main() {
 
         const { presigned_url: presignedUrl, key: s3Key } = s3Data;
         logWorker(workerNum, readyWorkers.length, name, '⚡', 'Broadcasting S3 presigned URL to Instagram & Facebook concurrently...');
+        let metaCaption = '';
+        try {
+          const scriptData = JSON.parse(fs.readFileSync(`${wDir}/script.json`, 'utf8'));
+          metaCaption = scriptData.title || '';
+        } catch (e) {
+          logError(`Worker ${workerNum}`, 'Failed to read script.json for caption', e.message);
+        }
 
         // Step B: Dispatch Instagram Reels and Facebook Page uploads in parallel!
         const igPromise = (async () => {
@@ -444,6 +451,7 @@ async function main() {
             'services/upload_instagram.py',
             '--video', `${wDir}/video.mp4`,
             '--video-url', presignedUrl,
+            '--caption', metaCaption,
             '--no-cleanup',
           ], { tag: `W${worker.id}:IG`, capture: true });
 
@@ -464,6 +472,7 @@ async function main() {
             'services/upload_facebook.py',
             '--video', `${wDir}/video.mp4`,
             '--video-url', presignedUrl,
+            '--caption', metaCaption,
           ], { tag: `W${worker.id}:FB`, capture: true });
 
           const fbSec = (Date.now() - tFb0) / 1000;
