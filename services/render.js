@@ -104,8 +104,12 @@ async function main() {
     const category = scriptData.category || 'free_alternative';
     const compositionName = category.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
     
-    logInfo(`Spawning Remotion render subprocess for composition: ${compositionName}...`);
-    const remotionCmd = `npx remotion render src/index.ts ${compositionName} "${absOutput}" --props=${path.basename(propsPath)}`;
+    const os = require('os');
+    const cpuCount = os.cpus() ? os.cpus().length : 1;
+    const concurrency = process.env.REMOTION_CONCURRENCY || Math.max(1, cpuCount);
+
+    logInfo(`Spawning Remotion render subprocess for composition: ${compositionName} (concurrency: ${concurrency} threads)...`);
+    const remotionCmd = `npx remotion render src/index.ts ${compositionName} "${absOutput}" --props=${path.basename(propsPath)} --concurrency=${concurrency}`;
     
     try {
       execSync(remotionCmd, { cwd: renderDir, stdio: 'inherit' });
