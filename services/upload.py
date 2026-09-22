@@ -2,14 +2,12 @@ import os
 import json
 import sys
 import argparse
-import subprocess
 from google.auth.exceptions import RefreshError
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-from googleapiclient.errors import HttpError
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
@@ -70,30 +68,11 @@ def authenticate_youtube():
 
     return build('youtube', 'v3', credentials=creds)
 
-def extract_thumbnail(video_path, output_path, timestamp=0.2):
-    """Extracts the first decoded video frame at the given timestamp."""
-    cmd = [
-        "ffmpeg", "-y",
-        "-i", video_path,
-        "-ss", str(timestamp),
-        "-frames:v", "1",
-        "-q:v", "2",
-        output_path
-    ]
-    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    if result.returncode != 0:
-        raise RuntimeError(f"FFmpeg thumbnail extraction failed: {result.stderr.strip()}")
-
 def main():
     parser = argparse.ArgumentParser(description="Upload a video to YouTube.")
     parser.add_argument('--video', default='data/video.mp4', help='Path to the video file.')
     parser.add_argument('--script', default='data/script.json', help='Path to the script JSON file.')
-    parser.add_argument('--thumbnail-time', type=float, default=2.0, help='Timestamp in seconds for the thumbnail frame (default: 1.0).')
-    parser.add_argument('--skip-thumbnail', action='store_true', help='Skip extracting and setting a custom video thumbnail.')
     args = parser.parse_args()
-
-    if args.thumbnail_time < 0:
-        parser.error('--thumbnail-time must be zero or greater')
 
     if not os.path.exists(args.video):
         error(f"Video file not found at {args.video}")
@@ -159,26 +138,6 @@ def main():
 
     video_id = response.get('id', '')
     info(f"✅ YouTube Upload Successful! Video ID: {video_id} | URL: https://youtu.be/{video_id}")
-
-    if not args.skip_thumbnail and video_id:
-        video_dir = os.path.dirname(os.path.abspath(args.video))
-        thumbnail_path = os.path.join(video_dir, 'thumbnail.jpg')
-        try:
-            info(f"Extracting thumbnail from '{args.video}' at {args.thumbnail_time}s...")
-            extract_thumbnail(args.video, thumbnail_path, timestamp=args.thumbnail_time)
-
-            info(f"Uploading thumbnail to YouTube for video {video_id}...")
-            thumb_media = MediaFileUpload(thumbnail_path, mimetype='image/jpeg')
-            youtube.thumbnails().set(
-                videoId=video_id,
-                media_body=thumb_media
-            ).execute()
-            info("✅ Video thumbnail set successfully!")
-        except HttpError as http_err:
-            warning(f"⚠️ Could not set thumbnail via YouTube API (HttpError {http_err.resp.status}): {http_err}. "
-                    "Ensure your channel has phone verification (intermediate features) enabled.")
-        except Exception as e:
-            warning(f"⚠️ Failed to extract or set thumbnail: {e}")
 
 if __name__ == '__main__':
     main()
