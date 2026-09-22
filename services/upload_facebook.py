@@ -36,6 +36,7 @@ import os
 import sys
 import time
 import uuid
+import subprocess
 
 import boto3
 import requests
@@ -92,17 +93,44 @@ def delete_s3_object(bucket, object_name):
 # Facebook Graph API helpers
 # ---------------------------------------------------------------------------
 
-def create_video_upload(token, page_id, video_url, caption):
+def extract_thumbnail(video_path, output_path, timestamp=2.0):
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", video_path,
+        "-ss", str(timestamp),
+        "-frames:v", "1",
+        "-q:v", "2",
+        output_path
+    ]
+    subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+def create_video_upload(token, page_id, video_url, caption, local_video_path):
     """POST to /{page_id}/videos to create a video upload.
     Returns the video ID from the API response.
     """
+    thumb_path = local_video_path.replace('.mp4', '_fb_thumb.jpg')
+    extract_thumbnail(local_video_path, thumb_path, timestamp=2.0)
+    
     endpoint = f"https://graph.facebook.com/v19.0/{page_id}/videos"
     payload = {
         'file_url': video_url,
         'description': caption,
         'access_token': token,
     }
-    r = requests.post(endpoint, data=payload)
+    
+    files = {}
+    if os.path.exists(thumb_path):
+        files = {'thumb': open(thumb_path, 'rb')}
+        
+    r = requests.post(endpoint, data=payload, files=files if files else None)
+    
+    if files:
+        files['thumb'].close()
+        try:
+            os.remove(thumb_path)
+        except:
+            pass
+
     if not r.ok:
         sys.stderr.write(f"Failed to create video upload: {r.text}\n")
         sys.exit(1)
@@ -173,7 +201,7 @@ def main():
         cleanup_key = obj_key
 
     # Create video upload on Facebook Page
-    video_id = create_video_upload(token, page_id, video_url, args.caption)
+    video_id = create_video_upload(token, page_id, video_url, args.caption, args.video)
     if not video_id:
         sys.stderr.write('Failed to obtain video ID from Facebook\n')
         sys.exit(1)
