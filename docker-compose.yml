@@ -6,7 +6,18 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      - DATABASE_URL=${DATABASE_URL_DOCKER}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      S3_TEMP_BUCKET: ${S3_TEMP_BUCKET}
+      META_APP_ID: ${META_APP_ID}
+      META_APP_SECRET: ${META_APP_SECRET}
+      META_LONG_LIVED_TOKEN: ${META_LONG_LIVED_TOKEN}
+      INSTAGRAM_ACCOUNT_ID: ${INSTAGRAM_ACCOUNT_ID}
+      FB_PAGE_ID: ${FB_PAGE_ID}
+      FB_LONG_LIVED_TOKEN: ${FB_LONG_LIVED_TOKEN}
     volumes:
       # Secrets — read-only, never baked into the image
       - ./.env:/app/.env:ro
