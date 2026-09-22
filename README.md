@@ -14,47 +14,47 @@ DevByte Engine V2 transforms the original single-source video pipeline into an i
 
 ```mermaid
 flowchart TD
-    subgraph Discovery ["Content Discovery (4 Sources)"]
-        direction LR
-        S1["Hacker News\n(JSON API)"]
-        S2["Official Blogs\n(RSS Feeds)"]
-        S3["GitHub Releases\n(REST API)"]
-        S4["Product Hunt\n(RSS Feed)"]
+    subgraph discovery["Content Discovery (4 Sources)"]
+        direction TB
+        S1["Hacker News<br/>(JSON API)"]
+        S2["Official Blogs<br/>(RSS Feeds)"]
+        S3["GitHub Releases<br/>(REST API)"]
+        S4["Product Hunt<br/>(RSS Feed)"]
     end
 
-    subgraph Ingestion ["Ingestion Pipeline"]
+    subgraph ingestion["Ingestion Pipeline"]
         direction TB
         N["Normalizer"] --> SF["Signal Filter"]
         SF --> QF["Quality Filter"]
         QF --> DD["Deduplicator"]
     end
 
-    subgraph Intelligence ["AI Newsroom"]
+    subgraph intelligence["AI Newsroom"]
         direction TB
-        EV["Gemini Editor\n(batch scoring)"] --> SC["Algorithmic\nScoring"]
-        SC --> ED["Editorial Engine\n(diversity + rotation)"]
+        EV["Gemini Editor<br/>(batch scoring)"] --> SC["Algorithmic<br/>Scoring"]
+        SC --> ED["Editorial Engine<br/>(diversity + rotation)"]
     end
 
-    subgraph Production ["Concurrent Video Production"]
+    subgraph production["Concurrent Video Production"]
         direction TB
-        GS["Gemini Scriptwriter\n(Concurrent)"] --> TTS["Edge TTS\n(Concurrent)"]
-        TTS --> REM["Remotion Renderer\n(100% CPU Concurrency)"]
+        GS["Gemini Scriptwriter<br/>(Concurrent)"] --> TTS["Edge TTS<br/>(Concurrent)"]
+        TTS --> REM["Remotion Renderer<br/>(100% CPU Concurrency)"]
     end
 
-    subgraph Publishing ["Multi-Platform Publishing Engine"]
+    subgraph publishing["Multi-Platform Publishing Engine"]
         direction TB
-        REM --> YT["YouTube Shorts\n(Resumable Chunks)"]
-        REM --> S3["AWS S3 Temporary Asset Bridge"]
-        S3 --> IG["Instagram Reels\n(Graph API)"]
-        S3 --> FB["Facebook Page\n(Graph API)"]
+        OUT["Rendered Video"] --> YT["YouTube Shorts<br/>(Resumable Chunks)"]
+        OUT --> S3["AWS S3 Temporary Asset Bridge"]
+        S3 --> IG["Instagram Reels<br/>(Graph API)"]
+        S3 --> FB["Facebook Page<br/>(Graph API)"]
         IG --> DEL["S3 Auto-Cleanup"]
         FB --> DEL
     end
 
-    Discovery --> Ingestion
-    Ingestion --> Intelligence
-    Intelligence --> Production
-    Production --> Publishing
+    discovery --> ingestion
+    ingestion --> intelligence
+    intelligence --> production
+    production --> publishing
 ```
 
 ---
