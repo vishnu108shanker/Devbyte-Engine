@@ -6,7 +6,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql://devbyte:devbyte_dev_password@postgres:5432/devbyte
+      - DATABASE_URL=${DATABASE_URL_DOCKER}
     volumes:
       # Secrets — read-only, never baked into the image
       - ./.env:/app/.env:ro
@@ -25,9 +25,9 @@ services:
     container_name: devbyte-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: devbyte
-      POSTGRES_USER: devbyte
-      POSTGRES_PASSWORD: devbyte_dev_password
+      POSTGRES_DB: ${POSTGRES_DB:-devbyte}
+      POSTGRES_USER: ${POSTGRES_USER:-devbyte}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d:ro
@@ -40,4 +40,4 @@ services:
       retries: 5
 
 volumes:
-  postgres_data:
+  postgres_data:
