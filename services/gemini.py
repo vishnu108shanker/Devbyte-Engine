@@ -61,9 +61,9 @@ def get_script_from_gemini(tool_data: dict, max_retries: int) -> dict:
         for model_name in models_to_try:
             try:
                 info(f"Calling Gemini API with {model_name} (Attempt {attempt + 1})...")
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=enriched_prompt,
+                chat = client.chats.create(model=model_name)
+                response = chat.send_message(
+                    message=enriched_prompt,
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
                     )
