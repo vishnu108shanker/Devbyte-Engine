@@ -90,6 +90,7 @@ def create_media_container(token, ig_id, video_url, caption):
     payload = {
         'media_type': 'REELS',
         'video_url': video_url,
+        'thumb_offset': '2000',
         'caption': caption,
         'access_token': token,
     }
