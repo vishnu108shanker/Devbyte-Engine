@@ -365,6 +365,8 @@ node services/render.js --input data/validated_script.json --audio data/audio.mp
 python services/upload.py --video data/worker_0/video.mp4 --script data/worker_0/script.json
 python services/upload_instagram.py --video data/worker_0/video.mp4 --caption "DevByte AI Tool Spotlight"
 python services/upload_facebook.py --video data/worker_0/video.mp4 --caption "DevByte AI Tool Spotlight"
+on docker 
+docker compose run --rm --entrypoint python3 devbyte services/upload_facebook.py --video data/worker_0/video.mp4 --caption "DevByte AI Tool Spotlight"
 
 # Or manage the S3 temporary asset manually:
 python services/s3_temp_upload.py --file data/worker_0/video.mp4
