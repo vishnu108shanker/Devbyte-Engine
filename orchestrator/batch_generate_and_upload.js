@@ -13,9 +13,12 @@ if (!fs.existsSync(path.join(PROJECT_ROOT, 'logs'))) {
   fs.mkdirSync(path.join(PROJECT_ROOT, 'logs'), { recursive: true });
 }
 
-// Database pool for persistent publication tracking
+// Database pool for persistent publication tracking (PostgreSQL truth)
 const { getPool } = require('../database_layer/node/connection');
 const pool = getPool();
+
+// MongoDB Atlas Presentation Archive publisher
+const { publishToMongo, closeMongo } = require('../database_layer/node/mongo_publisher');
 
 // ── Clean Terminal Formatting & Logging ─────────────────────────────────
 const c = {
@@ -381,11 +384,16 @@ async function main() {
       logWorker(workerNum, readyWorkers.length, name, '🚀', 'Starting concurrent multi-platform publishing (YouTube + Meta S3)...');
       const publishStart = Date.now();
 
-      // Track platform upload states
+      // Track platform upload states and permalinks
       const platformStatus = {
         youtube: false,
         instagram: false,
         facebook: false,
+      };
+      const platformUrls = {
+        youtube: null,
+        instagram: null,
+        facebook: null,
       };
 
       // 1. YouTube Upload Promise (Direct local file -> Google API)
@@ -402,6 +410,9 @@ async function main() {
 
         if (res.ok) {
           platformStatus.youtube = true;
+          const urlMatch = res.stdout.match(/URL:\s*(https:\/\/youtu\.be\/[^\s]+|https:\/\/www\.youtube\.com\/[^\s]+)/);
+          const idMatch = res.stdout.match(/Video ID:\s*([^\s|]+)/);
+          platformUrls.youtube = urlMatch ? urlMatch[1] : (idMatch ? `https://www.youtube.com/shorts/${idMatch[1]}` : null);
           logWorker(workerNum, readyWorkers.length, name, '✅', `YouTube Shorts published successfully! (${sec.toFixed(1)}s)`);
         } else {
           logError(`Worker ${workerNum} | YT`, `YouTube upload failed`, res.stderr);
@@ -460,6 +471,8 @@ async function main() {
 
           if (igRes.ok) {
             platformStatus.instagram = true;
+            const igMatch = igRes.stdout.match(/Media ID:\s*([^\s]+)/);
+            platformUrls.instagram = igMatch ? `https://www.instagram.com/reel/${igMatch[1]}/` : null;
             logWorker(workerNum, readyWorkers.length, name, '✅', `Instagram Reels published successfully! (${igSec.toFixed(1)}s)`);
           } else {
             logError(`Worker ${workerNum} | IG`, 'Instagram Reels upload failed', igRes.stderr);
@@ -480,6 +493,8 @@ async function main() {
 
           if (fbRes.ok) {
             platformStatus.facebook = true;
+            const fbMatch = fbRes.stdout.match(/Video ID:\s*([^\s]+)/);
+            platformUrls.facebook = fbMatch ? `https://www.facebook.com/watch/?v=${fbMatch[1]}` : null;
             logWorker(workerNum, readyWorkers.length, name, '✅', `Facebook Page published successfully! (${fbSec.toFixed(1)}s)`);
           } else {
             logError(`Worker ${workerNum} | FB`, 'Facebook Page upload failed', fbRes.stderr);
@@ -516,10 +531,27 @@ async function main() {
       }
 
       printPerformanceReport(name, timings);
+
+      const getTiming = (lbl) => (timings.find((t) => t.label === lbl)?.duration || 0);
+
+      const performanceSnapshot = {
+        gemini_script_s: Math.round(getTiming('Gemini Script') * 10) / 10,
+        validator_s: Math.round(getTiming('Validator') * 10) / 10,
+        tts_s: Math.round(getTiming('TTS Voice') * 10) / 10,
+        render_s: Math.round(getTiming('Remotion Render') * 10) / 10,
+        s3_upload_s: Math.round(getTiming('S3 Temp Upload') * 10) / 10,
+        yt_upload_s: Math.round(getTiming('YT Upload') * 10) / 10,
+        fb_upload_s: Math.round(getTiming('FB Upload') * 10) / 10,
+        ig_upload_s: Math.round(getTiming('IG Upload') * 10) / 10,
+        total_s: Math.round(timings.reduce((acc, curr) => acc + (curr.duration || 0), 0) * 10) / 10,
+      };
+
       return {
         candidate: worker.candidate,
         success: isAnyPublished,
         platforms: platformStatus,
+        platformUrls,
+        performance: performanceSnapshot,
       };
     })();
 
@@ -545,7 +577,7 @@ async function main() {
       cand.published_at = new Date().toISOString();
       cand.published_platforms = item.platforms;
 
-      // 1. PostgreSQL Publications Table
+      // 1. PostgreSQL Publications Table (Append-only Production Truth)
       if (pool) {
         try {
           await pool.query(
@@ -564,7 +596,35 @@ async function main() {
         }
       }
 
-      // 2. Append to history.json
+      // 2. MongoDB Atlas Presentation Archive (DEVLAR website read-only database)
+      const mongoDoc = {
+        video_id: cand.id,
+        title: cand.name || cand.title || 'Untitled DevByte Video',
+        published_at: cand.published_at,
+        platforms: {
+          youtube: {
+            status: item.platforms.youtube ? 'success' : 'failed',
+            url: item.platformUrls.youtube,
+          },
+          instagram: {
+            status: item.platforms.instagram ? 'success' : 'failed',
+            url: item.platformUrls.instagram,
+          },
+          facebook: {
+            status: item.platforms.facebook ? 'success' : 'failed',
+            url: item.platformUrls.facebook,
+          },
+          devbyte_wiki: {
+            status: null,
+            url: null,
+          },
+        },
+        performance: item.performance,
+      };
+
+      await publishToMongo(mongoDoc);
+
+      // 3. Append to history.json
       historyData.push(cand);
       successCount++;
     }
@@ -576,6 +636,7 @@ async function main() {
   if (pool) {
     await pool.end();
   }
+  await closeMongo();
 
   const grandTotalSec = ((Date.now() - overallStart) / 1000).toFixed(1);
   console.log(`\n${c.bold}${c.green}══════════════════════════════════════════════════════════════════════`);
