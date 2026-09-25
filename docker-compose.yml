@@ -18,6 +18,7 @@ services:
       INSTAGRAM_ACCOUNT_ID: ${INSTAGRAM_ACCOUNT_ID}
       FB_PAGE_ID: ${FB_PAGE_ID}
       FB_LONG_LIVED_TOKEN: ${FB_LONG_LIVED_TOKEN}
+      MONGODB_URI: ${MONGODB_URI}
     volumes:
       # Secrets — read-only, never baked into the image
       - ./.env:/app/.env:ro
