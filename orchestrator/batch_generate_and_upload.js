@@ -4,7 +4,7 @@ const fs = require('fs');
 const os = require('os');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const MAX_VIDEOS = 3 ; // Default batch limit
+const MAX_VIDEOS = 2 ; // Default batch limit
 const LOG_FILE = path.join(PROJECT_ROOT, 'logs', 'pipeline.log');
 const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
 
