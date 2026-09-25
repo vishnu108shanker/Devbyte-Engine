@@ -32,3 +32,6 @@ token.json
 # Local runtime data and execution logs (Mounted as volumes)
 data/
 logs/
+
+
+devbyte-media-house
