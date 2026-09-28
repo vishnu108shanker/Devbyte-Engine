@@ -129,6 +129,18 @@ def poll_status(token, media_id, timeout=300, interval=5):
     sys.stderr.write('Timed out waiting for Instagram processing\n')
     return False
 
+def get_media_permalink(token, media_id):
+    endpoint = f"https://graph.facebook.com/v19.0/{media_id}"
+    params = {'fields': 'permalink,shortcode', 'access_token': token}
+    try:
+        r = requests.get(endpoint, params=params, timeout=10)
+        if r.ok:
+            data = r.json()
+            return data.get('permalink') or (f"https://www.instagram.com/reel/{data.get('shortcode')}/" if data.get('shortcode') else None)
+    except Exception:
+        pass
+    return None
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -168,13 +180,19 @@ def main():
     if not poll_status(token, container_id):
         sys.stderr.write('Container not ready for publishing\n')
         sys.exit(1)
+
     # Publish media
     media_id = publish_media(token, ig_id, container_id)
     # Cleanup temporary S3 object (best effort) — unless told not to
     if obj_key and not args.no_cleanup:
         delete_s3_object(bucket, obj_key)
-    # Report success
-    print(f"✅ Instagram Reel uploaded successfully. Media ID: {media_id}")
+    
+    # Fetch exact public permalink
+    permalink = get_media_permalink(token, media_id)
+    if permalink:
+        print(f"✅ Instagram Reel uploaded successfully. Media ID: {media_id} | Permalink: {permalink}")
+    else:
+        print(f"✅ Instagram Reel uploaded successfully. Media ID: {media_id}")
     sys.exit(0)
 
 if __name__ == '__main__':

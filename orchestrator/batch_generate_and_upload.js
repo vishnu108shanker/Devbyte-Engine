@@ -471,8 +471,9 @@ async function main() {
 
           if (igRes.ok) {
             platformStatus.instagram = true;
-            const igMatch = igRes.stdout.match(/Media ID:\s*([^\s]+)/);
-            platformUrls.instagram = igMatch ? `https://www.instagram.com/reel/${igMatch[1]}/` : null;
+            const igPermalinkMatch = igRes.stdout.match(/Permalink:\s*(https:\/\/[^\s|]+)/);
+            const igMatch = igRes.stdout.match(/Media ID:\s*([^\s|]+)/);
+            platformUrls.instagram = igPermalinkMatch ? igPermalinkMatch[1] : (igMatch ? `https://www.instagram.com/reel/${igMatch[1]}/` : null);
             logWorker(workerNum, readyWorkers.length, name, '✅', `Instagram Reels published successfully! (${igSec.toFixed(1)}s)`);
           } else {
             logError(`Worker ${workerNum} | IG`, 'Instagram Reels upload failed', igRes.stderr);
