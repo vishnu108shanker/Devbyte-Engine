@@ -12,7 +12,7 @@ feedparser
 python-slugify
 
 # -- Media production --
-edge-tts
+edge-tts>=7.3.1
 boto3
 
 #-- Postgresql python dependency --
