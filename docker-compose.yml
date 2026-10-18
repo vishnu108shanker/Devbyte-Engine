@@ -6,6 +6,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      AUTO_SCHEDULE_POSTS: ${AUTO_SCHEDULE_POSTS}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       DATABASE_URL: ${DATABASE_URL_DOCKER}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
