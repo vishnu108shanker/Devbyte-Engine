@@ -72,6 +72,10 @@ def main():
     parser = argparse.ArgumentParser(description="Upload a video to YouTube.")
     parser.add_argument('--video', default='data/video.mp4', help='Path to the video file.')
     parser.add_argument('--script', default='data/script.json', help='Path to the script JSON file.')
+    parser.add_argument('--schedule', action='store_true', default=False,
+                        help='Schedule publication for a random daytime hour (or via AUTO_SCHEDULE_POSTS env).')
+    parser.add_argument('--publish-at', dest='publish_at', default=None,
+                        help='Explicit schedule time (ISO-8601, timestamp, or YYYY-MM-DD HH:MM).')
     args = parser.parse_args()
 
     if not os.path.exists(args.video):
@@ -103,6 +107,10 @@ def main():
         formatted_hashtags = " ".join([f"#{tag}" for tag in hashtags])
         description = f"{description}\n\n{formatted_hashtags}"
 
+    # Check for scheduled publishing
+    from utils.schedule_utils import resolve_schedule
+    iso_publish_at, _, readable_time = resolve_schedule(args.schedule, args.publish_at)
+
     # YouTube metadata body
     body = {
         'snippet': {
@@ -111,15 +119,21 @@ def main():
             # 'categoryId': '28', # 28 = Science & Technology (Optional)
         },
         'status': {
-            'privacyStatus': 'private', # Upload as private by default
+            'privacyStatus': 'private', # Must be 'private' when publishAt is used
             'selfDeclaredMadeForKids': False
         }
     }
 
+    if iso_publish_at:
+        body['status']['publishAt'] = iso_publish_at
+        body['status']['privacyStatus'] = 'private'
+        info(f"Starting YouTube Upload: '{title}' (Scheduled for {readable_time})...")
+    else:
+        info(f"Starting YouTube Upload: '{title}' (Private)...")
+
     # Prepare the video file with 2MB chunking for optimal throughput & network stability
     media = MediaFileUpload(args.video, chunksize=2 * 1024 * 1024, resumable=True, mimetype='video/mp4')
 
-    info(f"Starting YouTube Upload: '{title}' (Private)...")
     request = youtube.videos().insert(
         part=','.join(body.keys()),
         body=body,
@@ -137,7 +151,10 @@ def main():
                 last_pct = pct
 
     video_id = response.get('id', '')
-    info(f"✅ YouTube Upload Successful! Video ID: {video_id} | URL: https://youtu.be/{video_id}")
+    if iso_publish_at:
+        info(f"✅ YouTube Upload Successful! Video ID: {video_id} | Scheduled: {iso_publish_at} ({readable_time}) | URL: https://youtu.be/{video_id}")
+    else:
+        info(f"✅ YouTube Upload Successful! Video ID: {video_id} | URL: https://youtu.be/{video_id}")
 
 if __name__ == '__main__':
     main()

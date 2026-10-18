@@ -49,6 +49,12 @@ try:
 except Exception:
     pass
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from utils.schedule_utils import resolve_schedule
+
 # ---------------------------------------------------------------------------
 # Helper functions (S3)
 # ---------------------------------------------------------------------------
@@ -104,7 +110,7 @@ def extract_thumbnail(video_path, output_path, timestamp=2.0):
     ]
     subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-def create_video_upload(token, page_id, video_url, caption, local_video_path):
+def create_video_upload(token, page_id, video_url, caption, local_video_path, scheduled_publish_time=None):
     """POST to /{page_id}/videos to create a video upload.
     Returns the video ID from the API response.
     """
@@ -117,6 +123,11 @@ def create_video_upload(token, page_id, video_url, caption, local_video_path):
         'description': caption,
         'access_token': token,
     }
+
+    if scheduled_publish_time:
+        # Native Facebook Page scheduling parameters
+        payload['published'] = 'false'
+        payload['scheduled_publish_time'] = str(int(scheduled_publish_time))
     
     files = {}
     if os.path.exists(thumb_path):
@@ -176,6 +187,10 @@ def main():
                         help='S3 bucket to clean up (used with --video-url)')
     parser.add_argument('--s3-key', dest='s3_key', default=None,
                         help='S3 object key to delete after success (used with --video-url)')
+    parser.add_argument('--schedule', action='store_true', default=False,
+                        help='Schedule publication for a random daytime hour (or via AUTO_SCHEDULE_POSTS env).')
+    parser.add_argument('--schedule-time', dest='schedule_time', default=None,
+                        help='Explicit schedule time (ISO-8601, timestamp, or YYYY-MM-DD HH:MM).')
     args = parser.parse_args()
 
     token = get_env('FB_LONG_LIVED_TOKEN')
@@ -200,8 +215,13 @@ def main():
         cleanup_bucket = bucket
         cleanup_key = obj_key
 
+    # Check for scheduled publishing
+    _, epoch_sec, readable_time = resolve_schedule(args.schedule, args.schedule_time)
+    if epoch_sec:
+        print(f"Scheduling Facebook video for {readable_time} (Epoch: {epoch_sec})...")
+
     # Create video upload on Facebook Page
-    video_id = create_video_upload(token, page_id, video_url, args.caption, args.video)
+    video_id = create_video_upload(token, page_id, video_url, args.caption, args.video, epoch_sec)
     if not video_id:
         sys.stderr.write('Failed to obtain video ID from Facebook\n')
         sys.exit(1)
@@ -215,7 +235,10 @@ def main():
     if cleanup_bucket and cleanup_key:
         delete_s3_object(cleanup_bucket, cleanup_key)
 
-    print(f"\u2705 Facebook video uploaded successfully. Video ID: {video_id}")
+    if epoch_sec:
+        print(f"\u2705 Facebook video uploaded successfully (Scheduled for {readable_time}). Video ID: {video_id}")
+    else:
+        print(f"\u2705 Facebook video uploaded successfully. Video ID: {video_id}")
     sys.exit(0)
 
 if __name__ == '__main__':

@@ -64,6 +64,33 @@ function logError(tag, message, detail = '') {
   writeLog(`ERROR:${tag}`, `${message}\n${detail}`);
 }
 
+// ── Scheduled Publishing Helpers ────────────────────────────────────────
+function computeRandomDaytimeSchedule(index = 0) {
+  const now = new Date();
+  const startHour = parseInt(process.env.SCHEDULE_START_HOUR || '10', 10);
+  const endHour = parseInt(process.env.SCHEDULE_END_HOUR || '20', 10);
+
+  let target = new Date(now.getTime());
+  const randHour = Math.floor(Math.random() * (endHour - startHour + 1)) + startHour;
+  const randMin = Math.floor(Math.random() * 60);
+
+  target.setHours(randHour, randMin, 0, 0);
+
+  // If target time is within 30 minutes from now or in the past, schedule for tomorrow
+  const minLeadTime = new Date(now.getTime() + 30 * 60 * 1000);
+  if (target < minLeadTime) {
+    target.setDate(target.getDate() + 1);
+    target.setHours(randHour, randMin, 0, 0);
+  }
+
+  // Stagger consecutive videos in the batch by 20 minutes so they don't release at the same minute
+  if (index > 0) {
+    target.setMinutes(target.getMinutes() + index * 20);
+  }
+
+  return target.toISOString();
+}
+
 // ── Subprocess Runner (Buffered for Crystal-Clear Terminal Output) ───────
 function runSubprocess(command, args, options = {}) {
   const { cwd = PROJECT_ROOT, tag = 'EXEC', capture = true } = options;
@@ -396,14 +423,29 @@ async function main() {
         facebook: null,
       };
 
+      // Check if scheduled publishing is requested via CLI flag or AUTO_SCHEDULE_POSTS in .env
+      const isNoSchedule = process.argv.includes('--no-schedule');
+      const isAutoSchedule = !isNoSchedule && (
+        process.argv.includes('--schedule') ||
+        ['1', 'true', 'yes'].includes((process.env.AUTO_SCHEDULE_POSTS || '').trim().toLowerCase())
+      );
+      const scheduleIso = isAutoSchedule ? computeRandomDaytimeSchedule(i) : null;
+      if (scheduleIso) {
+        logWorker(workerNum, readyWorkers.length, name, '📅', `Release scheduled for: ${new Date(scheduleIso).toLocaleString()} (UTC: ${scheduleIso})`);
+      }
+
       // 1. YouTube Upload Promise (Direct local file -> Google API)
       const ytPromise = (async () => {
         const tYt0 = Date.now();
-        const res = await runSubprocess(PYTHON_CMD, [
+        const ytArgs = [
           'services/upload.py',
           '--video', `${wDir}/video.mp4`,
           '--script', `${wDir}/script.json`,
-        ], { tag: `W${worker.id}:YT`, capture: true });
+        ];
+        if (scheduleIso) {
+          ytArgs.push('--publish-at', scheduleIso);
+        }
+        const res = await runSubprocess(PYTHON_CMD, ytArgs, { tag: `W${worker.id}:YT`, capture: true });
 
         const sec = (Date.now() - tYt0) / 1000;
         timings.push({ label: 'YT Upload', duration: sec });
@@ -458,22 +500,32 @@ async function main() {
         // Step B: Dispatch Instagram Reels and Facebook Page uploads in parallel!
         const igPromise = (async () => {
           const tIg0 = Date.now();
-          const igRes = await runSubprocess(PYTHON_CMD, [
+          const igArgs = [
             'services/upload_instagram.py',
             '--video', `${wDir}/video.mp4`,
             '--video-url', presignedUrl,
             '--caption', metaCaption,
             '--no-cleanup',
-          ], { tag: `W${worker.id}:IG`, capture: true });
+          ];
+          if (scheduleIso) {
+            igArgs.push('--schedule-time', scheduleIso);
+          }
+          const igRes = await runSubprocess(PYTHON_CMD, igArgs, { tag: `W${worker.id}:IG`, capture: true });
 
           const igSec = (Date.now() - tIg0) / 1000;
           timings.push({ label: 'IG Upload', duration: igSec });
 
           if (igRes.ok) {
             platformStatus.instagram = true;
+            // Extract the real permalink returned by the Graph API.
+            // IMPORTANT: Never construct a URL from the numeric Media ID — Instagram
+            // reel URLs require the shortcode (a base64-like string), not the numeric ID.
+            // Using the Media ID produces a broken link (e.g. /reel/17895695668004550/).
             const igPermalinkMatch = igRes.stdout.match(/Permalink:\s*(https:\/\/[^\s|]+)/);
-            const igMatch = igRes.stdout.match(/Media ID:\s*([^\s|]+)/);
-            platformUrls.instagram = igPermalinkMatch ? igPermalinkMatch[1] : (igMatch ? `https://www.instagram.com/reel/${igMatch[1]}/` : null);
+            platformUrls.instagram = igPermalinkMatch ? igPermalinkMatch[1] : null;
+            if (!platformUrls.instagram) {
+              logWorker(workerNum, readyWorkers.length, name, '⚠️ ', 'Instagram published but no permalink was returned by Graph API — URL stored as null.');
+            }
             logWorker(workerNum, readyWorkers.length, name, '✅', `Instagram Reels published successfully! (${igSec.toFixed(1)}s)`);
           } else {
             logError(`Worker ${workerNum} | IG`, 'Instagram Reels upload failed', igRes.stderr);
@@ -482,12 +534,16 @@ async function main() {
 
         const fbPromise = (async () => {
           const tFb0 = Date.now();
-          const fbRes = await runSubprocess(PYTHON_CMD, [
+          const fbArgs = [
             'services/upload_facebook.py',
             '--video', `${wDir}/video.mp4`,
             '--video-url', presignedUrl,
             '--caption', metaCaption,
-          ], { tag: `W${worker.id}:FB`, capture: true });
+          ];
+          if (scheduleIso) {
+            fbArgs.push('--schedule-time', scheduleIso);
+          }
+          const fbRes = await runSubprocess(PYTHON_CMD, fbArgs, { tag: `W${worker.id}:FB`, capture: true });
 
           const fbSec = (Date.now() - tFb0) / 1000;
           timings.push({ label: 'FB Upload', duration: fbSec });

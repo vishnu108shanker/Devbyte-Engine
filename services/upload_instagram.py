@@ -45,6 +45,12 @@ try:
 except Exception:
     pass
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from utils.schedule_utils import resolve_schedule
+
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
@@ -85,7 +91,7 @@ def delete_s3_object(bucket, object_name):
     except ClientError as e:
         sys.stderr.write(f"Warning: could not delete temporary S3 object: {e}\n")
 
-def create_media_container(token, ig_id, video_url, caption):
+def create_media_container(token, ig_id, video_url, caption, scheduled_publish_time=None):
     endpoint = f"https://graph.facebook.com/v19.0/{ig_id}/media"
     payload = {
         'media_type': 'REELS',
@@ -94,7 +100,22 @@ def create_media_container(token, ig_id, video_url, caption):
         'caption': caption,
         'access_token': token,
     }
+    if scheduled_publish_time:
+        payload['scheduled_publish_time'] = str(int(scheduled_publish_time))
+
     r = requests.post(endpoint, data=payload)
+    if not r.ok and scheduled_publish_time:
+        # Check if error is due to Meta's whitelist restriction on Instagram scheduling
+        try:
+            err_data = r.json()
+            err_msg = err_data.get('error', {}).get('message', '')
+        except Exception:
+            err_msg = ''
+        if 'whitelist' in err_msg.lower() or 'scheduled' in err_msg.lower():
+            sys.stderr.write(f"⚠️ Notice: Instagram Graph API returned '{err_msg}'. Meta restricts direct Instagram scheduling to whitelisted partners. Falling back to standard container...\n")
+            payload.pop('scheduled_publish_time', None)
+            r = requests.post(endpoint, data=payload)
+
     if not r.ok:
         sys.stderr.write(f"Failed to create media container: {r.text}\n")
         sys.exit(1)
@@ -129,16 +150,29 @@ def poll_status(token, media_id, timeout=300, interval=5):
     sys.stderr.write('Timed out waiting for Instagram processing\n')
     return False
 
-def get_media_permalink(token, media_id):
+def get_media_permalink(token, media_id, retries=3, delay=3):
+    """Fetch the public permalink for a published media item.
+
+    The permalink / shortcode fields are not always populated immediately
+    after publishing, so we retry a few times with a short delay.
+    """
     endpoint = f"https://graph.facebook.com/v19.0/{media_id}"
     params = {'fields': 'permalink,shortcode', 'access_token': token}
-    try:
-        r = requests.get(endpoint, params=params, timeout=10)
-        if r.ok:
-            data = r.json()
-            return data.get('permalink') or (f"https://www.instagram.com/reel/{data.get('shortcode')}/" if data.get('shortcode') else None)
-    except Exception:
-        pass
+    for attempt in range(retries):
+        try:
+            r = requests.get(endpoint, params=params, timeout=10)
+            if r.ok:
+                data = r.json()
+                permalink = data.get('permalink')
+                if permalink:
+                    return permalink
+                shortcode = data.get('shortcode')
+                if shortcode:
+                    return f"https://www.instagram.com/reel/{shortcode}/"
+        except Exception:
+            pass
+        if attempt < retries - 1:
+            time.sleep(delay)
     return None
 
 # ---------------------------------------------------------------------------
@@ -153,6 +187,10 @@ def main():
                         help='Pre-existing presigned S3 URL (skip S3 upload)')
     parser.add_argument('--no-cleanup', dest='no_cleanup', action='store_true',
                         help='Skip S3 object deletion (let a later step clean up)')
+    parser.add_argument('--schedule', action='store_true', default=False,
+                        help='Schedule publication for a random daytime hour (or via AUTO_SCHEDULE_POSTS env).')
+    parser.add_argument('--schedule-time', dest='schedule_time', default=None,
+                        help='Explicit schedule time (ISO-8601, timestamp, or YYYY-MM-DD HH:MM).')
     args = parser.parse_args()
 
     token = get_env('META_LONG_LIVED_TOKEN')
@@ -163,7 +201,7 @@ def main():
         sys.stderr.write(f"Video file not found: {args.video}\n")
         sys.exit(1)
 
-    # If a presigned URL was supplied, skip the S3 upload entirely
+    # Determine video URL and S3 cleanup responsibility
     if args.video_url:
         video_url = args.video_url
         obj_key = None  # nothing to clean up on our side
@@ -174,8 +212,13 @@ def main():
         upload_to_s3(args.video, bucket, obj_key)
         video_url = generate_presigned_url(bucket, obj_key)
 
+    # Check for scheduled publishing
+    _, epoch_sec, readable_time = resolve_schedule(args.schedule, args.schedule_time)
+    if epoch_sec:
+        print(f"Targeting schedule for Instagram: {readable_time} (Epoch: {epoch_sec})...")
+
     # Create container
-    container_id = create_media_container(token, ig_id, video_url, args.caption)
+    container_id = create_media_container(token, ig_id, video_url, args.caption, epoch_sec)
     # Wait until container is ready before publishing
     if not poll_status(token, container_id):
         sys.stderr.write('Container not ready for publishing\n')
