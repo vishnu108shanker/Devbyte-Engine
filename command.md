@@ -183,7 +183,9 @@ This reference assumes the project root is the current directory unless a comman
 - `docker compose run --rm --entrypoint python3 devbyte services/s3_temp_upload.py --file data/worker_0/video.mp4`
   Tests container-to-S3 upload and presigned URL generation.
 
-- `docker compose run --rm --entrypoint python3 devbyte services/upload_facebook.py --video data/worker_0/video.mp4 --caption "DevByte AI Tool Spotlight"`
+  <!-- python services/upload.py --video data/worker_0/video.mp4 --script data/worker_0/script.json --schedule -->
+
+- `docker compose run --rm --entrypoint python3 devbyte services/upload_facebook.py --video data/worker_0/video.mp4 --caption "DevByte AI Tool Spotlight" --schedule`
   Tests a standalone Facebook upload from a temporary container.
 
 - `docker compose run --rm --entrypoint python3 devbyte services/upload_instagram.py --video data/worker_0/video.mp4 --caption "DevByte AI Tool Spotlight"`
