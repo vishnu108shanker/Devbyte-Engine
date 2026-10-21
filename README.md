@@ -1,5 +1,34 @@
 # DevByte Engine — V2
 ##### (pre dockerization version, to read the documentation of possible changes after containerization See [DOCKER_NOTES.md](docs_v2_Dockerization/DOCKER_NOTES.md) )
+
+> **DevByte Engine** – An autonomous AI‑driven digital newsroom that discovers, evaluates, scripts, renders, and publishes developer‑focused short‑form videos on YouTube Shorts, Instagram Reels, and Facebook Pages. **Keywords:** AI video automation, YouTube Shorts, Instagram Reels, multi‑platform publishing, Gemini LLM, edge‑TTS, Remotion rendering.
+
+[![License](https://img.shields.io/badge/license-Proprietary-red)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
+[![Node](https://img.shields.io/badge/node-18%2B-success)](https://nodejs.org/)
+[![Gemini](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-orange)](https://ai.google.dev/)
+
+**Features**
+- Autonomous content discovery from 4 sources
+- AI‑driven editorial ranking with Gemini
+- Concurrent video rendering using Remotion
+- Multi‑platform publishing (YouTube Shorts, Instagram Reels, Facebook Pages)
+- Fully‑automated AWS S3 temporary asset bridge
+- Windows‑compatible automation via Task Scheduler
+
+## Table of Contents
+- [Overview](#devbyte-engine--v2)
+- [Key Capabilities](#key-capabilities)
+- [Architecture](#architecture)
+- [What Changed from V1](#what-changed-from-v1)
+- [Tech Stack](#tech-stack)
+- [Repository Structure](#repository-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Customizing the Newsroom](#customizing-the-newsroom)
+- [Automated Scheduling (Windows)](#automated-scheduling-windows)
+- [License](#license)
 > An autonomous digital newsroom that discovers, evaluates, scripts, renders, and publishes developer-focused short-form videos across YouTube Shorts, Instagram Reels, and Facebook Pages — entirely on autopilot.
 
 DevByte Engine V2 transforms the original single-source video pipeline into an industrial-grade content automation and multi-platform publishing system. It pulls from four independent news sources, filters noise with rule-based signal detection, evaluates candidates through a cached two-pass AI editorial layer, writes scripts using category-specific prompts, concurrently synthesizes scripts and neural audio, renders videos utilizing 100% of host CPU cores, and broadcasts across YouTube Shorts, Instagram Reels, and Facebook Pages simultaneously via an automated AWS S3 temporary bridge.
